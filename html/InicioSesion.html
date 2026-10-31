@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCore - Registro de usuario</title>
+    <link rel="stylesheet" href="../css/InicioSesion.css">
+</head>
+<body class="page-body">
+
+    <header class="main-header">
+        <div class="brand-container">
+        <div class="brand-icon">🌱</div>
+        <span class="brand-name">EduCore</span>
+        </div>
+        <a href="../index.html" class="back-link">← Volver al inicio</a>
+    </header>
+
+    <main class="main-content">
+        <section id="registro-screen" class="hero-screen">
+        
+            <aside class="mascot-panel">
+                <div class="mascot-avatar">
+                    <img src="../img/FotoPerfil.jpg" alt="Mascota Lúa" class="mascot-img">
+                </div>
+                <p class="mascot-bubble">¡Soy Lúa! Te acompaño en tu aventura.</p>
+            </aside>
+
+            <article class="form-card">
+                <header class="form-header">
+                    <span class="step-badge">TU PRIMER PASO</span>
+                    <h1 class="form-title">¡Comienza tu aventura!</h1>
+                    <p class="form-subtitle">
+                        Creando cuenta como: <strong id="userRoleDisplay" class="role-highlight">Estudiante</strong>
+                    </p>
+                </header>
+
+                <form action="ExitoRegistro.html" method="GET" class="auth-form" id="registerForm">
+                
+                    <div class="form-row">
+                        <div class="form-group">
+                        <label for="nombre" class="form-label">Nombre *</label>
+                        <input type="text" id="nombre" name="nombre" class="form-input" placeholder="Nombre" required>
+                        <span class="error-message">Campo obligatorio</span>
+                        </div>
+
+                        <div class="form-group">
+                        <label for="apellidos" class="form-label">Apellidos *</label>
+                        <input type="text" id="apellidos" name="apellidos" class="form-input" placeholder="Apellido" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">Correo electrónico *</label>
+                        <input type="email" id="email" name="email" class="form-input" placeholder="ejemplo@correo.com" required>
+                        <span class="error-message">Ingresa un correo válido</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="usuario" class="form-label">Usuario *</label>
+                        <input type="text" id="usuario" name="usuario" class="form-input" placeholder="nombre01" required>
+                        <span class="error-message">Este usuario ya existe. Prueba con sara.m</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contrasena" class="form-label">Contraseña *</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="contrasena" name="contrasena" class="form-input input-password" required>
+                            <button type="button" class="toggle-password-btn" aria-label="Mostrar u ocultar contraseña">👁️</button>
+                        </div>
+                        <span class="error-message">La contraseña no es válida</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmar-contrasena" class="form-label">Confirmar contraseña *</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="confirmar-contrasena" name="confirmar-contrasena" class="form-input input-password" required>
+                            <button type="button" class="toggle-password-btn" aria-label="Mostrar u ocultar contraseña">👁️</button>
+                        </div>
+                        <span class="error-message">Las contraseñas no coinciden</span>
+                    </div>
+
+                    <button type="submit" class="submit-btn">→ Crear mi cuenta</button>
+                </form>
+
+                <footer class="form-footer">
+                <a href="../html/Login.html" class="login-link">Ya tengo una cuenta</a>
+                </footer>
+            </article>
+        </section>
+    </main>
+
+    <script src="../js/inicioSesion.js"></script>
+</body>
+</html>

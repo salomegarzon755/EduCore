@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduCore - ¡Aprender es una aventura!</title>
+    <title>EduCore - Selecciona tu Rol</title>
     <link rel="stylesheet" href="./css/styles.css">
-    <link rel="stylesheet" href="/css/import.css">
 </head>
-<body>
+<body class="page-body">
 
     <main class="hero-container">
-        <!-- Sección izquierda -->
         <section class="hero-left">
             <header class="brand-logo">
                 <div class="brand-icon">🌱</div>
@@ -24,11 +22,10 @@
             </div>
 
             <div class="illustration-wrapper">
-                <img src="img/naturalezaIndex.jpg" alt="Ilustración de tucán en un paisaje natural">
+                <img src="img/naturalezaIndex.jpg" alt="Ilustración EduCore">
             </div>
         </section>
 
-        <!-- Sección derecha -->
         <section class="hero-right">
             <div class="role-card-container">
                 <div class="role-header">
@@ -38,8 +35,8 @@
 
                 <ul class="role-options">
                 <li>
-                    <a href="#" class="role-btn role-estudiante">
-                    <span class="role-icon">🎒</span>
+                    <a href="html/InicioSesion.html" class="role-btn role-estudiante" data-role="Estudiante">
+                    <img src="img/bag.svg" alt="Icono estudiante" class="role-icon">
                     <div class="role-text">
                         <strong class="role-title-text">Soy estudiante</strong>
                         <span class="role-subtitle">Vamos a aprender</span>
@@ -49,8 +46,8 @@
                 </li>
 
                 <li>
-                    <a href="#" class="role-btn role-docente">
-                    <span class="role-icon">📖</span>
+                    <a href="html/InicioSesion.html" class="role-btn role-docente" data-role="Docente">
+                    <img src="img/book.svg" alt="Icono docente" class="role-icon">
                     <div class="role-text">
                         <strong class="role-title-text">Soy docente</strong>
                         <span class="role-subtitle">Acompañemos cada paso</span>
@@ -60,8 +57,8 @@
                 </li>
 
                 <li>
-                    <a href="#" class="role-btn role-padre">
-                    <span class="role-icon">🤍</span>
+                    <a href="/html/Login.html" class="role-btn role-padre" data-role="Padre o Madre">
+                    <img src="img/parent.svg" alt="Icono padre" class="role-icon">
                     <div class="role-text">
                         <strong class="role-title-text">Soy padre o madre</strong>
                         <span class="role-subtitle">Ingresar con mi acceso existente</span>
@@ -72,10 +69,12 @@
                 </ul>
 
                 <p class="role-footer-note">
-                    El acceso de familias se realiza desde «Ingresar». No requiere registro previo.
+                El acceso de familias se realiza desde «Ingresar». No requiere registro previo.
                 </p>
             </div>
         </section>
     </main>
+
+    <script src="./js/inicioSesion.js"></script>
 </body>
 </html>

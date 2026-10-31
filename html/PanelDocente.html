@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCore - Panel Docente</title>
+    <link rel="stylesheet" href="../css/PanelDocente.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- LAYOUT PRINCIPAL CON SIDEBAR Y CONTENIDO -->
+    <div class="dashboard-container">
+
+        <!-- SIDEBAR DE NAVEGACIÓN -->
+        <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="../img/bag.svg" alt="Logo EduCore" class="sidebar-logo">
+            <span class="sidebar-brand">EduCore</span>
+            <span class="role-pill">DOCENTE</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul>
+            <li class="nav-item active">
+                <a href="#"><span class="nav-icon">🏠</span> Inicio</a>
+            </li>
+            <li class="nav-item">
+                <a href="#"><span class="nav-icon">👥</span> Mis grupos</a>
+            </li>
+            <li class="nav-item">
+                <a href="#"><span class="nav-icon">📚</span> Cursos</a>
+            </li>
+            <li class="nav-item">
+                <a href="#"><span class="nav-icon">📊</span> Resultados</a>
+            </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-profile-card">
+            <div class="user-avatar">LM</div>
+            <div class="user-info">
+                <strong class="user-name" id="teacherNameDisplay">Laura Mina</strong>
+                <span class="user-role">Docente Acandí</span>
+            </div>
+            </div>
+            <a href="../index.html" class="logout-btn" id="logoutBtn">Cerrar sesión</a>
+        </div>
+        </aside>
+
+        <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+        <main class="dashboard-main">
+        
+        <!-- HEADER INTERNO -->
+        <header class="dashboard-header">
+            <div class="welcome-badge">
+            <span class="badge-icon">✓</span>
+            <span>Acceso exitoso. ¡Qué gusto verte, <strong id="welcomeTeacherName">Laura</strong>!</span>
+            </div>
+            <div class="offline-indicator">🌐 Contenido y audio sin conexión</div>
+        </header>
+
+        <!-- SECCIÓN HERO DE BIENVENIDA -->
+        <section class="welcome-hero">
+            <div class="welcome-text">
+            <h1>Un nuevo día para acompañar</h1>
+            <p>Tus grupos y sus aprendizajes, en un mismo lugar.</p>
+            </div>
+
+            <!-- METRICAS / STATS -->
+            <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">2</span>
+                <span class="stat-label">Mis grupos</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">4</span>
+                <span class="stat-label">Estudiantes</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">2</span>
+                <span class="stat-label">Cursos asignados</span>
+            </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE GRUPOS -->
+        <section class="groups-section">
+            <h2>Mis grupos</h2>
+
+            <div class="groups-grid">
+            <!-- Tarjeta Grupo 1 -->
+            <article class="group-card">
+                <div class="group-card-header">
+                <span class="grade-tag">PRIMERO</span>
+                </div>
+                <h3 class="group-title">Exploradores de primero</h3>
+                <p class="group-info">3 estudiantes · Matemáticas</p>
+                <a href="#" class="group-action-btn">→ Ver grupo</a>
+            </article>
+
+            <!-- Tarjeta Grupo 2 -->
+            <article class="group-card">
+                <div class="group-card-header">
+                <span class="grade-tag tag-second">SEGUNDO</span>
+                </div>
+                <h3 class="group-title">Aventureros de segundo</h3>
+                <p class="group-info">1 estudiante · Matemáticas</p>
+                <a href="#" class="group-action-btn">→ Ver grupo</a>
+            </article>
+            </div>
+        </section>
+
+        <!-- BANNER INFORMATIVO INFERIOR -->
+        <section class="info-banner">
+            <div class="info-banner-content">
+            <h4>El aprendizaje empieza con una mirada cercana.</h4>
+            <p>Consulta las actividades y descubre a quién acompañar hoy.</p>
+            </div>
+            <a href="#" class="cta-secondary-btn">Ver seguimiento</a>
+        </section>
+
+        </main>
+
+    </div>
+
+    <script src="../js/login.js"></script>
+</body>
+</html>
