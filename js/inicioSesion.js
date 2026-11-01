@@ -4,10 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const roleButtons = document.querySelectorAll('.role-btn');
     roleButtons.forEach(button => {
         button.addEventListener('click', () => {
-        const selectedRole = button.getAttribute('data-role');
-        if (selectedRole) {
-            localStorage.setItem('userRole', selectedRole);
-        }
+            const selectedRole = button.getAttribute('data-role');
+            if (selectedRole) {
+                localStorage.setItem('userRole', selectedRole);
+            }
         });
     });
 
@@ -23,35 +23,70 @@ document.addEventListener('DOMContentLoaded', () => {
     const togglePasswordBtns = document.querySelectorAll('.toggle-password-btn');
     togglePasswordBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-        const passwordInput = btn.previousElementSibling;
-        if (passwordInput && passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            btn.textContent = '🙈';
-        } else if (passwordInput) {
-            passwordInput.type = 'password';
-            btn.textContent = '👁️';
-        }
+            const passwordInput = btn.previousElementSibling;
+            if (passwordInput && passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                btn.textContent = '🙈';
+            } else if (passwordInput) {
+                passwordInput.type = 'password';
+                btn.textContent = '👁️';
+            }
         });
     });
 
-    // 4. Guardar el nombre y procesar el envío según el rol
+    // 4. Enviar datos del registro a la BD PostgreSQL vía API Python
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
-        registerForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const nameInput = document.getElementById('nombre');
-        if (nameInput) {
-            localStorage.setItem('userName', nameInput.value);
-        }
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-        // Redirección condicional:
-        // Si es Docente o Padre va directamente a Login.html, si es Estudiante va a ExitoRegistro.html
-        if (savedRole === 'Docente' || savedRole === 'Padre o Madre') {
-            window.location.href = 'Login.html';
-        } else {
-            window.location.href = 'ExitoRegistro.html';
-        }
+            // Capturar elementos de la interfaz por su ID o atributo name
+            const nameInput = document.getElementById('nombre') || document.querySelector('input[name="nombre"]');
+            const apellidoInput = document.getElementById('apellidos') || document.querySelector('input[name="apellidos"]');
+            const emailInput = document.getElementById('correo') || document.querySelector('input[type="email"]');
+            const userInput = document.getElementById('usuario') || document.querySelector('input[name="usuario"]');
+            const passInput = document.getElementById('contrasena') || document.querySelector('input[name="contrasena"]');
+
+            // Extraer y limpiar valores de los inputs
+            const nombreVal = nameInput ? nameInput.value.trim() : '';
+            const apellidoVal = apellidoInput ? apellidoInput.value.trim() : '';
+            const nombreCompleto = apellidoVal ? `${nombreVal} ${apellidoVal}`.trim() : nombreVal;
+
+            const correoVal = emailInput ? emailInput.value.trim() : '';
+            const usuarioVal = userInput ? userInput.value.trim() : nombreVal;
+            const contrasenaVal = passInput ? passInput.value.trim() : '';
+
+            try {
+                const response = await fetch('http://localhost:5000/api/registro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre: nombreCompleto,
+                        usuario: usuarioVal,
+                        correo: correoVal,
+                        contrasena: contrasenaVal,
+                        rol: savedRole
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('userName', nombreVal || usuarioVal);
+                    
+                    // Redirección condicional:
+                    if (savedRole === 'Docente' || savedRole === 'Padre o Madre') {
+                        window.location.href = 'Login.html';
+                    } else {
+                        window.location.href = 'ExitoRegistro.html';
+                    }
+                } else {
+                    alert(data.message || 'Error al completar el registro.');
+                }
+            } catch (error) {
+                console.error('Error de conexión con el backend:', error);
+                alert('No se pudo conectar con el servidor en Python.');
+            }
         });
     }
 

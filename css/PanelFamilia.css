@@ -1,0 +1,284 @@
+/* ==========================================
+ESTILOS PARA EL PANEL DE FAMILIAS (HU.03)
+   ========================================== */
+.family-body {
+  background-image: url('../img/files/EduCore_Identidad/02_fondos/png/crema_botanico.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.family-container {
+  width: 100%;
+  max-width: 900px;
+}
+
+.family-card {
+  background-color: rgba(255, 253, 247, 0.96);
+  border-radius: 24px;
+  padding: 36px 44px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  border: 1px solid #EFEAE0;
+  backdrop-filter: blur(4px);
+}
+
+/* Header */
+.family-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-leaf {
+  font-size: 24px;
+}
+
+.brand-title {
+  font-weight: 800;
+  font-size: 22px;
+  color: #2D3748;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.badge-role {
+  background-color: #FCE4EC;
+  color: #C2185B;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.btn-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid #CBD5E0;
+  padding: 6px 16px;
+  border-radius: 12px;
+  color: #4A5568;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn-exit:hover {
+  background-color: #EDF2F7;
+  color: #2D3748;
+}
+
+/* Status Pill */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #E8F5E9;
+  color: #2E7D32;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+
+/* Hero section */
+.student-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.student-info {
+  flex: 1;
+}
+
+.student-greeting {
+  font-size: 36px;
+  font-weight: 800;
+  color: #2D3748;
+  margin-bottom: 4px;
+}
+
+.student-details {
+  font-size: 18px;
+  font-weight: 800;
+  color: #2D3748;
+  margin-bottom: 2px;
+}
+
+.student-course {
+  font-size: 14px;
+  color: #718096;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.student-message {
+  font-size: 14px;
+  color: #4A5568;
+  line-height: 1.5;
+  max-width: 440px;
+}
+
+.family-illustration-container {
+  width: 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.family-illustration {
+  width: 100%;
+  height: auto;
+  max-height: 180px;
+  object-fit: contain;
+}
+
+/* Grid de métricas */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.metric-card {
+  padding: 20px 24px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.metric-blue {
+  background-color: #E3F2FD;
+}
+
+.metric-yellow {
+  background-color: #FFF9C4;
+}
+
+.metric-green {
+  background-color: #C8E6C9;
+}
+
+.metric-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4A5568;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #2D3748;
+}
+
+.performance-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #A5D6A7;
+  color: #1B5E20;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+/* Descubrimientos */
+.discoveries-section {
+  background-color: #FAF4E8;
+  border-radius: 20px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+}
+
+.discoveries-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #2D3748;
+  margin-bottom: 16px;
+}
+
+.discoveries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.discovery-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.activity-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2D3748;
+}
+
+.activity-score-badge {
+  background-color: #FFFFFF;
+  color: #4A5568;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
+
+/* Footer */
+.family-footer {
+  font-size: 12px;
+  color: #718096;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Adaptación móvil */
+@media (max-width: 768px) {
+  .student-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .family-card {
+    padding: 24px;
+  }
+}

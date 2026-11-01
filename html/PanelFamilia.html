@@ -3,85 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduCore - Iniciar sesión</title>
+    <title>EduCore - Panel Familia</title>
     <link rel="stylesheet" href="../css/InicioSesion.css">
+    <link rel="stylesheet" href="../css/PanelFamilia.css">
 </head>
-<body class="page-body">
-    <header class="main-header">
-        <div class="brand-container">
-        <img src="../img/bag.svg" alt="Logo EduCore" class="brand-logo">
-        <span class="brand-name">EduCore</span>
-        </div>
-        <a href="../index.html" class="back-link">← Volver al inicio</a>
-    </header>
+<body class="family-body">
 
-    <main class="main-content">
-        <section id="login-screen" class="hero-screen">
-        
-        <!-- Panel Izquierdo -->
-        <aside class="mascot-panel territory-panel">
-            <span class="territory-badge">ACANDÍ, CHOCÓ</span>
-            <h2 class="territory-title">Explora, aprende y descubre la magia de tu territorio.</h2>
+    <main class="family-container">
+        <!-- Tarjeta Principal del Dashboard -->
+        <div class="family-card">
             
-            <div class="mascot-avatar">
-            <img src="../img/FotoPerfil.jpg" alt="Mascota Lúa" class="mascot-img">
-            </div>
-            <p class="mascot-bubble">Soy Lúa. ¡Aprendamos juntos!</p>
-            
-            <span class="offline-note">🌐 Contenido y audio disponibles sin conexión</span>
-        </aside>
-
-        <!-- Panel Derecho: Formulario Dinámico -->
-        <article class="form-card">
-            <header class="form-header">
-            <span class="step-badge" id="roleBadgeDisplay">ESPACIO FAMILIA</span>
-            <h1 class="form-title" id="loginTitle">Acompaña el aprendizaje de tu hijo</h1>
-            <p class="form-subtitle" id="loginSubtitle">Ingresa con los datos de acceso de tu hijo</p>
+            <!-- Encabezado del Panel -->
+            <header class="family-header">
+                <div class="brand-group">
+                    <span class="brand-leaf">🌱</span>
+                    <span class="brand-title">EduCore</span>
+                </div>
+                
+                <div class="header-right">
+                    <span class="badge-role">ESPACIO FAMILIA</span>
+                    <a href="Login.html" class="btn-exit">
+                        <span>🚪</span> Salir
+                    </a>
+                </div>
             </header>
 
-            <!-- Banner de Error (HU.03 C - Datos no válidos) -->
-            <div id="authErrorAlert" class="alert-banner alert-error alert-hidden">
-            <span class="alert-icon">⚠️</span>
-            <p class="alert-text" id="alertErrorText">Usuario o contraseña incorrectos. Revisa los datos de tu hijo.</p>
+            <!-- Status Banner -->
+            <div class="status-pill">
+                <span class="status-check">✓</span> Consulta exitosa
             </div>
 
-            <form action="#" method="POST" class="auth-form" id="loginForm">
-            
-            <!-- Campo: Usuario -->
-            <div class="form-group" id="groupUsuario">
-                <label for="usuario" class="form-label" id="labelUsuario">Usuario del estudiante *</label>
-                <input type="text" id="usuario" name="usuario" class="form-input" placeholder="sara.m" required>
-                <span class="error-message">Ingresa el usuario.</span>
-            </div>
-
-            <!-- Campo: Contraseña -->
-            <div class="form-group" id="groupContrasena">
-                <label for="contrasena" class="form-label">Contraseña *</label>
-                <div class="password-wrapper">
-                <input type="password" id="contrasena" name="contrasena" class="form-input input-password" required>
-                <button type="button" class="toggle-password-btn" aria-label="Mostrar u ocultar contraseña">👁️</button>
+            <!-- Contenido Principal: Saludo y Mascota -->
+            <section class="student-hero">
+                <div class="student-info">
+                    <h1 class="student-greeting">Así aprende <span id="familyStudentName">Sara</span></h1>
+                    <p class="student-details" id="familyStudentDetails">Sara Mosquera · Primero</p>
+                    <p class="student-course">Exploradores de primero · Matemáticas</p>
+                    <p class="student-message">
+                        Cada actividad es una oportunidad para aprender. Acompaña sus descubrimientos con calma.
+                    </p>
                 </div>
-                <span class="error-message">Ingresa la contraseña.</span>
-            </div>
 
-            <!-- Campo Exclusivo de Familia: Código de Clase (HU.03 A) -->
-            <div class="form-group" id="groupCodigoClase">
-                <label for="codigoClase" class="form-label">Código de clase *</label>
-                <input type="text" id="codigoClase" name="codigoClase" class="form-input" placeholder="AC-101">
-                <span class="error-message" id="codigoErrorMsg">Verifica el código con el docente.</span>
-            </div>
+                <div class="family-illustration-container">
+                    <img src="../img/files/EduCore_Identidad/03_personajes/png/tuki_orientacion.png" alt="Mascota Tuki" class="family-illustration">
+                </div>
+            </section>
 
-            <button type="submit" class="submit-btn" id="submitBtn">→ Consultar progreso</button>
-            </form>
+            <!-- Métricas / Indicadores -->
+            <section class="metrics-grid">
+                <div class="metric-card metric-blue">
+                    <span class="metric-label">Actividades realizadas</span>
+                    <span class="metric-value" id="totalActivities">3</span>
+                </div>
 
-            <footer class="form-footer">
-            <p id="footerNotice">No necesitas registrarte. Usa los datos del estudiante y el código de su clase.</p>
+                <div class="metric-card metric-yellow">
+                    <span class="metric-label">Última actividad</span>
+                    <span class="metric-value" id="lastActivityScore">4 de 5</span>
+                </div>
+
+                <div class="metric-card metric-green">
+                    <span class="metric-label">Rendimiento ilustrativo</span>
+                    <div class="performance-pill">
+                        <span>✓</span> Buen desempeño
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lista de Actividades y Descubrimientos -->
+            <section class="discoveries-section">
+                <h2 class="discoveries-title">Sus últimos descubrimientos</h2>
+                
+                <div class="discoveries-list">
+                    <div class="discovery-item">
+                        <span class="activity-name">Contemos las frutas</span>
+                        <span class="activity-score-badge">4 de 5 · realizadas</span>
+                    </div>
+
+                    <div class="discovery-item">
+                        <span class="activity-name">Contemos mariposas</span>
+                        <span class="activity-score-badge">5 de 5 · realizadas</span>
+                    </div>
+
+                    <div class="discovery-item">
+                        <span class="activity-name">Números del 1 al 5</span>
+                        <span class="activity-score-badge">3 de 5 · realizadas</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pie de página informativo -->
+            <footer class="family-footer">
+                <span>🌐 Contenido y audio disponibles sin conexión</span>
             </footer>
-        </article>
 
-        </section>
+        </div>
     </main>
 
-    <script src="../js/login.js"></script>
+    <script src="../js/panelFamilia.js"></script>
 </body>
 </html>
