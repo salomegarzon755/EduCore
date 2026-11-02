@@ -28,7 +28,11 @@ body {
    ========================================== */
 .hero-left {
     flex: 1;
-    background-color: #fcfae6;
+    background-image: url('../img/files/EduCore_Identidad/02_fondos/png/crema_botanico.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     padding: 40px 60px;
     display: flex;
     flex-direction: column;

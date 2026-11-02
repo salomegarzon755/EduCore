@@ -138,7 +138,11 @@ body {
    ========================================== */
 .mascot-panel {
   flex: 1;
-  background-color: var(--bg-left);
+  background-image: url('../img/files/EduCore_Identidad/02_fondos/png/crema_botanico.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -174,12 +178,12 @@ body {
 }
 
 .mascot-bubble {
-  background-color: #FFFFFF;
+  background-color: #FFE6A3;
   border-radius: 20px;
   padding: 12px 24px;
   font-size: 16px;
   font-weight: 600;
-  color: var(--text-dark);
+  color: #E65100;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   max-width: 260px;
 }

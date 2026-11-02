@@ -44,7 +44,9 @@ ESTILOS PARA EL PANEL DE FAMILIAS (HU.03)
 }
 
 .brand-leaf {
-  font-size: 24px;
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
 }
 
 .brand-title {
@@ -67,6 +69,14 @@ ESTILOS PARA EL PANEL DE FAMILIAS (HU.03)
   padding: 6px 14px;
   border-radius: 20px;
   letter-spacing: 0.5px;
+}
+
+/* Estilo para el icono dentro del botón de salir */
+.btn-exit-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  vertical-align: middle;
 }
 
 .btn-exit {

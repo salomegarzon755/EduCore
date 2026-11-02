@@ -28,7 +28,12 @@ class DatabaseConnection:
 
     @classmethod
     def return_connection(cls, connection):
-        cls._connection_pool.putconn(connection)
+        if cls._connection_pool and connection:
+            cls._connection_pool.putconn(connection)
+
+    @classmethod
+    def release_connection(cls, connection):
+        cls.return_connection(connection)
 
     @classmethod
     def close_all(cls):

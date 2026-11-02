@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCore - Panel Principal Docente</title>
+    <link rel="stylesheet" href="../../css/PanelDocente.css">
+</head>
+<body class="teacher-body">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img src="../../img/files/EduCore_Identidad/01_logos/png/logo_compacto_color.png" alt="EduCore Logo" class="brand-logo">
+        </div>
+        <div class="sidebar-tag">Espacio docente</div>
+        <nav class="sidebar-nav">
+            <a href="PanelPrincipal.html" class="nav-item active">
+                <span class="nav-icon">🏠</span> Panel principal
+            </a>
+            <a href="MisGrupos.html" class="nav-item">
+                <span class="nav-icon">👥</span> Mis grupos
+            </a>
+            <a href="MisCursos.html" class="nav-item">
+                <span class="nav-icon">📚</span> Mis cursos
+            </a>
+            <a href="Seguimiento.html" class="nav-item">
+                <span class="nav-icon">📊</span> Seguimiento
+            </a>
+        </nav>
+        <div class="sidebar-banner">
+            <span class="banner-icon">🌱</span>
+            <div class="banner-text">
+                <strong>Aprendemos desde Acandí</strong>
+                <p>Cada paso cuenta.</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-header">
+            <span class="header-motto">Enseñar también es acompañar</span>
+            <div class="user-profile">
+                <div class="user-text">
+                    <span class="user-name" id="displayTeacherName">Profe</span>
+                    <span class="user-grade">Docente</span>
+                </div>
+                <a href="../Login.html" class="logout-btn" title="Cerrar sesión">
+                    <img src="../../img/files/EduCore_Identidad/05_iconos/png/icono_inicio.png" alt="Salir" class="logout-icon">
+                </a>
+            </div>
+        </header>
+
+        <section class="content-section">
+            <div class="welcome-banner">
+                <h1 style="font-size:32px; font-weight:800; color:#2D3748;">¡Hola, <span class="teacher-first-name">Profe</span>!</h1>
+                <p style="color:#718096; margin-top:4px; margin-bottom:24px;">Una mirada cercana al aprendizaje de tus grupos.</p>
+            </div>
+
+            <!-- TARJETAS DE MÉTRICAS / KPIS DE RESUMEN -->
+            <div class="kpi-metrics-grid" id="kpiMetricsContainer" style="display: none;">
+                <div class="kpi-card">
+                    <div class="kpi-top-row">
+                        <span class="kpi-value" id="statTotalGrupos">0</span>
+                        <div class="kpi-icon-box bg-icon-green">👥</div>
+                    </div>
+                    <span class="kpi-label">Grupos</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-top-row">
+                        <span class="kpi-value" id="statTotalCursos">0</span>
+                        <div class="kpi-icon-box bg-icon-purple">📚</div>
+                    </div>
+                    <span class="kpi-label">Cursos asociados</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-top-row">
+                        <span class="kpi-value" id="statTotalEstudiantes">0</span>
+                        <div class="kpi-icon-box bg-icon-blue">👤</div>
+                    </div>
+                    <span class="kpi-label">Estudiantes</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-top-row">
+                        <span class="kpi-value" id="statTotalActividades">0</span>
+                        <div class="kpi-icon-box bg-icon-yellow">📋</div>
+                    </div>
+                    <span class="kpi-label">Actividades realizadas</span>
+                </div>
+            </div>
+
+            <!-- SECCIÓN DE MIS GRUPOS EN EL PANEL PRINCIPAL -->
+            <div id="dashboardGroupsSection" style="display: none; margin-top: 32px;">
+                <div class="header-with-action" style="margin-bottom: 20px;">
+                    <h2 style="font-size:24px; font-weight:800;">Mis grupos</h2>
+                    <a href="MisGrupos.html" style="color: #4A5568; font-weight: 700; text-decoration: none;">Ver todos los grupos →</a>
+                </div>
+                <div class="teacher-groups-grid" id="dashboardGroupsList"></div>
+            </div>
+
+            <!-- ESTADO VACÍO EN EL PANEL PRINCIPAL SI NO HAY GRUPOS CREADOS (Oculto inicialmente) -->
+            <div class="empty-state-card" id="emptyDashboardContainer" style="display: none;">
+                <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_grupos.png" alt="Sin grupos" class="empty-state-img">
+                <h3 class="empty-state-title">Aún no tienes grupos creados</h3>
+                <p class="empty-state-desc">Comienza creando tu primer grupo para organizar a tus estudiantes y asignarles cursos de matemáticas.</p>
+                <a href="CrearGrupo.html" class="btn-create-group">+ Crear mi primer grupo</a>
+            </div>
+        </section>
+    </main>
+
+    <script src="../../js/panelDocente.js"></script>
+</body>
+</html>

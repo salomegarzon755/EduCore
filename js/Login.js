@@ -54,47 +54,60 @@ document.addEventListener('DOMContentLoaded', () => {
             if (loginSubtitle) loginSubtitle.textContent = 'Ingresa tu usuario y contraseña para continuar tu aprendizaje.';
             if (labelUsuario) labelUsuario.textContent = 'Usuario *';
             if (submitBtn) submitBtn.textContent = '→ Ingresar';
-            if (groupCodigoClase) groupCodigoClase.style.display = 'none'; // Se oculta el código de clase
+            if (groupCodigoClase) groupCodigoClase.style.display = 'none';
             if (footerNotice) footerNotice.textContent = 'Ingresa con las credenciales que te asignó tu docente.';
         }
     }
 
-    // 3. Procesar Inicio de Sesión
-        // Reemplazar la sección 3 de Login.js por el consumo del API Backend:
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    // 3. Procesar Inicio de Sesión conectando a la BD mediante API Flask
+    const loginForm = document.getElementById('loginForm');
+    const authErrorAlert = document.getElementById('authErrorAlert');
 
-        const usuarioVal = document.getElementById('usuario').value.trim();
-        const contrasenaVal = document.getElementById('contrasena').value.trim();
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-        try {
-            const response = await fetch('http://localhost:5000/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    usuario: usuarioVal,
-                    contrasena: contrasenaVal
-                })
-            });
+            const userInput = document.getElementById('usuario');
+            const passInput = document.getElementById('contrasena');
 
-            const data = await response.json();
+            const usuarioVal = userInput ? userInput.value.trim() : '';
+            const contrasenaVal = passInput ? passInput.value.trim() : '';
 
-            if (data.success) {
-                localStorage.setItem('loggedUserName', data.user.nombre || usuarioVal);
-                localStorage.setItem('userRole', data.user.rol);
+            // Ocultar alerta de error previa si existe
+            if (authErrorAlert) authErrorAlert.classList.add('alert-hidden');
 
-                // Redirección basada en la respuesta de la BD
-                if (data.user.rol === 'Docente') {
-                    window.location.href = 'PanelDocente.html';
+            try {
+                const response = await fetch('http://localhost:5000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuario: usuarioVal,
+                        contrasena: contrasenaVal
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Guardamos el objeto devuelto por PostgreSQL (contiene id_usuario, nombre, usuario, rol)
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    localStorage.setItem('loggedUserName', data.user.nombre || usuarioVal);
+                    localStorage.setItem('userRole', data.user.rol);
+                    if (data.user.rol === 'Docente') {
+                        window.location.href = 'PanelDocente/PanelPrincipal.html';
+                    } else if (data.user.rol === 'Estudiante') {
+                        window.location.href = 'PanelEstudiante/Inicio.html';
+                    } else {
+                        window.location.href = 'PanelFamilia.html';
+                    }
                 } else {
-                    window.location.href = 'PanelFamilia.html';
+                    if (authErrorAlert) authErrorAlert.classList.remove('alert-hidden');
                 }
-            } else {
+            } catch (error) {
+                console.error('Error de conexión con el servidor Python:', error);
                 if (authErrorAlert) authErrorAlert.classList.remove('alert-hidden');
             }
-        } catch (error) {
-            console.error('Error de conexión con el servidor Python:', error);
-            if (authErrorAlert) authErrorAlert.classList.remove('alert-hidden');
-        }
-    });
+        });
+    }
+
 });
