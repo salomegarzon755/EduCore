@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduCore - Mi Camino</title>
+    <link rel="stylesheet" href="../../css/paneles.css">
     <link rel="stylesheet" href="../../css/PanelEstudiante.css">
+    <title>EduCore - Mi Camino</title>
 </head>
 <body class="student-body">
 
     <aside class="sidebar">
         <div class="sidebar-brand">
             <img src="../../img/files/EduCore_Identidad/01_logos/png/logo_compacto_color.png" alt="EduCore Logo" class="brand-logo">
+            <span class="brand-title">EduCore</span>
         </div>
         <div class="sidebar-tag">Mi aventura</div>
         <nav class="sidebar-nav">
@@ -59,21 +61,18 @@
 
         <section class="content-section">
             <div class="section-header-simple">
-                <h1>Mi camino de aprendizaje</h1>
-                <p>Aquí verás tus actividades y retos asignados.</p>
+                <h1>Mi camino</h1>
+                <p>Tu ruta interactiva de aprendizaje.</p>
             </div>
 
-            <!-- ESTADO VACÍO EN MI CAMINO -->
-            <div class="empty-state-card" id="emptyPathContainer">
-                <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_resultados.png" alt="Sin camino activo" class="empty-state-img">
-                <h3 class="empty-state-title">No hay un camino asignado todavía</h3>
-                <p class="empty-state-desc">
-                    Para recorrer un camino de aprendizaje necesitas pertenecer a un grupo creado por un docente.
-                </p>
+            <div class="empty-state-card">
+                <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_cursos.png" alt="Camino" class="empty-state-img">
+                <h3 class="empty-state-title">Tu camino se está preparando</h3>
+                <p class="empty-state-desc">Próximamente podrás interactuar con las actividades y lecciones asignadas por tu docente.</p>
             </div>
         </section>
     </main>
-
+    <script src="../../js/config.js"></script>
     <script src="../../js/panelEstudiante.js"></script>
     <script src="../../js/logout.js"></script>
 </body>

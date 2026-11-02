@@ -1,174 +1,8 @@
 /* ==========================================
-   ESTILOS PANEL DOCENTE - EDUCORE
+   EDUCORE - ELEMENTOS ESPECÍFICOS DEL DOCENTE
    ========================================== */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
 
-body.teacher-body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background-image: url(../img/files/EduCore_Identidad/02_fondos/png/crema_botanico.png);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  color: #2D3748;
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
-}
-
-/* Sidebar Lateral */
-.sidebar {
-  width: 260px;
-  min-width: 240px;
-  background-color: #FFFFFF;
-  border-right: 1px solid #EFEAE0;
-  padding: 24px 20px;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-
-.sidebar-brand {
-  margin-bottom: 16px;
-}
-
-.brand-logo {
-  height: 40px;
-  object-fit: contain;
-}
-
-.sidebar-tag {
-  background-color: #F3E8FF;
-  color: #7E22CE;
-  font-weight: 800;
-  font-size: 11px;
-  padding: 4px 12px;
-  border-radius: 12px;
-  width: fit-content;
-  margin-bottom: 24px;
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 700;
-  color: #4A5568;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.nav-item:hover {
-  background-color: #F7F3E9;
-  color: #2D3748;
-}
-
-.nav-item.active {
-  background-color: #C8E6C9;
-  color: #1B5E20;
-}
-
-.sidebar-banner {
-  background-color: #E8F5E9;
-  padding: 12px 14px;
-  border-radius: 16px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.banner-text strong {
-  display: block;
-  font-size: 12px;
-  color: #2E7D32;
-}
-
-.banner-text p {
-  font-size: 11px;
-  color: #4CAF50;
-}
-
-/* Área Principal */
-.main-wrapper {
-  flex: 1;
-  padding: 32px 48px;
-  overflow-y: auto;
-  min-width: 0;
-}
-
-.top-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-}
-
-.header-motto {
-  font-size: 14px;
-  color: #A0AEC0;
-  font-weight: 600;
-}
-
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-text {
-  text-align: right;
-}
-
-.user-name {
-  display: block;
-  font-weight: 800;
-  font-size: 15px;
-}
-
-.user-grade {
-  font-size: 12px;
-  color: #718096;
-}
-
-.logout-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border-radius: 10px;
-  border: 1px solid #E2E8F0;
-  background-color: #FFFFFF;
-  margin-left: 4px;
-}
-
-.logout-icon {
-  width: 18px;
-  height: 18px;
-}
-
-/* Encabezados y Botones de Acción */
-.header-with-action {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
+/* Botones de Acción */
 .btn-create-group {
   background-color: #A7F3D0;
   color: #065F46;
@@ -184,40 +18,6 @@ body.teacher-body {
 
 .btn-create-group:hover {
   transform: translateY(-2px);
-}
-
-/* Estado Vacío */
-.empty-state-card {
-  background-color: #FAF4E8;
-  border: 2px dashed #CBD5E0;
-  border-radius: 24px;
-  padding: 48px 32px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 20px auto 0 auto;
-  max-width: 560px;
-}
-
-.empty-state-img {
-  max-width: 200px;
-  height: auto;
-  margin-bottom: 20px;
-}
-
-.empty-state-title {
-  font-size: 22px;
-  font-weight: 800;
-  margin-bottom: 8px;
-}
-
-.empty-state-desc {
-  font-size: 14px;
-  color: #718096;
-  margin-bottom: 20px;
-  line-height: 1.5;
 }
 
 /* Formularios HU.05 B */
@@ -279,7 +79,7 @@ body.teacher-body {
   color: #1B5E20;
 }
 
-/* Tarjetas de Selección Múltiple para Cursos */
+/* Cursos Multiselect */
 .courses-multiselect-container {
   display: flex;
   flex-direction: column;
@@ -353,7 +153,7 @@ body.teacher-body {
   text-decoration: none;
 }
 
-/* Confirmación HU.05 C */
+/* Tarjeta de Éxito HU.05 C */
 .success-card {
   background-color: #E8F5E9;
   border: 1px solid #A5D6A7;
@@ -375,7 +175,6 @@ body.teacher-body {
   margin-bottom: 16px;
 }
 
-/* Select Personalizado */
 .form-select-custom {
   width: 100%;
   padding: 12px 16px;
@@ -391,6 +190,7 @@ body.teacher-body {
   border-color: #10B981;
 }
 
+/* Catálogo de Cursos */
 .courses-catalog-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -452,11 +252,7 @@ body.teacher-body {
   font-size: 13px;
 }
 
-/* ==========================================
-   MÉTRICAS Y TARJETAS DE GRUPOS (DASHBOARD)
-   ========================================== */
-
-/* Grid de Tarjetas KPI */
+/* Métricas KPIs y Tarjetas de Grupos */
 .kpi-metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -511,7 +307,6 @@ body.teacher-body {
   color: #718096;
 }
 
-/* Grid de Tarjetas de Grupos */
 .teacher-groups-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -605,110 +400,4 @@ body.teacher-body {
 .btn-ver-grupo-link:hover {
   background-color: #F7F3E9;
   border-color: #A0AEC0;
-}
-
-/* MODAL UNIVERSAL HU.04 B */
-.logout-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(5px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
-.logout-modal-card {
-    background: #FFFFFF;
-    border-radius: 24px;
-    padding: 32px 28px;
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    animation: fadeInModal 0.2s ease-out;
-}
-
-@keyframes fadeInModal {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.logout-modal-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: #2D3748;
-    margin-top: 16px;
-    margin-bottom: 8px;
-}
-
-.logout-modal-desc {
-    color: #718096;
-    font-size: 14px;
-    margin-bottom: 24px;
-}
-
-.logout-modal-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.btn-primary-logout {
-    background-color: #A3E635;
-    color: #1A365D;
-    font-weight: 700;
-    border: none;
-    border-radius: 12px;
-    padding: 14px 20px;
-    font-size: 15px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.btn-primary-logout:hover {
-    background-color: #84CC16;
-}
-
-.btn-secondary-logout {
-    background-color: transparent;
-    color: #4A5568;
-    font-weight: 600;
-    border: 1px solid #CBD5E0;
-    border-radius: 12px;
-    padding: 12px 20px;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.btn-secondary-logout:hover {
-    background-color: #F7FAFC;
-}
-/* Opción visual en rojo para cerrar sesión en la barra lateral */
-.nav-item.logout-nav-item {
-    color: #E53E3E !important; /* Rojo destacado */
-    font-weight: 700;
-}
-
-.nav-item.logout-nav-item:hover {
-    background-color: #FFF5F5 !important; /* Fondo suave rojizo al pasar el cursor */
-    color: #C53030 !important;
-}
-
-.nav-item.logout-nav-item .nav-icon {
-    filter: drop-shadow(0px 0px 1px rgba(229, 62, 62, 0.4));
-}
-
-/* Responsividad */
-@media (max-width: 768px) {
-  body.teacher-body { flex-direction: column; }
-  .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #EFEAE0; padding: 16px; }
-  .sidebar-nav { flex-direction: row; overflow-x: auto; }
-  .nav-item { white-space: nowrap; }
-  .main-wrapper { padding: 20px; }
-  .kpi-metrics-grid { grid-template-columns: repeat(2, 1fr); }
 }

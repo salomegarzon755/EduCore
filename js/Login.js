@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    const BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+
     // 1. Alternar visibilidad de contraseña (👁️ / 🙈)
     const togglePasswordBtns = document.querySelectorAll('.toggle-password-btn');
     togglePasswordBtns.forEach(btn => {
@@ -77,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (authErrorAlert) authErrorAlert.classList.add('alert-hidden');
 
             try {
-                const response = await fetch('http://localhost:5000/api/login', {
+                const response = await fetch(`${BASE_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

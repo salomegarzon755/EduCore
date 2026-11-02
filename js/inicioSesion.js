@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    const BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+
     // 1. Guardar rol al hacer clic en index.html
     const roleButtons = document.querySelectorAll('.role-btn');
     roleButtons.forEach(button => {
@@ -57,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const contrasenaVal = passInput ? passInput.value.trim() : '';
 
             try {
-                const response = await fetch('http://localhost:5000/api/registro', {
+                const response = await fetch(`${BASE_URL}/registro`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    
+    const BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+
     const urlParams = new URLSearchParams(window.location.search);
     const idGrupo = urlParams.get('id') || urlParams.get('id_grupo');
     const autoOpenModal = urlParams.get('openModal') === 'true';
@@ -28,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Cargar Detalle del Grupo y sus Estudiantes desde el Backend
     async function cargarGrupo() {
         try {
-            const res = await fetch(`http://localhost:5000/api/grupos/${idGrupo}`);
+            const res = await fetch(`${BASE_URL}/grupos/${idGrupo}`);
             const data = await res.json();
 
             if (data.success) {
@@ -108,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Buscar estudiantes evitando duplicados visuales
     async function buscarEstudiantes(texto) {
         try {
-            const res = await fetch(`http://localhost:5000/api/grupos/${idGrupo}/estudiantes/buscar?q=${encodeURIComponent(texto)}`);
+            const res = await fetch(`${BASE_URL}/grupos/${idGrupo}/estudiantes/buscar?q=${encodeURIComponent(texto)}`);
             const data = await res.json();
 
             if (data.success && searchResultsList) {
@@ -166,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!selectedStudentId) return;
 
             try {
-                const res = await fetch(`http://localhost:5000/api/grupos/${idGrupo}/estudiantes`, {
+                const res = await fetch(`${BASE_URL}/grupos/${idGrupo}/estudiantes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id_estudiante: selectedStudentId })

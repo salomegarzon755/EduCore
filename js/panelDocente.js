@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     
+    const BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+
     // 1. Cargar usuario docente autenticado desde localStorage
     const storedUserRaw = localStorage.getItem('currentUser');
     let teacherUser = null;
@@ -37,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Cargar catálogo de cursos desde PostgreSQL (CrearGrupo.html)
     const coursesContainer = document.querySelector('.courses-multiselect-container');
     if (coursesContainer) {
-        fetch('http://localhost:5000/api/cursos')
+        fetch(`${BASE_URL}/cursos`)
             .then(res => res.json())
             .then(data => {
                 const listaCursos = Array.isArray(data) ? data : (data.cursos || []);
@@ -87,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             try {
-                const response = await fetch('http://localhost:5000/api/grupos', {
+                const response = await fetch(`${BASE_URL}/grupos`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -141,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const groupsListContainer = document.getElementById('groupsListContainer');
 
     if (teacherId && (emptyDashboardContainer || emptyGroupsState || dashboardGroupsList || groupsListContainer)) {
-        fetch(`http://localhost:5000/api/grupos/docente/${teacherId}`)
+        fetch(`${BASE_URL}/grupos/docente/${teacherId}`)
             .then(res => res.json())
             .then(data => {
                 const grupos = Array.isArray(data) ? data : (data.grupos || []);

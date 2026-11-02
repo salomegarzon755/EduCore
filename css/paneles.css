@@ -1,0 +1,362 @@
+/* ==========================================
+   EDUCORE - ESTILOS BASE Y COMPARTIDOS
+   ========================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-image: url(../img/files/EduCore_Identidad/02_fondos/png/crema_botanico.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: #2D3748;
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* ==========================================
+   BARRA LATERAL (SIDEBAR VERDE BOTÁNICO)
+   ========================================== */
+.sidebar {
+  width: 260px;
+  min-width: 240px;
+  background-color: #E8F5E9; /* Verde menta suave y limpio */
+  border-right: 1px solid #C8E6C9;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* Marca con Logo e Identidad EduCore */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.brand-logo {
+  height: 38px;
+  object-fit: contain;
+}
+
+.brand-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1B5E20;
+  letter-spacing: -0.5px;
+}
+
+.sidebar-tag {
+  background-color: #C8E6C9;
+  color: #1B5E20;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  width: fit-content;
+  margin-bottom: 24px;
+}
+
+/* Navegación */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #374151;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  background-color: #DCFCE7;
+  color: #166534;
+}
+
+.nav-item.active {
+  background-color: #2E7D32;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+}
+
+.nav-icon {
+  font-size: 18px;
+}
+
+/* Cierre de Sesión en Barra Lateral */
+.nav-item.logout-nav-item {
+  color: #DC2626 !important;
+  font-weight: 700;
+  margin-top: auto;
+}
+
+.nav-item.logout-nav-item:hover {
+  background-color: #FEE2E2 !important;
+  color: #991B1B !important;
+}
+
+/* Banner Inferior */
+.sidebar-banner {
+  background-color: #FFFFFF;
+  border: 1px solid #C8E6C9;
+  padding: 12px 14px;
+  border-radius: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.banner-icon {
+  font-size: 20px;
+}
+
+.banner-text strong {
+  display: block;
+  font-size: 12px;
+  color: #2E7D32;
+}
+
+.banner-text p {
+  font-size: 11px;
+  color: #4CAF50;
+}
+
+/* ==========================================
+   ÁREA PRINCIPAL Y ENCABEZADO SUPERIOR
+   ========================================== */
+.main-wrapper {
+  flex: 1;
+  padding: 32px 48px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.header-motto {
+  font-size: 14px;
+  color: #4A5568;
+  font-weight: 600;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-text {
+  text-align: right;
+}
+
+.user-name {
+  display: block;
+  font-weight: 800;
+  font-size: 15px;
+  color: #2D3748;
+}
+
+.user-grade {
+  font-size: 12px;
+  color: #718096;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #CBD5E0;
+  background-color: #FFFFFF;
+  margin-left: 4px;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+
+.logout-btn:hover {
+  background-color: #F7FAFC;
+}
+
+.logout-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* Cabeceras de Sección */
+.section-header-simple h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #2D3748;
+}
+
+.section-header-simple p {
+  color: #718096;
+  font-size: 14px;
+  margin-top: 4px;
+  margin-bottom: 28px;
+}
+
+.header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+/* ==========================================
+   ESTADO VACÍO (EMPTY STATE)
+   ========================================== */
+.empty-state-card {
+  background-color: #FAF4E8;
+  border: 2px dashed #CBD5E0;
+  border-radius: 24px;
+  padding: 48px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto 0 auto;
+  max-width: 560px;
+}
+
+.empty-state-img {
+  max-width: 200px;
+  height: auto;
+  margin-bottom: 20px;
+  object-fit: contain;
+}
+
+.empty-state-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #2D3748;
+  margin-bottom: 8px;
+}
+
+.empty-state-desc {
+  font-size: 14px;
+  color: #718096;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+/* ==========================================
+   MODAL FLOTANTE DE CIERRE DE SESIÓN
+   ========================================== */
+.logout-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.logout-modal-card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 32px 28px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: fadeInModal 0.2s ease-out;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.logout-modal-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #2D3748;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.logout-modal-desc {
+  color: #718096;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.logout-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-primary-logout {
+  background-color: #A3E635;
+  color: #1A365D;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary-logout:hover {
+  background-color: #84CC16;
+}
+
+.btn-secondary-logout {
+  background-color: transparent;
+  color: #4A5568;
+  font-weight: 600;
+  border: 1px solid #CBD5E0;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-secondary-logout:hover {
+  background-color: #F7FAFC;
+}
+
+/* Adaptación Móvil / Tablet */
+@media (max-width: 768px) {
+  body { flex-direction: column; }
+  .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #C8E6C9; padding: 16px; }
+  .sidebar-nav { flex-direction: row; overflow-x: auto; }
+  .nav-item { white-space: nowrap; }
+  .sidebar-banner, .sidebar-tag { display: none; }
+  .main-wrapper { padding: 20px; }
+}

@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduCore - Mi Progreso</title>
+    <link rel="stylesheet" href="../../css/paneles.css">
     <link rel="stylesheet" href="../../css/PanelEstudiante.css">
+    <title>EduCore - Mi Progreso</title>
 </head>
 <body class="student-body">
 
     <aside class="sidebar">
         <div class="sidebar-brand">
             <img src="../../img/files/EduCore_Identidad/01_logos/png/logo_compacto_color.png" alt="EduCore Logo" class="brand-logo">
+            <span class="brand-title">EduCore</span>
         </div>
         <div class="sidebar-tag">Mi aventura</div>
         <nav class="sidebar-nav">
@@ -59,21 +61,18 @@
 
         <section class="content-section">
             <div class="section-header-simple">
-                <h1>Mi progreso de aprendizaje</h1>
-                <p>Resumen de tus actividades completadas e insignia de logros.</p>
+                <h1>Mi progreso</h1>
+                <p>Reconoce tus logros y tus descubrimientos.</p>
             </div>
 
-            <!-- ESTADO VACÍO SI AÚN NO HA REALIZADO ACTIVIDADES -->
-            <div class="empty-state-card" id="emptyProgressContainer">
+            <div class="empty-state-card">
                 <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_resultados.png" alt="Sin progreso" class="empty-state-img">
-                <h3 class="empty-state-title">Aún no has comenzado actividades</h3>
-                <p class="empty-state-desc">
-                    Completa tu primer juego o ejercicio en tu camino para ver tus resultados y avances aquí.
-                </p>
+                <h3 class="empty-state-title">Aún no hay resultados para mostrar</h3>
+                <p class="empty-state-desc">A medida que resuelvas las actividades de tus cursos, verás aquí tus estadísticas y avance.</p>
             </div>
         </section>
     </main>
-
+    <script src="../../js/config.js"></script>
     <script src="../../js/panelEstudiante.js"></script>
     <script src="../../js/logout.js"></script>
 </body>

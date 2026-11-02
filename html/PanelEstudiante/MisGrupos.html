@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduCore - Mis Grupos</title>
+    <title>EduCore - Mis Grupos (Estudiante)</title>
+    <link rel="stylesheet" href="../../css/paneles.css">
     <link rel="stylesheet" href="../../css/PanelEstudiante.css">
 </head>
 <body class="student-body">
@@ -11,6 +12,7 @@
     <aside class="sidebar">
         <div class="sidebar-brand">
             <img src="../../img/files/EduCore_Identidad/01_logos/png/logo_compacto_color.png" alt="EduCore Logo" class="brand-logo">
+            <span class="brand-title">EduCore</span>
         </div>
         <div class="sidebar-tag">Mi aventura</div>
         <nav class="sidebar-nav">
@@ -59,21 +61,18 @@
 
         <section class="content-section">
             <div class="section-header-simple">
-                <h1>Mis grupos de clase</h1>
-                <p>Caminos de aprendizaje asignados por tu docente para comenzar a jugar.</p>
+                <h1>Mis grupos</h1>
+                <p>Comunidades de aprendizaje a las que perteneces.</p>
             </div>
 
-            <!-- ESTADO VACÍO CUANDO NO HAY GRUPOS -->
-            <div class="empty-state-card" id="emptyGroupsContainer">
-                <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_grupos.png" alt="Sin grupos" class="empty-state-img">
-                <h3 class="empty-state-title">Aún no estás en ningún grupo</h3>
-                <p class="empty-state-desc">
-                    Tu docente debe registrarte en un grupo de clase para que puedas acceder a los ejercicios y caminos de aprendizaje.
-                </p>
+            <div class="empty-state-card" id="emptyStudentGroupsContainer">
+                <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/error_amable.png" alt="Sin grupo" class="empty-state-img">
+                <h3 class="empty-state-title">Aún no has sido inscrito en un grupo</h3>
+                <p class="empty-state-desc">Pídele a tu docente que te agregue utilizando tu nombre de usuario.</p>
             </div>
         </section>
     </main>
-
+    <script src="../../js/config.js"></script>
     <script src="../../js/panelEstudiante.js"></script>
     <script src="../../js/logout.js"></script>
 </body>
