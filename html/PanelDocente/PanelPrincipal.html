@@ -26,6 +26,9 @@
             <a href="Seguimiento.html" class="nav-item">
                 <span class="nav-icon">📊</span> Seguimiento
             </a>
+            <a href="../Login.html" class="nav-item logout-btn logout-nav-item">
+                <span class="nav-icon">🚪</span> Cerrar sesión
+            </a>
         </nav>
         <div class="sidebar-banner">
             <span class="banner-icon">🌱</span>
@@ -56,7 +59,7 @@
                 <p style="color:#718096; margin-top:4px; margin-bottom:24px;">Una mirada cercana al aprendizaje de tus grupos.</p>
             </div>
 
-            <!-- TARJETAS DE MÉTRICAS / KPIS DE RESUMEN -->
+            <!-- TARJETAS DE MÉTRICAS / KPIS DE RESUMEN (Oculto inicialmente para evitar parpadeos) -->
             <div class="kpi-metrics-grid" id="kpiMetricsContainer" style="display: none;">
                 <div class="kpi-card">
                     <div class="kpi-top-row">
@@ -88,7 +91,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN DE MIS GRUPOS EN EL PANEL PRINCIPAL -->
+            <!-- SECCIÓN DE MIS GRUPOS EN EL PANEL PRINCIPAL (Oculto inicialmente) -->
             <div id="dashboardGroupsSection" style="display: none; margin-top: 32px;">
                 <div class="header-with-action" style="margin-bottom: 20px;">
                     <h2 style="font-size:24px; font-weight:800;">Mis grupos</h2>
@@ -108,5 +111,6 @@
     </main>
 
     <script src="../../js/panelDocente.js"></script>
+    <script src="../../js/logout.js"></script>
 </body>
 </html>

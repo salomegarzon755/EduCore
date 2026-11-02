@@ -88,5 +88,39 @@ def obtener_grupos_docente(id_docente):
     grupos = GrupoDAO.obtener_grupos_por_docente(id_docente)
     return jsonify({"success": True, "grupos": grupos}), 200
 
+# --- NUEVAS RUTAS HU.06 (AGREGAR ESTUDIANTES AL GRUPO) ---
+
+@app.route('/api/grupos/<int:id_grupo>', methods=['GET'])
+def obtener_detalle_grupo(id_grupo):
+    grupo = GrupoDAO.obtener_detalle_grupo(id_grupo)
+    if not grupo:
+        return jsonify({"success": False, "message": "Grupo no encontrado"}), 404
+    
+    estudiantes = GrupoDAO.obtener_estudiantes_del_grupo(id_grupo)
+    grupo["estudiantes"] = estudiantes
+    grupo["total_estudiantes"] = len(estudiantes)
+    return jsonify({"success": True, "grupo": grupo}), 200
+
+@app.route('/api/grupos/<int:id_grupo>/estudiantes/buscar', methods=['GET'])
+def buscar_estudiantes_para_grupo(id_grupo):
+    query_texto = request.args.get('q', '').strip()
+    estudiantes = GrupoDAO.buscar_estudiantes_para_grupo(query_texto, id_grupo)
+    return jsonify({"success": True, "estudiantes": estudiantes}), 200
+
+@app.route('/api/grupos/<int:id_grupo>/estudiantes', methods=['POST'])
+def agregar_estudiante_a_grupo(id_grupo):
+    data = request.get_json() or {}
+    id_estudiante = data.get('id_estudiante')
+
+    if not id_estudiante:
+        return jsonify({"success": False, "message": "El ID del estudiante es obligatorio"}), 400
+
+    resultado = GrupoDAO.agregar_estudiante_a_grupo(id_grupo, id_estudiante)
+    if resultado["success"]:
+        return jsonify(resultado), 201
+    else:
+        status_code = 409 if resultado.get("codigo") == "DUPLICADO" else 400
+        return jsonify(resultado), status_code
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

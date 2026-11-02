@@ -101,3 +101,138 @@ class GrupoDAO:
         finally:
             if conn:
                 DatabaseConnection.return_connection(conn)
+
+    @staticmethod
+    def obtener_detalle_grupo(id_grupo):
+        conn = DatabaseConnection.get_connection()
+        if not conn:
+            return None
+        try:
+            cursor = conn.cursor()
+            query = """
+                SELECT g.id_grupo, g.nombre_grupo, g.grado, g.descripcion, g.id_docente
+                FROM grupo g
+                WHERE g.id_grupo = %s;
+            """
+            cursor.execute(query, (id_grupo,))
+            row = cursor.fetchone()
+            cursor.close()
+
+            if not row:
+                return None
+
+            return {
+                "id_grupo": row[0],
+                "nombre_grupo": row[1],
+                "grado": row[2] or "Primero",
+                "descripcion": row[3] or "",
+                "id_docente": row[4],
+                "codigo_clase": f"AC-{row[0] + 100}"
+            }
+        except Exception as e:
+            print(f"Error al obtener detalle del grupo: {e}")
+            return None
+        finally:
+            if conn:
+                DatabaseConnection.return_connection(conn)
+
+    @staticmethod
+    def obtener_estudiantes_del_grupo(id_grupo):
+        conn = DatabaseConnection.get_connection()
+        if not conn:
+            return []
+        try:
+            cursor = conn.cursor()
+            query = """
+                SELECT u.id_usuario, u.nombre, u.apodo, u.correo
+                FROM usuario u
+                JOIN estudiante_grupo eg ON u.id_usuario = eg.id_estudiante
+                WHERE eg.id_grupo = %s
+                ORDER BY u.nombre ASC;
+            """
+            cursor.execute(query, (id_grupo,))
+            rows = cursor.fetchall()
+            cursor.close()
+
+            return [
+                {
+                    "id_estudiante": r[0],
+                    "nombre": r[1],
+                    "apodo": r[2],
+                    "correo": r[3]
+                } for r in rows
+            ]
+        except Exception as e:
+            print(f"Error al obtener estudiantes del grupo: {e}")
+            return []
+        finally:
+            if conn:
+                DatabaseConnection.return_connection(conn)
+
+    @staticmethod
+    def buscar_estudiantes_para_grupo(query_texto, id_grupo):
+        conn = DatabaseConnection.get_connection()
+        if not conn:
+            return []
+        try:
+            cursor = conn.cursor()
+            query = """
+                SELECT u.id_usuario, u.nombre, u.apodo,
+                       CASE WHEN eg.id_grupo IS NOT NULL THEN TRUE ELSE FALSE END AS en_grupo
+                FROM usuario u
+                LEFT JOIN estudiante_grupo eg ON u.id_usuario = eg.id_estudiante AND eg.id_grupo = %s
+                WHERE u.rol = 'Estudiante'
+                  AND (LOWER(u.nombre) LIKE %s OR LOWER(u.apodo) LIKE %s)
+                ORDER BY u.nombre ASC
+                LIMIT 15;
+            """
+            param_search = f"%{query_texto.lower()}%"
+            cursor.execute(query, (id_grupo, param_search, param_search))
+            rows = cursor.fetchall()
+            cursor.close()
+
+            return [
+                {
+                    "id_estudiante": r[0],
+                    "nombre": r[1],
+                    "apodo": r[2],
+                    "en_grupo": r[3]
+                } for r in rows
+            ]
+        except Exception as e:
+            print(f"Error buscando estudiantes: {e}")
+            return []
+        finally:
+            if conn:
+                DatabaseConnection.return_connection(conn)
+
+    @staticmethod
+    def agregar_estudiante_a_grupo(id_grupo, id_estudiante):
+        conn = DatabaseConnection.get_connection()
+        if not conn:
+            return {"success": False, "message": "Error de conexión a la BD"}
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT 1 FROM estudiante_grupo WHERE id_grupo = %s AND id_estudiante = %s;",
+                (id_grupo, id_estudiante)
+            )
+            if cursor.fetchone():
+                cursor.close()
+                return {"success": False, "codigo": "DUPLICADO", "message": "Este estudiante ya forma parte del grupo"}
+
+            cursor.execute(
+                "INSERT INTO estudiante_grupo (id_grupo, id_estudiante) VALUES (%s, %s);",
+                (id_grupo, id_estudiante)
+            )
+            conn.commit()
+            cursor.close()
+            return {"success": True, "message": "Estudiante agregado con éxito"}
+        except Exception as e:
+            print(f"Error al asociar estudiante al grupo: {e}")
+            if conn:
+                conn.rollback()
+            return {"success": False, "message": str(e)}
+        finally:
+            if conn:
+                DatabaseConnection.return_connection(conn)

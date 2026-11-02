@@ -26,6 +26,9 @@
             <a href="Seguimiento.html" class="nav-item">
                 <span class="nav-icon">📊</span> Seguimiento
             </a>
+            <a href="../Login.html" class="nav-item logout-btn logout-nav-item">
+                <span class="nav-icon">🚪</span> Cerrar sesión
+            </a>
         </nav>
         <div class="sidebar-banner">
             <span class="banner-icon">🌱</span>
@@ -56,6 +59,9 @@
                 <p style="color:#718096; margin-top:4px; margin-bottom:24px;">Elige el grupo y asocia el curso predefinido que van a explorar sus estudiantes.</p>
             </div>
 
+            <!-- BANNER DE FEEDBACK -->
+            <div id="courseAssignFeedback" style="display:none; padding:12px 16px; border-radius:12px; margin-bottom:20px; font-weight:600;"></div>
+
             <!-- CATÁLOGO DE CURSOS PREDEFINIDOS (BD) -->
             <div class="courses-catalog-grid">
                 
@@ -69,11 +75,10 @@
                         
                         <div class="association-control">
                             <label for="assignGroupMath1">Asignar este curso al grupo:</label>
-                            <select id="assignGroupMath1" class="form-select-custom">
+                            <select id="assignGroupMath1" class="form-select-custom group-select-dynamic" data-course-id="1">
                                 <option value="">-- Seleccionar grupo --</option>
-                                <option value="exploradores">Exploradores de primero</option>
                             </select>
-                            <button type="button" class="btn-submit-form style-sm" style="margin-top:8px; width:100%;">Asociar curso al grupo</button>
+                            <button type="button" class="btn-submit-form style-sm btn-assign-course" data-course-id="1" style="margin-top:8px; width:100%;">Asociar curso al grupo</button>
                         </div>
                     </div>
                 </div>
@@ -88,11 +93,10 @@
                         
                         <div class="association-control">
                             <label for="assignGroupMath2">Asignar este curso al grupo:</label>
-                            <select id="assignGroupMath2" class="form-select-custom">
+                            <select id="assignGroupMath2" class="form-select-custom group-select-dynamic" data-course-id="2">
                                 <option value="">-- Seleccionar grupo --</option>
-                                <option value="aventureros">Aventureros de segundo</option>
                             </select>
-                            <button type="button" class="btn-submit-form style-sm" style="margin-top:8px; width:100%;">Asociar curso al grupo</button>
+                            <button type="button" class="btn-submit-form style-sm btn-assign-course" data-course-id="2" style="margin-top:8px; width:100%;">Asociar curso al grupo</button>
                         </div>
                     </div>
                 </div>
@@ -102,5 +106,73 @@
     </main>
 
     <script src="../../js/panelDocente.js"></script>
+    <script src="../../js/logout.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedUserRaw = localStorage.getItem('currentUser');
+            const teacherUser = storedUserRaw ? JSON.parse(storedUserRaw) : null;
+            const teacherId = teacherUser?.id_usuario || teacherUser?.id || 2;
+
+            const groupSelects = document.querySelectorAll('.group-select-dynamic');
+            const feedbackBanner = document.getElementById('courseAssignFeedback');
+
+            // Cargar los grupos del docente en los desplegables
+            if (teacherId && groupSelects.length > 0) {
+                fetch(`http://localhost:5000/api/grupos/docente/${teacherId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const grupos = Array.isArray(data) ? data : (data.grupos || []);
+                        groupSelects.forEach(select => {
+                            select.innerHTML = '<option value="">-- Seleccionar grupo --</option>';
+                            grupos.forEach(g => {
+                                const option = document.createElement('option');
+                                option.value = g.id_grupo;
+                                option.textContent = `${g.nombre_grupo} (Grado ${g.grado}.°)`;
+                                select.appendChild(option);
+                            });
+                        });
+                    })
+                    .catch(err => console.error('Error cargando grupos en selector:', err));
+            }
+
+            // Escuchar clics en el botón "Asociar curso al grupo"
+            document.querySelectorAll('.btn-assign-course').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const courseId = btn.getAttribute('data-course-id');
+                    const select = document.querySelector(`.group-select-dynamic[data-course-id="${courseId}"]`);
+                    const groupId = select ? select.value : null;
+
+                    if (!groupId) {
+                        alert('Por favor, selecciona un grupo antes de asociar el curso.');
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(`http://localhost:5000/api/grupos/${groupId}/cursos`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id_curso: courseId })
+                        });
+                        const data = await res.json();
+
+                        if (res.ok && data.success) {
+                            if (feedbackBanner) {
+                                feedbackBanner.textContent = '✓ Curso asociado al grupo correctamente';
+                                feedbackBanner.style.backgroundColor = '#DCFCE7';
+                                feedbackBanner.style.color = '#166534';
+                                feedbackBanner.style.display = 'block';
+                                setTimeout(() => { feedbackBanner.style.display = 'none'; }, 4000);
+                            }
+                        } else {
+                            alert(data.message || 'El curso ya se encuentra asociado a este grupo.');
+                        }
+                    } catch (e) {
+                        console.error('Error asociando curso:', e);
+                        alert('No se pudo conectar con el servidor.');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

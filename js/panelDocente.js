@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(err => console.error('Error al obtener cursos de la BD:', err));
     }
 
-    // 4. Envío de formulario de creación de grupo
+    // 4. Envío de formulario de creación de grupo (HU.05 -> HU.06)
     const createGroupForm = document.getElementById('createGroupForm');
     const createGroupFormContainer = document.getElementById('createGroupFormContainer');
     const groupCreatedSuccessContainer = document.getElementById('groupCreatedSuccessContainer');
@@ -95,7 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
 
-                if (response.ok && (data.success || data.id_grupo)) {
+                if (response.ok && (data.success || data.grupo)) {
+                    const grupoCreado = data.grupo || data;
+                    const idNuevoGrupo = grupoCreado.id_grupo;
+
                     if (createdGroupSummary) {
                         createdGroupSummary.textContent = `${nombreGrupo} · Grado ${selectedGrade.toLowerCase()}`;
                     }
@@ -106,6 +109,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         } else {
                             createdCourseSummary.textContent = 'Sin cursos asignados.';
                         }
+                    }
+
+                    // Vincular botón "Agregar estudiantes" con el grupo recién creado (HU.06)
+                    const btnAgregarEstudiantes = document.querySelector('#groupCreatedSuccessContainer a.btn-create-group') || 
+                                                 document.querySelector('#groupCreatedSuccessContainer a[href*="AgregarEstudiantes"]');
+                    if (btnAgregarEstudiantes && idNuevoGrupo) {
+                        btnAgregarEstudiantes.href = `DetalleGrupo.html?id=${idNuevoGrupo}&openModal=true`;
                     }
 
                     if (createGroupFormContainer) createGroupFormContainer.style.display = 'none';
@@ -163,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (emptyGroupsState) emptyGroupsState.style.display = 'none';
                     if (groupsListContainer) groupsListContainer.style.display = 'grid';
 
-                    // Función generadora de HTML para las tarjetas
+                    // Función generadora de HTML para las tarjetas con enlace a DetalleGrupo.html
                     const renderGroupCards = (targetElement) => {
                         if (!targetElement) return;
                         targetElement.innerHTML = '';
@@ -186,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         ${grupo.nombres_cursos}
                                     </div>
                                 </div>
-                                <a href="MisGrupos.html" class="btn-ver-grupo-link">→ Ver grupo</a>
+                                <a href="DetalleGrupo.html?id=${grupo.id_grupo}" class="btn-ver-grupo-link">→ Ver grupo</a>
                             `;
                             targetElement.appendChild(card);
                         });

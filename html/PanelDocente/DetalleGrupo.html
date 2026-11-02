@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCore - Detalle del Grupo</title>
+    <link rel="stylesheet" href="../../css/PanelDocente.css">
+</head>
+<body class="teacher-body">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img src="../../img/files/EduCore_Identidad/01_logos/png/logo_compacto_color.png" alt="EduCore Logo" class="brand-logo">
+        </div>
+        <div class="sidebar-tag">Espacio docente</div>
+        <nav class="sidebar-nav">
+            <a href="PanelPrincipal.html" class="nav-item">
+                <span class="nav-icon">🏠</span> Panel principal
+            </a>
+            <a href="MisGrupos.html" class="nav-item active">
+                <span class="nav-icon">👥</span> Mis grupos
+            </a>
+            <a href="MisCursos.html" class="nav-item">
+                <span class="nav-icon">📚</span> Mis cursos
+            </a>
+            <a href="Seguimiento.html" class="nav-item">
+                <span class="nav-icon">📊</span> Seguimiento
+            </a>
+            <a href="../Login.html" class="nav-item logout-btn logout-nav-item">
+                <span class="nav-icon">🚪</span> Cerrar sesión
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-header">
+            <span class="header-motto">Enseñar también es acompañar</span>
+            <div class="user-profile">
+                <div class="user-text">
+                    <span class="user-name" id="displayTeacherName">Profe</span>
+                    <span class="user-grade">Docente</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="content-section">
+            <div class="breadcrumb" style="color: #718096; font-size: 14px; margin-bottom: 12px;">
+                EduCore / Mis grupos / <strong>Detalle del grupo</strong>
+            </div>
+
+            <!-- ENCABEZADO DEL GRUPO (HU.06 A) -->
+            <div class="group-detail-header-card" style="background:#fff; border-radius:16px; padding:24px; border:1px solid #E2E8F0; margin-bottom:24px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                        <h1 id="groupDetailName" style="font-size:26px; font-weight:800; margin:0;">Cargando grupo...</h1>
+                        <p id="groupDetailGrade" style="color:#718096; margin-top:4px;">Grado -- · <span id="groupDetailStudentCount">0 estudiantes</span></p>
+                    </div>
+                    <div style="background:#EDF2F7; padding:8px 16px; border-radius:12px; font-size:14px; font-weight:700; color:#4A5568;">
+                        Código de clase: <span id="groupDetailClassCode" style="color:#2B6CB0;">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTIFICACIÓN FLOTANTE / DE ACCIÓN (HU.06 C / D) -->
+            <div id="alertFeedbackBanner" style="display:none; padding:12px 16px; border-radius:12px; margin-bottom:20px; font-weight:600;"></div>
+
+            <!-- SECCIÓN CON BOTÓN AGREGAR -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h2 style="font-size:20px; font-weight:800;">Estudiantes del grupo</h2>
+                <button id="btnOpenAddModal" class="btn-create-group">+ Agregar estudiante</button>
+            </div>
+
+            <!-- LISTA DE ESTUDIANTES EN EL GRUPO -->
+            <div id="studentsGridContainer" class="teacher-groups-grid"></div>
+
+            <!-- ESTADO VACÍO EN DETALLE -->
+            <div id="emptyStudentsGroup" class="empty-state-card" style="display:none;">
+                <h3 class="empty-state-title">No hay estudiantes en este grupo</h3>
+                <p class="empty-state-desc">Haz clic en "+ Agregar estudiante" para comenzar a inscribir alumnos.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL BUSCAR Y AGREGAR ESTUDIANTE (HU.06 B) -->
+    <div id="addStudentModalOverlay" class="logout-modal-overlay" style="display:none;">
+        <div class="logout-modal-card" style="max-width:520px; text-align:left;">
+            <h2 class="logout-modal-title" style="margin-top:0;">Agregar estudiante</h2>
+            <p class="logout-modal-desc">Busca una cuenta existente para este grupo.</p>
+
+            <div style="margin-bottom:16px;">
+                <input type="text" id="inputSearchStudent" placeholder="🔍 Buscar por nombre o usuario..." 
+                       style="width:100%; padding:12px; border-radius:10px; border:1px solid #CBD5E0; font-size:14px;">
+            </div>
+
+            <!-- RESULTADOS DE BÚSQUEDA -->
+            <div id="searchResultsList" style="max-height:220px; overflow-y:auto; margin-bottom:20px; display:flex; flex-direction:column; gap:8px;"></div>
+
+            <div class="logout-modal-actions" style="flex-direction:row; justify-content:flex-end;">
+                <button id="btnCloseAddModal" class="btn-secondary-logout">Cancelar</button>
+                <button id="btnConfirmAddStudent" class="btn-primary-logout" disabled style="opacity:0.5;">Agregar al grupo</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/logout.js"></script>
+    <script src="../../js/detalleGrupo.js"></script>
+</body>
+</html>

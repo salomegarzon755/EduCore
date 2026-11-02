@@ -92,13 +92,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Guardamos el objeto devuelto por PostgreSQL (contiene id_usuario, nombre, usuario, rol)
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
                     localStorage.setItem('loggedUserName', data.user.nombre || usuarioVal);
-                    localStorage.setItem('userRole', data.user.rol);
-                    if (data.user.rol === 'Docente') {
-                        window.location.href = 'PanelDocente/PanelPrincipal.html';
-                    } else if (data.user.rol === 'Estudiante') {
-                        window.location.href = 'PanelEstudiante/Inicio.html';
-                    } else {
+                    
+                    // Si el usuario intentó ingresar desde el 'ESPACIO FAMILIA', priorizamos esa vista
+                    if (savedRole === 'Padre o Madre') {
+                        localStorage.setItem('userRole', 'Padre o Madre');
                         window.location.href = 'PanelFamilia.html';
+                    } else if (data.user.rol === 'Docente') {
+                        localStorage.setItem('userRole', 'Docente');
+                        window.location.href = 'PanelDocente/PanelPrincipal.html';
+                    } else {
+                        localStorage.setItem('userRole', 'Estudiante');
+                        window.location.href = 'PanelEstudiante/Inicio.html';
                     }
                 } else {
                     if (authErrorAlert) authErrorAlert.classList.remove('alert-hidden');
