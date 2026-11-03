@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCore - Detalle del Grupo (Estudiante)</title>
+    <link rel="stylesheet" href="../../css/paneles.css">
+    <link rel="stylesheet" href="../../css/PanelEstudiante.css">
+</head>
+<body class="student-body">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img src="../../img/files/EduCore_Identidad/01_logos/png/logo_compacto_color.png" alt="EduCore Logo" class="brand-logo">
+            <span class="brand-title">EduCore</span>
+        </div>
+        <div class="sidebar-tag">Mi aventura</div>
+        <nav class="sidebar-nav">
+            <a href="Inicio.html" class="nav-item">
+                <span class="nav-icon">🏠</span> Inicio
+            </a>
+            <a href="MiCamino.html" class="nav-item">
+                <span class="nav-icon">🗺️</span> Mi camino
+            </a>
+            <a href="MisGrupos.html" class="nav-item active">
+                <span class="nav-icon">👥</span> Mis grupos
+            </a>
+            <a href="MisCursos.html" class="nav-item">
+                <span class="nav-icon">📚</span> Mis cursos
+            </a>
+            <a href="MiProgreso.html" class="nav-item">
+                <span class="nav-icon">📊</span> Mi progreso
+            </a>
+            <a href="../Login.html" class="nav-item logout-btn logout-nav-item">
+                <span class="nav-icon">🚪</span> Cerrar sesión
+            </a>
+        </nav>
+        <div class="sidebar-banner">
+            <span class="banner-icon">🌱</span>
+            <div class="banner-text">
+                <strong>Aprendemos desde Acandí</strong>
+                <p>Cada paso cuenta.</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-header">
+            <span class="header-motto">Matemáticas a tu ritmo</span>
+            <div class="user-profile">
+                <div class="user-text">
+                    <span class="user-name" id="displayStudentName">Luna</span>
+                    <span class="user-grade">Estudiante</span>
+                </div>
+                <div class="user-avatar">😊</div>
+                <a href="../Login.html" class="logout-btn" title="Cerrar sesión">
+                    <img src="../../img/files/EduCore_Identidad/05_iconos/png/icono_inicio.png" alt="Salir" class="logout-icon">
+                </a>
+            </div>
+        </header>
+
+        <section class="content-section">
+            <div style="font-size:13px; color:#718096; margin-bottom:12px;">
+                EduCore / <a href="MisGrupos.html" style="color:#718096; text-decoration:none;">Mis grupos</a> / <span style="color:#2D3748; font-weight:700;">Detalle del grupo</span>
+            </div>
+
+            <div style="background:#FFF; border:1px solid #EFEAE0; border-radius:24px; padding:24px 32px; display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                <div>
+                    <h1 id="groupDetailName" style="font-size:28px; font-weight:800; color:#2D3748; margin:0 0 4px 0;">Cargando grupo...</h1>
+                    <p style="color:#718096; margin:0; font-weight:600;"><span id="groupDetailGrade">Grado -</span> · <span id="groupDetailStudentCount">0 estudiantes</span></p>
+                </div>
+                <div style="background:#E0F2FE; color:#0369A1; font-weight:800; padding:8px 16px; border-radius:14px; font-size:14px;">
+                    Código de clase: <span id="groupDetailClassCode">--</span>
+                </div>
+            </div>
+
+            <h2 style="font-size:20px; font-weight:800; color:#2D3748; margin-bottom:16px;">Cursos asignados a tu grupo</h2>
+
+            <div id="assignedCoursesContainer" class="courses-catalog-grid"></div>
+
+            <div class="empty-state-card" id="emptyCoursesState" style="display:none;">
+                <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_cursos.png" alt="Sin cursos" class="empty-state-img">
+                <h3 class="empty-state-title">Este grupo aún no tiene cursos asignados</h3>
+                <p class="empty-state-desc">Tu docente agregará pronto los contenidos para explorar.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="../../js/config.js"></script>
+    <script src="../../js/panelEstudiante.js"></script>
+    <script src="../../js/logout.js"></script>
+</body>
+</html>

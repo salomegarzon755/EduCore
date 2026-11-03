@@ -1,13 +1,24 @@
+import os
 import psycopg2
 from psycopg2 import pool
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class DatabaseConnection:
     _connection_pool = None
 
     @classmethod
-    def initialize(cls, dbname="educore_db", user="postgres", password="1234", host="localhost", port="5432"):
+    def initialize(cls):
         if cls._connection_pool is None:
             try:
+                # Lee las variables del archivo .env o del sistema, usando valores por defecto para desarrollo local
+                dbname = os.getenv('DB_NAME', 'educore_db')
+                user = os.getenv('DB_USER', 'postgres')
+                password = os.getenv('DB_PASSWORD', '1234')
+                host = os.getenv('DB_HOST', 'localhost')
+                port = os.getenv('DB_PORT', '5432')
+
                 cls._connection_pool = pool.SimpleConnectionPool(
                     1, 10,
                     dbname=dbname,
@@ -16,7 +27,7 @@ class DatabaseConnection:
                     host=host,
                     port=port
                 )
-                print("Conexión exitosa a PostgreSQL (educore_db)")
+                print(f"Conexión exitosa a PostgreSQL ({dbname} en {host})")
             except Exception as e:
                 print(f"Error al conectar con la base de datos: {e}")
 
@@ -30,10 +41,6 @@ class DatabaseConnection:
     def return_connection(cls, connection):
         if cls._connection_pool and connection:
             cls._connection_pool.putconn(connection)
-
-    @classmethod
-    def release_connection(cls, connection):
-        cls.return_connection(connection)
 
     @classmethod
     def close_all(cls):

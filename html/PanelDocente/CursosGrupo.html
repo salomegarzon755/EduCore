@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCore - Cursos del grupo</title>
+    <link rel="stylesheet" href="../../css/paneles.css">
+    <link rel="stylesheet" href="../../css/PanelDocente.css">
+    <link rel="stylesheet" href="../../css/CursosGrupo.css">
+</head>
+<body class="panel-body">
+
+    <!-- Layout Principal -->
+    <div class="panel-container">
+        
+        <!-- Barra Lateral Navegación -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <span class="logo-icon">🟢</span>
+                <span class="logo-text">EduCore</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="PanelPrincipal.html" class="nav-item">🏠 Inicio</a>
+                <a href="MisGrupos.html" class="nav-item active">👥 Mis grupos</a>
+                <a href="misCursos.html" class="nav-item">📚 Cursos</a>
+                <a href="Seguimiento.html" class="nav-item">📊 Resultados</a>
+            </nav>
+            <div class="sidebar-footer">
+                <span class="user-avatar">LM</span>
+                <div class="user-info">
+                    <strong id="displayTeacherName">Laura Mina</strong>
+                    <small>Docente</small>
+                </div>
+                <button class="logout-btn">🚪 Cerrar sesión</button>
+            </div>
+        </aside>
+
+        <!-- Contenido Central -->
+        <main class="main-content">
+            
+            <!-- Breadcrumb y Encabezado Superior -->
+            <div class="top-breadcrumb">
+                <a href="MisGrupos.html" class="back-link">← Mis grupos</a> / <span id="breadcrumbGroupName">Exploradores de primero</span>
+            </div>
+
+            <!-- Titular del Grupo -->
+            <div class="group-header-banner">
+                <div>
+                    <h1 class="page-title" style="margin-bottom: 4px;">Cursos del grupo</h1>
+                    <div class="group-meta-badges">
+                        <span class="badge-tag" id="groupGradeBadge">Grado primero</span>
+                        <span class="badge-subtext" id="groupStudentsBadge">4 estudiantes</span>
+                    </div>
+                </div>
+                <button id="btnOpenAddCourseModal" class="btn-primary-action">+ Agregar curso</button>
+            </div>
+
+            <!-- Banner de Notificaciones de Feedback (HU.07 C / HU.08 D) -->
+            <div id="alertFeedbackBanner" class="alert-feedback-banner" style="display: none;"></div>
+
+            <!-- Sección Cursos Asignados -->
+            <section class="assigned-courses-section">
+                <h3 class="section-subtitle" id="coursesCountTitle">Cursos asignados (0)</h3>
+
+                <!-- Contenedor de Tarjetas de Cursos -->
+                <div id="assignedCoursesContainer" class="courses-grid" style="display: none;"></div>
+
+                <!-- Estado Vacío (HU.08 D) -->
+                <div id="emptyCoursesState" class="empty-state-card" style="display: flex;">
+                    <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_cursos.png" alt="Sin cursos" class="empty-state-img">
+                    <h3>Un nuevo camino por descubrir</h3>
+                    <p>Este grupo todavía no tiene cursos asignados. Agrega Matemáticas para comenzar.</p>
+                    <button class="btn-primary-action trigger-add-course">+ Agregar curso</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL HU.07 B: Catálogo Disponible para Agregar -->
+    <div id="addCourseModalOverlay" class="modal-overlay" style="display: none;">
+        <div class="modal-card modal-large">
+            <div class="modal-header">
+                <h2>Agregar curso</h2>
+                <button id="btnCloseAddCourseModal" class="close-modal-btn">✕</button>
+            </div>
+            <p class="modal-subtitle">Cursos disponibles para <strong id="modalGroupGradeText">Exploradores de primero</strong>.</p>
+            <div class="filter-chip">Filtrado por grado <span id="modalFilterGrade">primero</span></div>
+
+            <!-- Lista de Cursos Disponibles -->
+            <div id="availableCoursesList" class="available-courses-list"></div>
+
+            <div class="modal-footer-info">
+                <small>Catálogo de Matemáticas disponible localmente. Las unidades son ejemplos de organización, no un currículo definitivo.</small>
+                <div class="modal-actions-right">
+                    <button id="btnCancelAddCourse" class="btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL HU.08 C: Confirmar Quitar Curso -->
+    <div id="confirmRemoveModalOverlay" class="modal-overlay" style="display: none;">
+        <div class="modal-card modal-small text-center">
+            <div class="warning-icon-wrapper">⚠️</div>
+            <h2>¿Estás seguro de que quieres quitar este curso del grupo?</h2>
+            <p class="target-course-name" id="removeCourseTitle">Matemáticas — Primero</p>
+            <p class="warning-description">
+                Dejará de estar disponible para <span id="removeGroupName">Exploradores de primero</span>. El curso seguirá disponible en el catálogo global.
+            </p>
+            <div class="modal-actions-center">
+                <button id="btnCancelRemove" class="btn-secondary">Cancelar</button>
+                <button id="btnConfirmRemove" class="btn-danger-action">🗑️ Sí, quitar curso</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts de Configuración y Lógica -->
+    <script src="../../js/config.js"></script>
+    <script src="../../js/logout.js"></script>
+    <script src="../../js/cursosGrupo.js"></script>
+</body>
+</html>

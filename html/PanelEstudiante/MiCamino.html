@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCore - Mi Camino</title>
     <link rel="stylesheet" href="../../css/paneles.css">
     <link rel="stylesheet" href="../../css/PanelEstudiante.css">
-    <title>EduCore - Mi Camino</title>
 </head>
 <body class="student-body">
 
@@ -49,7 +49,7 @@
             <span class="header-motto">Matemáticas a tu ritmo</span>
             <div class="user-profile">
                 <div class="user-text">
-                    <span class="user-name" id="displayStudentName">Juan</span>
+                    <span class="user-name" id="displayStudentName">Luna</span>
                     <span class="user-grade">Estudiante</span>
                 </div>
                 <div class="user-avatar">😊</div>
@@ -60,18 +60,29 @@
         </header>
 
         <section class="content-section">
-            <div class="section-header-simple">
-                <h1>Mi camino</h1>
-                <p>Tu ruta interactiva de aprendizaje.</p>
+            <!-- HEADER DE NAVEGACIÓN DE UNIDADES Y AVANCE -->
+            <div class="path-header-banner">
+                <div>
+                    <h1 id="pathCourseTitle" style="margin:0; font-size:26px; color:#2D3748; font-weight:800;">Tu aventura de Matemáticas</h1>
+                    <p id="pathUnitSubtitle" style="margin:4px 0 0 0; color:#15803D; font-weight:800; font-size:17px;">Unidad 1: Explorando los números</p>
+                </div>
+
+                <div class="unit-nav-controls">
+                    <button type="button" id="btnPrevUnit" class="btn-unit-nav" disabled>← Unidad anterior</button>
+                    <span id="pathProgressBadge" class="path-progress-badge">0 de 4 estaciones completadas</span>
+                    <button type="button" id="btnNextUnit" class="btn-unit-nav">Siguiente unidad →</button>
+                </div>
             </div>
 
-            <div class="empty-state-card">
-                <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_cursos.png" alt="Camino" class="empty-state-img">
-                <h3 class="empty-state-title">Tu camino se está preparando</h3>
-                <p class="empty-state-desc">Próximamente podrás interactuar con las actividades y lecciones asignadas por tu docente.</p>
+            <!-- CONTENEDOR SLIDER RESPONSIVO CON ASPECT-RATIO 16/9 -->
+            <div class="adventure-path-viewport">
+                <div id="pathUnitsTrack" class="adventure-units-track">
+                    <!-- Las unidades con fondo e hitos interactivos se renderizan aquí -->
+                </div>
             </div>
         </section>
     </main>
+
     <script src="../../js/config.js"></script>
     <script src="../../js/panelEstudiante.js"></script>
     <script src="../../js/logout.js"></script>

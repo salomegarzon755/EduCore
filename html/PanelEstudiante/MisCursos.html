@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCore - Mis Cursos (Estudiante)</title>
     <link rel="stylesheet" href="../../css/paneles.css">
     <link rel="stylesheet" href="../../css/PanelEstudiante.css">
-    <title>EduCore - Mis Cursos</title>
 </head>
 <body class="student-body">
 
@@ -49,7 +49,7 @@
             <span class="header-motto">Matemáticas a tu ritmo</span>
             <div class="user-profile">
                 <div class="user-text">
-                    <span class="user-name" id="displayStudentName">Juan</span>
+                    <span class="user-name" id="displayStudentName">Luna</span>
                     <span class="user-grade">Estudiante</span>
                 </div>
                 <div class="user-avatar">😊</div>
@@ -61,20 +61,21 @@
 
         <section class="content-section">
             <div class="section-header-simple">
-                <h1>Mis cursos</h1>
-                <p>Pequeños descubrimientos, grandes aprendizajes.</p>
+                <h1 style="font-size:32px; font-weight:800; color:#2D3748;">Mis cursos</h1>
+                <p style="color:#718096; margin-top:4px; margin-bottom:28px;">Pequeños descubrimientos, grandes aprendizajes.</p>
             </div>
 
-            <!-- ESTADO VACÍO CUANDO NO HAY CURSOS -->
-            <div class="empty-state-card" id="emptyCoursesContainer">
+            <!-- CONTENEDOR DE TARJETAS ESTILO IMAGEN 3 -->
+            <div id="studentCoursesContainer" class="student-courses-list"></div>
+
+            <div class="empty-state-card" id="emptyStudentCoursesContainer" style="display:none;">
                 <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_cursos.png" alt="Sin cursos" class="empty-state-img">
-                <h3 class="empty-state-title">No hay cursos disponibles</h3>
-                <p class="empty-state-desc">
-                    Cuando tu docente asigne un curso a tu grupo de clase, aparecerá disponible en esta sección.
-                </p>
+                <h3 class="empty-state-title">No tienes cursos asignados</h3>
+                <p class="empty-state-desc">Pídele a tu profesor que asocie un curso a tu grupo para comenzar tu aventura.</p>
             </div>
         </section>
     </main>
+
     <script src="../../js/config.js"></script>
     <script src="../../js/panelEstudiante.js"></script>
     <script src="../../js/logout.js"></script>

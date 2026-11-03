@@ -1,26 +1,40 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
     const BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
 
     const urlParams = new URLSearchParams(window.location.search);
     const idGrupo = urlParams.get('id') || urlParams.get('id_grupo');
-    const autoOpenModal = urlParams.get('openModal') === 'true';
 
     if (!idGrupo) {
-        alert('No se especificó el ID del grupo.');
+        alert('No se especificó un grupo.');
         window.location.href = 'MisGrupos.html';
         return;
     }
 
-    let selectedStudentId = null;
+    let currentGroupInfo = null;
+    let selectedCourseToRemove = null;
+    let selectedStudentToAdd = null;
 
+    // Elementos DOM Principales
     const groupDetailName = document.getElementById('groupDetailName');
     const groupDetailGrade = document.getElementById('groupDetailGrade');
+    const groupDetailStudentCount = document.getElementById('groupDetailStudentCount');
     const groupDetailClassCode = document.getElementById('groupDetailClassCode');
+
+    // Pestañas
+    const tabEstudiantes = document.getElementById('tabEstudiantes');
+    const tabCursos = document.getElementById('tabCursos');
+    const sectionEstudiantes = document.getElementById('sectionEstudiantes');
+    const sectionCursos = document.getElementById('sectionCursos');
+
+    // Contenedores
     const studentsGridContainer = document.getElementById('studentsGridContainer');
     const emptyStudentsGroup = document.getElementById('emptyStudentsGroup');
+    const assignedCoursesContainer = document.getElementById('assignedCoursesContainer');
+    const emptyCoursesState = document.getElementById('emptyCoursesState');
+    const coursesCountTitle = document.getElementById('coursesCountTitle');
     const alertFeedbackBanner = document.getElementById('alertFeedbackBanner');
 
+    // Modales Estudiante
     const addStudentModalOverlay = document.getElementById('addStudentModalOverlay');
     const btnOpenAddModal = document.getElementById('btnOpenAddModal');
     const btnCloseAddModal = document.getElementById('btnCloseAddModal');
@@ -28,71 +42,177 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchResultsList = document.getElementById('searchResultsList');
     const btnConfirmAddStudent = document.getElementById('btnConfirmAddStudent');
 
-    // 1. Cargar Detalle del Grupo y sus Estudiantes desde el Backend
-    async function cargarGrupo() {
+    // Modales Cursos
+    const addCourseModalOverlay = document.getElementById('addCourseModalOverlay');
+    const btnOpenAddCourseModal = document.getElementById('btnOpenAddCourseModal');
+    const btnTriggerAddCourse = document.getElementById('btnTriggerAddCourse');
+    const btnCancelAddCourse = document.getElementById('btnCancelAddCourse');
+    const availableCoursesList = document.getElementById('availableCoursesList');
+
+    const confirmRemoveModalOverlay = document.getElementById('confirmRemoveModalOverlay');
+    const removeCourseTitle = document.getElementById('removeCourseTitle');
+    const btnCancelRemoveCourse = document.getElementById('btnCancelRemoveCourse');
+    const btnConfirmRemoveCourse = document.getElementById('btnConfirmRemoveCourse');
+
+    // --- CAMBIO DE PESTAÑAS ---
+    if (tabEstudiantes && tabCursos) {
+        tabEstudiantes.addEventListener('click', () => {
+            tabEstudiantes.classList.add('active');
+            tabCursos.classList.remove('active');
+            sectionEstudiantes.style.display = 'block';
+            sectionCursos.style.display = 'none';
+        });
+
+        tabCursos.addEventListener('click', () => {
+            tabCursos.classList.add('active');
+            tabEstudiantes.classList.remove('active');
+            sectionCursos.style.display = 'block';
+            sectionEstudiantes.style.display = 'none';
+        });
+    }
+
+    // 1. Cargar Información General del Grupo
+    async function cargarDetalleGrupo() {
         try {
             const res = await fetch(`${BASE_URL}/grupos/${idGrupo}`);
             const data = await res.json();
 
-            if (data.success) {
-                const g = data.grupo;
-                if (groupDetailName) groupDetailName.textContent = g.nombre_grupo;
-                if (groupDetailGrade) {
-                    groupDetailGrade.innerHTML = `Grado ${g.grado}.° · <span id="groupDetailStudentCount">${g.total_estudiantes} estudiantes</span>`;
-                }
-                if (groupDetailClassCode) groupDetailClassCode.textContent = g.codigo_clase;
+            if (data.success && data.grupo) {
+                currentGroupInfo = data.grupo;
+                if (groupDetailName) groupDetailName.textContent = currentGroupInfo.nombre_grupo;
+                if (groupDetailGrade) groupDetailGrade.textContent = `Grado ${currentGroupInfo.grado}.°`;
+                if (groupDetailStudentCount) groupDetailStudentCount.textContent = `${currentGroupInfo.total_estudiantes} estudiantes`;
+                if (groupDetailClassCode) groupDetailClassCode.textContent = currentGroupInfo.codigo_clase || `AC-${100 + Number(idGrupo)}`;
 
-                renderEstudiantes(g.estudiantes);
-            } else {
-                alert(data.message || 'No se pudo obtener la información del grupo.');
+                renderEstudiantes(currentGroupInfo.estudiantes || []);
             }
+
+            cargarCursosGrupo();
         } catch (err) {
-            console.error('Error cargando grupo:', err);
+            console.error('Error al cargar detalle del grupo:', err);
         }
     }
 
+    // 2. Renderizar Lista de Estudiantes
     function renderEstudiantes(estudiantes) {
         if (!studentsGridContainer) return;
         studentsGridContainer.innerHTML = '';
 
         if (!estudiantes || estudiantes.length === 0) {
-            if (emptyStudentsGroup) emptyStudentsGroup.style.display = 'block';
+            if (emptyStudentsGroup) emptyStudentsGroup.style.display = 'flex';
             studentsGridContainer.style.display = 'none';
-        } else {
-            if (emptyStudentsGroup) emptyStudentsGroup.style.display = 'none';
-            studentsGridContainer.style.display = 'grid';
+            return;
+        }
 
-            estudiantes.forEach(est => {
-                const card = document.createElement('div');
-                card.className = 'teacher-group-card';
-                card.style.padding = '16px';
-                card.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div style="background:#E2E8F0; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:#2D3748; font-size:15px;">
-                            ${(est.nombre || 'ES').substring(0, 2).toUpperCase()}
-                        </div>
-                        <div>
-                            <h4 style="margin:0; font-size:16px; font-weight:700; color:#2D3748;">${est.nombre}</h4>
-                            <p style="margin:2px 0 0 0; color:#718096; font-size:13px;">Usuario: ${est.apodo}</p>
-                        </div>
+        if (emptyStudentsGroup) emptyStudentsGroup.style.display = 'none';
+        studentsGridContainer.style.display = 'grid';
+
+        estudiantes.forEach(est => {
+            const card = document.createElement('div');
+            card.className = 'teacher-group-card';
+            card.innerHTML = `
+                <div class="group-card-top">
+                    <div class="group-avatar-icon">👤</div>
+                    <div class="group-title-info">
+                        <h3>${est.nombre || est.usuario}</h3>
+                        <p>@${est.usuario}</p>
                     </div>
-                `;
-                studentsGridContainer.appendChild(card);
-            });
+                </div>
+                <div class="group-course-badge">Estudiante activo</div>
+            `;
+            studentsGridContainer.appendChild(card);
+        });
+    }
+
+    // 3. Cargar y Renderizar Cursos del Grupo (Datos Reales + Enlace Directo)
+    async function cargarCursosGrupo() {
+        try {
+            const res = await fetch(`${BASE_URL}/grupos/${idGrupo}/cursos`);
+            const data = await res.json();
+
+            if (data.success) {
+                renderCursosAsignados(data.cursos || []);
+            }
+        } catch (err) {
+            console.error('Error al obtener cursos del grupo:', err);
         }
     }
 
-    // 2. Abrir y Cerrar Modal (HU.06 B)
+    function renderCursosAsignados(cursos) {
+        if (!assignedCoursesContainer) return;
+        assignedCoursesContainer.innerHTML = '';
+        const total = cursos.length;
+
+        if (coursesCountTitle) coursesCountTitle.textContent = `Cursos asignados (${total})`;
+
+        if (total === 0) {
+            if (emptyCoursesState) emptyCoursesState.style.display = 'block';
+            assignedCoursesContainer.style.display = 'none';
+            return;
+        }
+
+        if (emptyCoursesState) emptyCoursesState.style.display = 'none';
+        assignedCoursesContainer.style.display = 'grid';
+
+        cursos.forEach((curso) => {
+            const esGrado2 = curso.id_curso == 2 || (curso.titulo_curso && curso.titulo_curso.toLowerCase().includes('exploramos'));
+            const bgTheme = esGrado2 ? 'bg-math-2' : 'bg-math-1';
+            const badgeTexto = esGrado2 ? 'MATEMÁTICAS · GRADO 2.°' : 'MATEMÁTICAS · GRADO 1.°';
+            const totalUnidades = curso.total_unidades || 3;
+
+            const card = document.createElement('div');
+            card.className = 'course-card-illustrated';
+            card.innerHTML = `
+                <div class="course-card-banner ${bgTheme}">
+                    <span class="course-card-badge">${badgeTexto}</span>
+                    <div class="menu-options-wrapper">
+                        <button type="button" class="btn-icon-dots dropdown-toggle">•••</button>
+                        <div class="dropdown-action-menu" style="display: none;">
+                            <button type="button" class="dropdown-action-item danger-text btn-action-remove" data-id="${curso.id_curso}">🗑️ Quitar del grupo</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="course-card-body-custom">
+                    <h3>${curso.titulo_curso}</h3>
+                    <p>${curso.descripcion || 'Sin descripción disponible.'}</p>
+                </div>
+                <div class="course-card-footer-custom">
+                    <small style="color:#718096; font-weight:700;">${totalUnidades} unidades</small>
+                    <a href="misCursos.html?id_curso=${curso.id_curso}#curso-${curso.id_curso}" class="btn-create-group" style="padding: 6px 14px; font-size: 12px; text-decoration: none;">→ Ver curso</a>
+                </div>
+            `;
+
+            // Desplegable de Opciones
+            const toggleBtn = card.querySelector('.dropdown-toggle');
+            const dropdownMenu = card.querySelector('.dropdown-action-menu');
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.dropdown-action-menu').forEach(m => m.style.display = 'none');
+                dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Acción Quitar del Grupo
+            const removeBtn = card.querySelector('.btn-action-remove');
+            removeBtn.addEventListener('click', () => {
+                selectedCourseToRemove = { id: curso.id_curso, nombre: curso.titulo_curso };
+                if (removeCourseTitle) removeCourseTitle.textContent = curso.titulo_curso;
+                if (confirmRemoveModalOverlay) confirmRemoveModalOverlay.style.display = 'flex';
+            });
+
+            assignedCoursesContainer.appendChild(card);
+        });
+    }
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-action-menu').forEach(m => m.style.display = 'none');
+    });
+
+    // --- ACCIONES MODAL AGREGAR ESTUDIANTE ---
     if (btnOpenAddModal) {
         btnOpenAddModal.addEventListener('click', () => {
             if (addStudentModalOverlay) addStudentModalOverlay.style.display = 'flex';
+            if (searchResultsList) searchResultsList.innerHTML = '<p style="color:#718096; font-size:13px;">Escribe para buscar estudiantes...</p>';
             if (inputSearchStudent) inputSearchStudent.value = '';
-            selectedStudentId = null;
-            if (btnConfirmAddStudent) {
-                btnConfirmAddStudent.disabled = true;
-                btnConfirmAddStudent.style.opacity = '0.5';
-            }
-            buscarEstudiantes('');
         });
     }
 
@@ -103,111 +223,179 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (inputSearchStudent) {
-        inputSearchStudent.addEventListener('input', (e) => {
-            buscarEstudiantes(e.target.value.trim());
+        let timer;
+        inputSearchStudent.addEventListener('input', () => {
+            clearTimeout(timer);
+            const q = inputSearchStudent.value.trim();
+            timer = setTimeout(async () => {
+                if (!q) {
+                    searchResultsList.innerHTML = '<p style="color:#718096; font-size:13px;">Escribe para buscar estudiantes...</p>';
+                    return;
+                }
+                try {
+                    const res = await fetch(`${BASE_URL}/grupos/${idGrupo}/estudiantes/buscar?q=${encodeURIComponent(q)}`);
+                    const data = await res.json();
+
+                    if (data.success && searchResultsList) {
+                        searchResultsList.innerHTML = '';
+                        if (data.estudiantes.length === 0) {
+                            searchResultsList.innerHTML = '<p style="color:#718096; font-size:13px;">No se encontraron estudiantes disponibles.</p>';
+                            return;
+                        }
+                        data.estudiantes.forEach(est => {
+                            const item = document.createElement('div');
+                            item.style.cssText = 'padding:10px; border:1px solid #CBD5E0; border-radius:10px; cursor:pointer; background:#FFF;';
+                            item.innerHTML = `<strong>${est.nombre || est.usuario}</strong> <small style="color:#718096;">(@${est.usuario})</small>`;
+                            item.addEventListener('click', () => {
+                                document.querySelectorAll('#searchResultsList > div').forEach(d => d.style.borderColor = '#CBD5E0');
+                                item.style.borderColor = '#10B981';
+                                item.style.backgroundColor = '#ECFDF5';
+                                selectedStudentToAdd = est;
+                                if (btnConfirmAddStudent) {
+                                    btnConfirmAddStudent.disabled = false;
+                                    btnConfirmAddStudent.style.opacity = '1';
+                                }
+                            });
+                            searchResultsList.appendChild(item);
+                        });
+                    }
+                } catch (err) {
+                    console.error('Error buscando estudiantes:', err);
+                }
+            }, 300);
         });
     }
 
-    // 3. Buscar estudiantes evitando duplicados visuales
-    async function buscarEstudiantes(texto) {
-        try {
-            const res = await fetch(`${BASE_URL}/grupos/${idGrupo}/estudiantes/buscar?q=${encodeURIComponent(texto)}`);
-            const data = await res.json();
-
-            if (data.success && searchResultsList) {
-                searchResultsList.innerHTML = '';
-                if (data.estudiantes.length === 0) {
-                    searchResultsList.innerHTML = `<p style="color:#718096; font-size:13px; text-align:center; margin:12px 0;">No se encontraron estudiantes para esa búsqueda.</p>`;
-                    return;
-                }
-
-                data.estudiantes.forEach(est => {
-                    const item = document.createElement('div');
-                    item.style.cssText = `
-                        display: flex; justify-content: space-between; align-items: center;
-                        padding: 10px 14px; border: 1px solid #E2E8F0; border-radius: 10px;
-                        cursor: ${est.en_grupo ? 'not-allowed' : 'pointer'};
-                        background: ${est.en_grupo ? '#EDF2F7' : '#FFFFFF'};
-                        transition: background-color 0.15s, border-color 0.15s;
-                    `;
-
-                    item.innerHTML = `
-                        <div>
-                            <strong style="font-size:14px; color:#2D3748;">${est.nombre}</strong>
-                            <span style="font-size:12px; color:#718096; display:block;">Usuario: ${est.apodo}</span>
-                        </div>
-                        ${est.en_grupo ? '<span style="font-size:12px; font-weight:700; color:#A0AEC0;">En el grupo</span>' : ''}
-                    `;
-
-                    if (!est.en_grupo) {
-                        item.addEventListener('click', () => {
-                            document.querySelectorAll('#searchResultsList > div').forEach(el => {
-                                el.style.borderColor = '#E2E8F0';
-                                el.style.backgroundColor = '#FFFFFF';
-                            });
-                            item.style.borderColor = '#84CC16';
-                            item.style.backgroundColor = '#F7FEE7';
-                            selectedStudentId = est.id_estudiante;
-                            if (btnConfirmAddStudent) {
-                                btnConfirmAddStudent.disabled = false;
-                                btnConfirmAddStudent.style.opacity = '1';
-                            }
-                        });
-                    }
-
-                    searchResultsList.appendChild(item);
-                });
-            }
-        } catch (err) {
-            console.error('Error buscando estudiantes:', err);
-        }
-    }
-
-    // 4. Confirmar inscripción (HU.06 C & D)
     if (btnConfirmAddStudent) {
         btnConfirmAddStudent.addEventListener('click', async () => {
-            if (!selectedStudentId) return;
-
+            if (!selectedStudentToAdd) return;
             try {
                 const res = await fetch(`${BASE_URL}/grupos/${idGrupo}/estudiantes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id_estudiante: selectedStudentId })
+                    body: JSON.stringify({ id_estudiante: selectedStudentToAdd.id_usuario || selectedStudentToAdd.id })
                 });
-
                 const data = await res.json();
                 if (addStudentModalOverlay) addStudentModalOverlay.style.display = 'none';
 
-                if (res.status === 201 && data.success) {
-                    mostrarNotificacion('✓ Estudiante agregado al grupo con éxito', '#DCFCE7', '#166534');
-                    cargarGrupo();
-                } else if (res.status === 409) {
-                    mostrarNotificacion('⚠️ Este estudiante ya forma parte del grupo', '#FEF3C7', '#92400E');
+                if (res.ok && data.success) {
+                    mostrarFeedback('✓ Estudiante agregado al grupo.', '#DCFCE7', '#166534');
+                    cargarDetalleGrupo();
                 } else {
-                    alert(data.message || 'Error al agregar estudiante.');
+                    alert(data.message || 'Error agregando estudiante.');
                 }
             } catch (err) {
-                console.error('Error al agregar estudiante:', err);
-                alert('Ocurrió un error al intentar comunicar con la API.');
+                console.error('Error agregando estudiante:', err);
             }
         });
     }
 
-    function mostrarNotificacion(mensaje, bgColor, textColor) {
+    // --- ACCIONES MODAL AGREGAR CURSO ---
+    [btnOpenAddCourseModal, btnTriggerAddCourse].forEach(btn => {
+        if (btn) {
+            btn.addEventListener('click', () => abrirModalCatalogoCursos());
+        }
+    });
+
+    if (btnCancelAddCourse) {
+        btnCancelAddCourse.addEventListener('click', () => {
+            if (addCourseModalOverlay) addCourseModalOverlay.style.display = 'none';
+        });
+    }
+
+    async function abrirModalCatalogoCursos() {
+        if (addCourseModalOverlay) addCourseModalOverlay.style.display = 'flex';
+        if (availableCoursesList) availableCoursesList.innerHTML = '<p style="text-align:center;">Cargando catálogo...</p>';
+
+        try {
+            const res = await fetch(`${BASE_URL}/grupos/${idGrupo}/cursos/disponibles`);
+            const data = await res.json();
+
+            if (data.success && availableCoursesList) {
+                availableCoursesList.innerHTML = '';
+                if (!data.cursos || data.cursos.length === 0) {
+                    availableCoursesList.innerHTML = '<p style="text-align:center; color:#718096;">Todos los cursos ya han sido asignados a este grupo.</p>';
+                    return;
+                }
+                data.cursos.forEach(curso => {
+                    const item = document.createElement('div');
+                    item.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid #E2E8F0; border-radius:12px; background:#FFF;';
+                    item.innerHTML = `
+                        <div>
+                            <h4 style="margin:0 0 4px 0; font-size:14px; color:#2D3748;">${curso.titulo_curso}</h4>
+                            <p style="margin:0; font-size:12px; color:#718096;">${curso.descripcion}</p>
+                        </div>
+                        <button type="button" class="btn-create-group btn-add-single" style="padding:6px 12px; font-size:12px;">+ Agregar</button>
+                    `;
+                    item.querySelector('.btn-add-single').addEventListener('click', async () => {
+                        await asociarCursoAGrupo(curso.id_curso);
+                    });
+                    availableCoursesList.appendChild(item);
+                });
+            }
+        } catch (err) {
+            console.error('Error catálogo cursos:', err);
+        }
+    }
+
+    async function asociarCursoAGrupo(idCurso) {
+        try {
+            const res = await fetch(`${BASE_URL}/grupos/${idGrupo}/cursos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_curso: idCurso })
+            });
+            const data = await res.json();
+            if (addCourseModalOverlay) addCourseModalOverlay.style.display = 'none';
+
+            if (res.ok && data.success) {
+                mostrarFeedback('✓ Curso asignado al grupo con éxito.', '#DCFCE7', '#166534');
+                cargarCursosGrupo();
+            } else {
+                alert(data.message || 'Error al asignar curso.');
+            }
+        } catch (err) {
+            console.error('Error asociando curso:', err);
+        }
+    }
+
+    // --- ACCIONES QUITAR CURSO ---
+    if (btnCancelRemoveCourse) {
+        btnCancelRemoveCourse.addEventListener('click', () => {
+            if (confirmRemoveModalOverlay) confirmRemoveModalOverlay.style.display = 'none';
+        });
+    }
+
+    if (btnConfirmRemoveCourse) {
+        btnConfirmRemoveCourse.addEventListener('click', async () => {
+            if (!selectedCourseToRemove) return;
+            try {
+                const res = await fetch(`${BASE_URL}/grupos/${idGrupo}/cursos/${selectedCourseToRemove.id}`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                if (confirmRemoveModalOverlay) confirmRemoveModalOverlay.style.display = 'none';
+
+                if (res.ok && data.success) {
+                    mostrarFeedback('✓ Curso quitado del grupo.', '#DCFCE7', '#166534');
+                    cargarCursosGrupo();
+                } else {
+                    alert(data.message || 'No se pudo quitar el curso.');
+                }
+            } catch (err) {
+                console.error('Error quitando curso:', err);
+            }
+        });
+    }
+
+    function mostrarFeedback(mensaje, bg, color) {
         if (!alertFeedbackBanner) return;
         alertFeedbackBanner.textContent = mensaje;
-        alertFeedbackBanner.style.backgroundColor = bgColor;
-        alertFeedbackBanner.style.color = textColor;
+        alertFeedbackBanner.style.backgroundColor = bg;
+        alertFeedbackBanner.style.color = color;
         alertFeedbackBanner.style.display = 'block';
-
-        setTimeout(() => {
-            alertFeedbackBanner.style.display = 'none';
-        }, 4000);
+        setTimeout(() => { alertFeedbackBanner.style.display = 'none'; }, 4000);
     }
 
-    // Inicializar vista y abrir modal si proviene del flujo de creación de grupo
-    cargarGrupo();
-    if (autoOpenModal && btnOpenAddModal) {
-        btnOpenAddModal.click();
-    }
+    cargarDetalleGrupo();
 });

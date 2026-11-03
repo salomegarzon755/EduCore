@@ -49,7 +49,7 @@
             <span class="header-motto">Matemáticas a tu ritmo</span>
             <div class="user-profile">
                 <div class="user-text">
-                    <span class="user-name" id="displayStudentName">Juan</span>
+                    <span class="user-name" id="displayStudentName">Luna</span>
                     <span class="user-grade">Estudiante</span>
                 </div>
                 <div class="user-avatar">😊</div>
@@ -65,6 +65,10 @@
                 <p>Comunidades de aprendizaje a las que perteneces.</p>
             </div>
 
+            <!-- CONTENEDOR DINÁMICO DE TARJETAS DE GRUPOS -->
+            <div id="studentGroupsGrid" class="teacher-groups-grid" style="display:none;"></div>
+
+            <!-- ESTADO VACÍO CUANDO EL ESTUDIANTE NO TIENE GRUPOS -->
             <div class="empty-state-card" id="emptyStudentGroupsContainer">
                 <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/error_amable.png" alt="Sin grupo" class="empty-state-img">
                 <h3 class="empty-state-title">Aún no has sido inscrito en un grupo</h3>
@@ -72,6 +76,7 @@
             </div>
         </section>
     </main>
+
     <script src="../../js/config.js"></script>
     <script src="../../js/panelEstudiante.js"></script>
     <script src="../../js/logout.js"></script>

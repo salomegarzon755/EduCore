@@ -21,17 +21,21 @@ body {
 }
 
 /* ==========================================
-   BARRA LATERAL (SIDEBAR VERDE BOTÁNICO)
+   BARRA LATERAL ESTÁTICA (SIDEBAR 100VH)
    ========================================== */
 .sidebar {
   width: 260px;
   min-width: 240px;
-  background-color: #E8F5E9; /* Verde menta suave y limpio */
+  height: 100vh; /* Alto fijo exacto al viewport */
+  position: sticky;
+  top: 0; /* Se mantiene fija al hacer scroll */
+  background-color: #E8F5E9; /* Verde menta suave */
   border-right: 1px solid #C8E6C9;
   padding: 24px 20px;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  overflow-y: auto; /* Permite scroll interno solo si la pantalla es verticalmente pequeña */
 }
 
 /* Marca con Logo e Identidad EduCore */
@@ -354,7 +358,7 @@ body {
 /* Adaptación Móvil / Tablet */
 @media (max-width: 768px) {
   body { flex-direction: column; }
-  .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #C8E6C9; padding: 16px; }
+  .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid #C8E6C9; padding: 16px; }
   .sidebar-nav { flex-direction: row; overflow-x: auto; }
   .nav-item { white-space: nowrap; }
   .sidebar-banner, .sidebar-tag { display: none; }

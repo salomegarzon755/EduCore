@@ -22,7 +22,7 @@
             <a href="MisGrupos.html" class="nav-item">
                 <span class="nav-icon">👥</span> Mis grupos
             </a>
-            <a href="MisCursos.html" class="nav-item active">
+            <a href="misCursos.html" class="nav-item active">
                 <span class="nav-icon">📚</span> Mis cursos
             </a>
             <a href="Seguimiento.html" class="nav-item">
@@ -57,124 +57,43 @@
 
         <section class="content-section">
             <div class="section-header-simple">
-                <h1 style="font-size:28px; font-weight:800;">Cursos para mis grupos</h1>
-                <p style="color:#718096; margin-top:4px; margin-bottom:24px;">Elige el grupo y asocia el curso predefinido que van a explorar sus estudiantes.</p>
+                <h1 style="font-size:28px; font-weight:800; margin:0;">Cursos para mis grupos</h1>
+                <p style="color:#718096; margin-top:4px; margin-bottom:24px;">Explora el catálogo, revisa las unidades y asigna cursos a tus grupos de clase.</p>
             </div>
 
-            <!-- BANNER DE FEEDBACK -->
+            <!-- BANNER DE FEEDBACK PARA ACCIONES DE ASOCIACIÓN -->
             <div id="courseAssignFeedback" style="display:none; padding:12px 16px; border-radius:12px; margin-bottom:20px; font-weight:600;"></div>
 
-            <!-- CATÁLOGO DE CURSOS PREDEFINIDOS (BD) -->
-            <div class="courses-catalog-grid">
-                
-                <div class="course-card-docente">
-                    <div class="course-card-header bg-math-1">
-                        <span class="course-tag-pill">MATEMÁTICAS · GRADO 1.°</span>
-                        <h3>Números junto al río</h3>
-                    </div>
-                    <div class="course-card-body">
-                        <p>Reconocemos números, contamos frutas de nuestra tierra y resolvemos pequeñas sumas.</p>
-                        
-                        <div class="association-control">
-                            <label for="assignGroupMath1">Asignar este curso al grupo:</label>
-                            <select id="assignGroupMath1" class="form-select-custom group-select-dynamic" data-course-id="1">
-                                <option value="">-- Seleccionar grupo --</option>
-                            </select>
-                            <button type="button" class="btn-submit-form style-sm btn-assign-course" data-course-id="1" style="margin-top:8px; width:100%;">Asociar curso al grupo</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="course-card-docente">
-                    <div class="course-card-header bg-math-2">
-                        <span class="course-tag-pill">MATEMÁTICAS · GRADO 2.°</span>
-                        <h3>Exploramos cantidades</h3>
-                    </div>
-                    <div class="course-card-body">
-                        <p>Compara grupos de elementos y resuelve sumas aplicadas a situaciones del entorno.</p>
-                        
-                        <div class="association-control">
-                            <label for="assignGroupMath2">Asignar este curso al grupo:</label>
-                            <select id="assignGroupMath2" class="form-select-custom group-select-dynamic" data-course-id="2">
-                                <option value="">-- Seleccionar grupo --</option>
-                            </select>
-                            <button type="button" class="btn-submit-form style-sm btn-assign-course" data-course-id="2" style="margin-top:8px; width:100%;">Asociar curso al grupo</button>
-                        </div>
-                    </div>
-                </div>
-
+            <!-- CONTENEDOR DINÁMICO DE CURSOS CON SUS UNIDADES Y ACTIVIDADES (PARTE 1 Y PARTE 2) -->
+            <div id="fullCoursesContainer" class="courses-catalog-grid">
+                <p style="text-align:center; color:#718096; padding:20px;">Cargando catálogo completo de cursos...</p>
             </div>
         </section>
     </main>
+
+    <!-- MODAL LECTOR DE PUNTOS / PREGUNTAS (HU.10 D) -->
+    <div id="contentModalOverlay" class="modal-overlay" style="display:none;">
+        <div class="modal-card-lg">
+            <div class="modal-header">
+                <div>
+                    <span id="modalActivityType" class="course-tag-pill">TEORÍA</span>
+                    <h3 id="modalActivityTitle" style="margin:6px 0 0 0; font-size:18px; color:#2D3748;">Actividad</h3>
+                </div>
+                <button type="button" id="btnCloseModal" class="btn-close-modal">✕</button>
+            </div>
+            
+            <div class="modal-body-content" id="modalBodyPoints">
+                <!-- Puntos o Preguntas inyectadas dinámicamente -->
+            </div>
+
+            <div class="modal-footer" style="padding:16px 24px; background:#F7FAFC; border-top:1px solid #E2E8F0; display:flex; justify-content:flex-end;">
+                <button type="button" id="btnDoneModal" class="btn-create-group">Entendido / Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="../../js/config.js"></script>
-    <script src="../../js/panelDocente.js"></script>
     <script src="../../js/logout.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const storedUserRaw = localStorage.getItem('currentUser');
-            const teacherUser = storedUserRaw ? JSON.parse(storedUserRaw) : null;
-            const teacherId = teacherUser?.id_usuario || teacherUser?.id || 2;
-
-            const groupSelects = document.querySelectorAll('.group-select-dynamic');
-            const feedbackBanner = document.getElementById('courseAssignFeedback');
-
-            // Cargar los grupos del docente en los desplegables
-            if (teacherId && groupSelects.length > 0) {
-                fetch(`http://localhost:5000/api/grupos/docente/${teacherId}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        const grupos = Array.isArray(data) ? data : (data.grupos || []);
-                        groupSelects.forEach(select => {
-                            select.innerHTML = '<option value="">-- Seleccionar grupo --</option>';
-                            grupos.forEach(g => {
-                                const option = document.createElement('option');
-                                option.value = g.id_grupo;
-                                option.textContent = `${g.nombre_grupo} (Grado ${g.grado}.°)`;
-                                select.appendChild(option);
-                            });
-                        });
-                    })
-                    .catch(err => console.error('Error cargando grupos en selector:', err));
-            }
-
-            // Escuchar clics en el botón "Asociar curso al grupo"
-            document.querySelectorAll('.btn-assign-course').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    const courseId = btn.getAttribute('data-course-id');
-                    const select = document.querySelector(`.group-select-dynamic[data-course-id="${courseId}"]`);
-                    const groupId = select ? select.value : null;
-
-                    if (!groupId) {
-                        alert('Por favor, selecciona un grupo antes de asociar el curso.');
-                        return;
-                    }
-
-                    try {
-                        const res = await fetch(`http://localhost:5000/api/grupos/${groupId}/cursos`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ id_curso: courseId })
-                        });
-                        const data = await res.json();
-
-                        if (res.ok && data.success) {
-                            if (feedbackBanner) {
-                                feedbackBanner.textContent = '✓ Curso asociado al grupo correctamente';
-                                feedbackBanner.style.backgroundColor = '#DCFCE7';
-                                feedbackBanner.style.color = '#166534';
-                                feedbackBanner.style.display = 'block';
-                                setTimeout(() => { feedbackBanner.style.display = 'none'; }, 4000);
-                            }
-                        } else {
-                            alert(data.message || 'El curso ya se encuentra asociado a este grupo.');
-                        }
-                    } catch (e) {
-                        console.error('Error asociando curso:', e);
-                        alert('No se pudo conectar con el servidor.');
-                    }
-                });
-            });
-        });
-    </script>
+    <script src="../../js/cursoGrupo.js"></script>
 </body>
 </html>

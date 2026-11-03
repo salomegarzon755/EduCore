@@ -9,6 +9,7 @@
 </head>
 <body class="teacher-body">
 
+    <!-- BARRA LATERAL (CONSERVA TUS ICONOS Y LOGO ORIGINALES) -->
     <aside class="sidebar">
         <div class="sidebar-brand">
             <img src="../../img/files/EduCore_Identidad/01_logos/png/logo_compacto_color.png" alt="EduCore Logo" class="brand-logo">
@@ -34,6 +35,7 @@
         </nav>
     </aside>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <main class="main-wrapper">
         <header class="top-header">
             <span class="header-motto">Enseñar también es acompañar</span>
@@ -46,12 +48,13 @@
         </header>
 
         <section class="content-section">
+            <!-- BREADCRUMB ORIGINAL -->
             <div class="breadcrumb" style="color: #718096; font-size: 14px; margin-bottom: 12px;">
                 EduCore / Mis grupos / <strong>Detalle del grupo</strong>
             </div>
 
             <!-- ENCABEZADO DEL GRUPO (HU.06 A) -->
-            <div class="group-detail-header-card" style="background:#fff; border-radius:16px; padding:24px; border:1px solid #E2E8F0; margin-bottom:24px;">
+            <div class="group-detail-header-card" style="background:#fff; border-radius:16px; padding:24px; border:1px solid #E2E8F0; margin-bottom:20px;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                     <div>
                         <h1 id="groupDetailName" style="font-size:26px; font-weight:800; margin:0;">Cargando grupo...</h1>
@@ -63,27 +66,53 @@
                 </div>
             </div>
 
-            <!-- NOTIFICACIÓN FLOTANTE / DE ACCIÓN (HU.06 C / D) -->
+            <!-- PESTAÑAS DE NAVEGACIÓN (Estudiantes / Cursos del grupo) -->
+            <div class="group-tabs-navigation">
+                <button id="tabEstudiantes" class="tab-btn active">Estudiantes</button>
+                <button id="tabCursos" class="tab-btn">Cursos del grupo</button>
+            </div>
+
+            <!-- NOTIFICACIÓN FLOTANTE / FEEDBACK BANNER -->
             <div id="alertFeedbackBanner" style="display:none; padding:12px 16px; border-radius:12px; margin-bottom:20px; font-weight:600;"></div>
 
-            <!-- SECCIÓN CON BOTÓN AGREGAR -->
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <h2 style="font-size:20px; font-weight:800;">Estudiantes del grupo</h2>
-                <button id="btnOpenAddModal" class="btn-create-group">+ Agregar estudiante</button>
-            </div>
+            <!-- VISTA 1: PESTAÑA ESTUDIANTE -->
+            <section id="sectionEstudiantes" class="tab-section-content">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h2 style="font-size:20px; font-weight:800; margin:0;">Estudiantes del grupo</h2>
+                    <button id="btnOpenAddModal" class="btn-create-group">+ Agregar estudiante</button>
+                </div>
 
-            <!-- LISTA DE ESTUDIANTES EN EL GRUPO -->
-            <div id="studentsGridContainer" class="teacher-groups-grid"></div>
+                <div id="studentsGridContainer" class="teacher-groups-grid"></div>
 
-            <!-- ESTADO VACÍO EN DETALLE -->
-            <div id="emptyStudentsGroup" class="empty-state-card" style="display:none;">
-                <h3 class="empty-state-title">No hay estudiantes en este grupo</h3>
-                <p class="empty-state-desc">Haz clic en "+ Agregar estudiante" para comenzar a inscribir alumnos.</p>
-            </div>
+                <div id="emptyStudentsGroup" class="empty-state-card" style="display:none;">
+                    <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_cursos.png" alt="Estado vacío" style="width:120px; height:auto; margin-bottom:12px;">
+                    <h3 class="empty-state-title">No hay estudiantes en este grupo</h3>
+                    <p class="empty-state-desc">Haz clic en "+ Agregar estudiante" para comenzar a inscribir alumnos.</p>
+                </div>
+            </section>
+
+            <!-- VISTA 2: PESTAÑA CURSOS DEL GRUPO (HU.07 & HU.08) -->
+            <section id="sectionCursos" class="tab-section-content" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h2 id="coursesCountTitle" style="font-size:20px; font-weight:800; margin:0;">Cursos asignados (0)</h2>
+                    <button id="btnOpenAddCourseModal" class="btn-create-group">+ Agregar curso</button>
+                </div>
+
+                <!-- Grilla de Tarjetas con Fondo Ilustrado -->
+                <div id="assignedCoursesContainer" class="courses-grid-cards"></div>
+
+                <!-- Estado Vacío Cursos (HU.08 D) -->
+                <div id="emptyCoursesState" class="empty-state-card" style="display:none; text-align:center; padding:32px;">
+                    <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_cursos.png" alt="Sin cursos" style="width:140px; height:auto; margin-bottom:12px;">
+                    <h3 class="empty-state-title" style="font-size:18px; font-weight:800;">Un nuevo camino por descubrir</h3>
+                    <p class="empty-state-desc" style="color:#718096; margin-bottom:16px;">Este grupo todavía no tiene cursos asignados. Agrega Matemáticas para comenzar.</p>
+                    <button id="btnTriggerAddCourse" class="btn-create-group">+ Agregar curso</button>
+                </div>
+            </section>
         </section>
     </main>
 
-    <!-- MODAL BUSCAR Y AGREGAR ESTUDIANTE (HU.06 B) -->
+    <!-- MODAL HU.06: BUSCAR Y AGREGAR ESTUDIANTE -->
     <div id="addStudentModalOverlay" class="logout-modal-overlay" style="display:none;">
         <div class="logout-modal-card" style="max-width:520px; text-align:left;">
             <h2 class="logout-modal-title" style="margin-top:0;">Agregar estudiante</h2>
@@ -94,7 +123,6 @@
                     style="width:100%; padding:12px; border-radius:10px; border:1px solid #CBD5E0; font-size:14px;">
             </div>
 
-            <!-- RESULTADOS DE BÚSQUEDA -->
             <div id="searchResultsList" style="max-height:220px; overflow-y:auto; margin-bottom:20px; display:flex; flex-direction:column; gap:8px;"></div>
 
             <div class="logout-modal-actions" style="flex-direction:row; justify-content:flex-end;">
@@ -103,6 +131,36 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL HU.07: CATÁLOGO DE CURSOS DISPONIBLES -->
+    <div id="addCourseModalOverlay" class="logout-modal-overlay" style="display:none;">
+        <div class="logout-modal-card" style="max-width:580px; text-align:left;">
+            <h2 class="logout-modal-title" style="margin-top:0;">Agregar curso</h2>
+            <p class="logout-modal-desc">Cursos disponibles para este grado escolar.</p>
+
+            <div id="availableCoursesList" style="max-height:300px; overflow-y:auto; margin-bottom:20px; display:flex; flex-direction:column; gap:10px;"></div>
+
+            <div class="logout-modal-actions" style="flex-direction:row; justify-content:flex-end;">
+                <button id="btnCancelAddCourse" class="btn-secondary-logout">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL HU.08: CONFIRMAR QUITAR CURSO DEL GRUPO -->
+    <div id="confirmRemoveModalOverlay" class="logout-modal-overlay" style="display:none;">
+        <div class="logout-modal-card" style="max-width:440px; text-align:center;">
+            <div style="font-size:36px; margin-bottom:8px;">⚠️</div>
+            <h2 class="logout-modal-title" style="margin-top:0; font-size:18px;">¿Estás seguro de que quieres quitar este curso del grupo?</h2>
+            <p id="removeCourseTitle" style="font-weight:800; font-size:16px; color:#2D3748; margin:8px 0;">Matemáticas — Primero</p>
+            <p style="font-size:13px; color:#718096; margin-bottom:24px;">Dejará de estar disponible para este grupo. El curso seguirá disponible en el catálogo global.</p>
+
+            <div class="logout-modal-actions" style="flex-direction:row; justify-content:center; gap:12px;">
+                <button id="btnCancelRemoveCourse" class="btn-secondary-logout">Cancelar</button>
+                <button id="btnConfirmRemoveCourse" style="background:#EF4444; color:#FFF; border:none; padding:10px 18px; border-radius:12px; font-weight:700; cursor:pointer;">🗑️ Sí, quitar curso</button>
+            </div>
+        </div>
+    </div>
+
     <script src="../../js/config.js"></script>
     <script src="../../js/logout.js"></script>
     <script src="../../js/detalleGrupo.js"></script>
