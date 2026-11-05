@@ -30,7 +30,7 @@ class CursoDAO:
                 SELECT c.id_curso, c.titulo_curso, c.descripcion
                 FROM curso c
                 JOIN grupo_curso gc ON c.id_curso = gc.id_curso
-                JOIN grupo_estudiante ge ON gc.id_grupo = ge.id_grupo
+                JOIN estudiante_grupo ge ON gc.id_grupo = ge.id_grupo
                 WHERE ge.id_estudiante = %s
                 LIMIT 1;
             """

@@ -535,3 +535,69 @@
   color: #64748B;
   margin: 0;
 }
+
+/* ---------- Mi camino: selector de cursos ---------- */
+.course-switcher {
+  max-width: 1100px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.course-switcher-total {
+  background: #DCFCE7;
+  color: #15803D;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.course-switcher-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.course-switch-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  background: #FFFFFF;
+  color: #334155;
+  border: 2px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 14px;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.course-switch-btn small {
+  font-size: 11px;
+  font-weight: 800;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.course-switch-btn:hover {
+  border-color: #6EE7B7;
+  background: #F0FDF4;
+}
+
+.course-switch-btn.active {
+  background: #A7F3D0;
+  border-color: #34D399;
+  color: #065F46;
+  cursor: default;
+}
+
+.course-switch-btn.active small {
+  color: #047857;
+}

@@ -174,20 +174,37 @@ def buscar_estudiantes_para_grupo(id_grupo):
     estudiantes = GrupoDAO.buscar_estudiantes_para_grupo(query_texto, id_grupo)
     return jsonify({"success": True, "estudiantes": estudiantes}), 200
 
+def _status_por_codigo(resultado):
+    """409 = choque con una regla (ya está en el grupo / curso repetido), 404 = no existe, 400 = otro error."""
+    codigo = resultado.get("codigo")
+    if codigo in ("DUPLICADO", "CURSO_DUPLICADO"):
+        return 409
+    if codigo == "NO_ENCONTRADO":
+        return 404
+    return 400
+
 @app.route('/api/grupos/<int:id_grupo>/estudiantes', methods=['POST'])
 def agregar_estudiante_a_grupo(id_grupo):
     data = request.get_json() or {}
-    id_estudiante = data.get('id_estudiante')
+    # Acepta id_estudiante (lo que envía el panel docente) o id_usuario como alias.
+    id_estudiante = data.get('id_estudiante') or data.get('id_usuario')
 
-    if not id_estudiante:
+    try:
+        id_estudiante = int(id_estudiante)
+    except (TypeError, ValueError):
         return jsonify({"success": False, "message": "El ID del estudiante es obligatorio"}), 400
 
     resultado = GrupoDAO.agregar_estudiante_a_grupo(id_grupo, id_estudiante)
     if resultado["success"]:
         return jsonify(resultado), 201
-    else:
-        status_code = 409 if resultado.get("codigo") == "DUPLICADO" else 400
-        return jsonify(resultado), status_code
+    return jsonify(resultado), _status_por_codigo(resultado)
+
+@app.route('/api/grupos/<int:id_grupo>/estudiantes/<int:id_estudiante>', methods=['DELETE'])
+def quitar_estudiante_de_grupo(id_grupo, id_estudiante):
+    resultado = GrupoDAO.quitar_estudiante_de_grupo(id_grupo, id_estudiante)
+    if resultado["success"]:
+        return jsonify(resultado), 200
+    return jsonify(resultado), _status_por_codigo(resultado)
 
 @app.route('/api/grupos/<int:id_grupo>/cursos', methods=['GET'])
 def obtener_cursos_del_grupo(id_grupo):
@@ -210,9 +227,7 @@ def agregar_curso_a_grupo(id_grupo):
     resultado = GrupoDAO.asignar_curso_a_grupo(id_grupo, id_curso)
     if resultado["success"]:
         return jsonify(resultado), 201
-    else:
-        status_code = 409 if resultado.get("codigo") == "DUPLICADO" else 400
-        return jsonify(resultado), status_code
+    return jsonify(resultado), _status_por_codigo(resultado)
 
 @app.route('/api/grupos/<int:id_grupo>/cursos/<int:id_curso>', methods=['DELETE'])
 def quitar_curso_de_grupo(id_grupo, id_curso):

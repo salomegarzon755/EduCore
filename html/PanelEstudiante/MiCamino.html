@@ -60,6 +60,18 @@
         </header>
 
         <section class="content-section">
+            <!-- SELECTOR DE CURSOS: un camino por curso (sin repetir) -->
+            <div id="courseSwitcher" class="course-switcher" style="display:none;">
+                <span id="courseSwitcherTotal" class="course-switcher-total"></span>
+                <div id="courseSwitcherTabs" class="course-switcher-tabs"></div>
+            </div>
+
+            <div class="empty-state-card" id="pathEmptyState" style="display:none;">
+                <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_cursos.png" alt="Sin cursos" class="empty-state-img">
+                <h3 class="empty-state-title">Aún no tienes cursos</h3>
+                <p class="empty-state-desc">Cuando tu docente te agregue a un grupo con cursos, aparecerán aquí.</p>
+            </div>
+
             <!-- HEADER DE NAVEGACIÓN DE UNIDADES Y AVANCE -->
             <div class="path-header-banner">
                 <div>

@@ -115,6 +115,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (groupDetailClassCode) groupDetailClassCode.textContent = g.codigo_clase || `AC-${100 + Number(idGrupo)}`;
             }
 
+            const btnLeaveGroup = document.getElementById('btnLeaveGroup');
+            if (btnLeaveGroup) {
+                btnLeaveGroup.style.display = 'inline-block';
+                btnLeaveGroup.onclick = async () => {
+                    const nombreGrupo = (dataGrupo.grupo && dataGrupo.grupo.nombre_grupo) || 'este grupo';
+                    if (!confirm(`¿Quieres salir del grupo ${nombreGrupo}?\n\nTu progreso en los cursos se conserva y lo verás si entras a otro grupo con el mismo curso.`)) return;
+                    try {
+                        const r = await fetch(`${BASE_URL}/grupos/${idGrupo}/estudiantes/${studentId}`, { method: 'DELETE' });
+                        const d = await r.json();
+                        if (r.ok && d.success) {
+                            window.location.href = 'MisGrupos.html';
+                        } else {
+                            alert(d.message || 'No se pudo salir del grupo.');
+                        }
+                    } catch (e) {
+                        console.error('Error saliendo del grupo:', e);
+                        alert('No se pudo conectar con el servidor.');
+                    }
+                };
+            }
+
             const resCursos = await fetch(`${BASE_URL}/grupos/${idGrupo}/cursos`);
             const dataCursos = await resCursos.json();
 
@@ -268,16 +289,93 @@ document.addEventListener('DOMContentLoaded', () => {
     // -----------------------------------------------------------
     const pathUnitsTrack = document.getElementById('pathUnitsTrack');
 
+    let unidadesCursoGlobal = [];
+    let indiceUnidadActual = 0;
+    let cursosEstudiante = [];   // cursos distintos del estudiante (uno por curso, sin repetir)
+    let cursoActivoId = null;
+
     if (pathUnitsTrack) {
         cargarCaminoEstudiante();
     }
 
-    let unidadesCursoGlobal = [];
-    let indiceUnidadActual = 0;
+    const gradoDeCurso = (c) =>
+        (c.id_curso == 2 || (c.titulo_curso && c.titulo_curso.toLowerCase().includes('exploramos'))) ? 2 : 1;
 
+    function mostrarVacioCamino(titulo, descripcion) {
+        const vacio = document.getElementById('pathEmptyState');
+        const switcher = document.getElementById('courseSwitcher');
+        const banner = document.querySelector('.path-header-banner');
+        const viewport = document.querySelector('.adventure-path-viewport');
+        if (switcher) switcher.style.display = 'none';
+        if (banner) banner.style.display = 'none';
+        if (viewport) viewport.style.display = 'none';
+        if (vacio) {
+            const t = vacio.querySelector('.empty-state-title');
+            const d = vacio.querySelector('.empty-state-desc');
+            if (t) t.textContent = titulo;
+            if (d) d.textContent = descripcion;
+            vacio.style.display = 'flex';
+        }
+    }
+
+    // Cursos del estudiante = cursos de sus grupos. Un camino por curso, nunca dos del mismo.
     async function cargarCaminoEstudiante() {
         const urlParams = new URLSearchParams(window.location.search);
-        const idCurso = urlParams.get('id_curso') || 1;
+        const idPedido = parseInt(urlParams.get('id_curso'), 10);
+
+        try {
+            const res = await fetch(`${BASE_URL}/estudiantes/${studentId}/cursos`);
+            const data = await res.json();
+            const vistos = new Set();
+            cursosEstudiante = ((data.success && data.cursos) || [])
+                .filter(c => !vistos.has(c.id_curso) && vistos.add(c.id_curso))
+                .sort((a, b) => a.id_curso - b.id_curso);
+        } catch (err) {
+            console.error('Error al obtener los cursos del estudiante:', err);
+            mostrarVacioCamino('No pudimos cargar tus cursos', 'Revisa tu conexión e inténtalo de nuevo en un momento.');
+            return;
+        }
+
+        if (cursosEstudiante.length === 0) {
+            mostrarVacioCamino('Aún no tienes cursos', 'Cuando tu docente te agregue a un grupo con cursos, aparecerán aquí.');
+            return;
+        }
+
+        const inicial = cursosEstudiante.find(c => c.id_curso === idPedido) || cursosEstudiante[0];
+        await seleccionarCursoCamino(inicial.id_curso, false);
+    }
+
+    function renderizarSelectorCursos() {
+        const switcher = document.getElementById('courseSwitcher');
+        const total = document.getElementById('courseSwitcherTotal');
+        const tabs = document.getElementById('courseSwitcherTabs');
+        if (!switcher || !tabs) return;
+
+        if (total) total.textContent = `Tienes ${cursosEstudiante.length} curso${cursosEstudiante.length === 1 ? '' : 's'}`;
+        tabs.innerHTML = '';
+        cursosEstudiante.forEach(c => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'course-switch-btn' + (c.id_curso === cursoActivoId ? ' active' : '');
+            btn.innerHTML = `<small>${gradoDeCurso(c)}.° grado</small><span></span>`;
+            btn.querySelector('span').textContent = c.titulo_curso;   // textContent: sin HTML inyectado
+            btn.addEventListener('click', () => {
+                if (c.id_curso !== cursoActivoId) seleccionarCursoCamino(c.id_curso, true);
+            });
+            tabs.appendChild(btn);
+        });
+        switcher.style.display = 'flex';
+    }
+
+    async function seleccionarCursoCamino(idCurso, actualizarURL) {
+        cursoActivoId = idCurso;
+        renderizarSelectorCursos();
+
+        if (actualizarURL) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('id_curso', idCurso);
+            window.history.replaceState({}, '', url);
+        }
 
         try {
             const res = await fetch(`${BASE_URL}/cursos/${idCurso}/detalle_completo?id_estudiante=${studentId}`);

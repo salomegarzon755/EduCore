@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 from dao.actividad_dao import ActividadDAO
-from dao.curso_dao import CursoDAO
 
 actividades_bp = Blueprint('actividades', __name__, url_prefix='/api')
 
@@ -33,24 +32,3 @@ def guardar_resultado():
     
     res = ActividadDAO.guardar_resultado(id_est, id_act, aciertos, total, d.get('respuestas') or [])
     return jsonify(res), (200 if res["success"] else 500)
-
-
-@actividades_bp.route('/estudiantes/<int:id_estudiante>/cursos', methods=['GET'])
-def obtener_cursos_estudiante(id_estudiante):
-    try:
-        # 1. Intentar obtener el curso asignado al estudiante por su grupo
-        curso_basico = CursoDAO.obtener_curso_estudiante(id_estudiante)
-        
-        # 2. Si no devuelve curso, usar id_curso = 1 (Matemáticas) como fallback
-        id_curso = curso_basico['id_curso'] if curso_basico else 1
-
-        # 3. Obtener el detalle completo calculando el progreso del id_estudiante
-        detalle_curso = CursoDAO.obtener_detalle_completo(id_curso, id_estudiante=id_estudiante)
-
-        return jsonify({
-            'success': True,
-            'cursos': [detalle_curso] if detalle_curso else []
-        }), 200
-    except Exception as e:
-        print(f"Error al obtener cursos del estudiante: {e}")
-        return jsonify({'success': False, 'message': str(e)}), 500

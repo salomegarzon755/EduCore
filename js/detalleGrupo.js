@@ -14,6 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedCourseToRemove = null;
     let selectedStudentToAdd = null;
 
+    const esc = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    // El backend devuelve id_estudiante / apodo (no id_usuario / usuario)
+    const idDeEstudiante = (est) => est.id_estudiante ?? est.id_usuario ?? est.id;
+    const aliasDeEstudiante = (est) => est.apodo || est.usuario || '';
+
     // Elementos DOM Principales
     const groupDetailName = document.getElementById('groupDetailName');
     const groupDetailGrade = document.getElementById('groupDetailGrade');
@@ -110,18 +115,52 @@ document.addEventListener('DOMContentLoaded', () => {
         estudiantes.forEach(est => {
             const card = document.createElement('div');
             card.className = 'teacher-group-card';
+
+            const progresoHTML = (est.progreso || []).map(p => {
+                const total = p.total_actividades || 0;
+                const hechas = p.actividades_completadas || 0;
+                const pct = total ? Math.round((hechas / total) * 100) : 0;
+                return `<p style="margin:6px 0 0; font-size:12px; color:#4A5568; font-weight:700;">
+                            📘 ${esc(p.titulo_curso)}: ${hechas} de ${total} actividades (${pct}%)
+                        </p>`;
+            }).join('');
+
             card.innerHTML = `
                 <div class="group-card-top">
                     <div class="group-avatar-icon">👤</div>
                     <div class="group-title-info">
-                        <h3>${est.nombre || est.usuario}</h3>
-                        <p>@${est.usuario}</p>
+                        <h3>${esc(est.nombre || aliasDeEstudiante(est))}</h3>
+                        <p>@${esc(aliasDeEstudiante(est))}</p>
                     </div>
                 </div>
                 <div class="group-course-badge">Estudiante activo</div>
+                ${progresoHTML}
+                <button type="button" class="btn-remove-student" style="margin-top:12px; background:#FFF; color:#C53030; border:1px solid #FEB2B2; border-radius:12px; padding:6px 14px; font-size:12px; font-weight:800; cursor:pointer;">
+                    Quitar del grupo
+                </button>
             `;
+            card.querySelector('.btn-remove-student').addEventListener('click', () => quitarEstudiante(est));
             studentsGridContainer.appendChild(card);
         });
+    }
+
+    async function quitarEstudiante(est) {
+        const nombre = est.nombre || aliasDeEstudiante(est);
+        const ok = confirm(`¿Quitar a ${nombre} de este grupo?\n\nSu progreso en los cursos se conserva por si entra a otro grupo con el mismo curso.`);
+        if (!ok) return;
+        try {
+            const res = await fetch(`${BASE_URL}/grupos/${idGrupo}/estudiantes/${idDeEstudiante(est)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                mostrarFeedback('✓ Estudiante retirado del grupo. Su progreso se conserva.', '#DCFCE7', '#166534');
+                cargarDetalleGrupo();
+            } else {
+                alert(data.message || 'No se pudo quitar al estudiante.');
+            }
+        } catch (err) {
+            console.error('Error quitando estudiante:', err);
+            alert('No se pudo conectar con el servidor.');
+        }
     }
 
     // 3. Cargar y Renderizar Cursos del Grupo (Datos Reales + Enlace Directo)
@@ -213,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (addStudentModalOverlay) addStudentModalOverlay.style.display = 'flex';
             if (searchResultsList) searchResultsList.innerHTML = '<p style="color:#718096; font-size:13px;">Escribe para buscar estudiantes...</p>';
             if (inputSearchStudent) inputSearchStudent.value = '';
+            selectedStudentToAdd = null;
         });
     }
 
@@ -242,20 +282,38 @@ document.addEventListener('DOMContentLoaded', () => {
                             searchResultsList.innerHTML = '<p style="color:#718096; font-size:13px;">No se encontraron estudiantes disponibles.</p>';
                             return;
                         }
+                        selectedStudentToAdd = null;
+                        if (btnConfirmAddStudent) {
+                            btnConfirmAddStudent.disabled = true;
+                            btnConfirmAddStudent.style.opacity = '0.5';
+                        }
                         data.estudiantes.forEach(est => {
                             const item = document.createElement('div');
-                            item.style.cssText = 'padding:10px; border:1px solid #CBD5E0; border-radius:10px; cursor:pointer; background:#FFF;';
-                            item.innerHTML = `<strong>${est.nombre || est.usuario}</strong> <small style="color:#718096;">(@${est.usuario})</small>`;
-                            item.addEventListener('click', () => {
-                                document.querySelectorAll('#searchResultsList > div').forEach(d => d.style.borderColor = '#CBD5E0');
-                                item.style.borderColor = '#10B981';
-                                item.style.backgroundColor = '#ECFDF5';
-                                selectedStudentToAdd = est;
-                                if (btnConfirmAddStudent) {
-                                    btnConfirmAddStudent.disabled = false;
-                                    btnConfirmAddStudent.style.opacity = '1';
-                                }
-                            });
+                            const bloqueado = est.en_grupo || est.conflicto_curso;
+                            item.style.cssText = 'padding:10px; border:1px solid #CBD5E0; border-radius:10px; background:#FFF;'
+                                + (bloqueado ? ' opacity:0.6; cursor:not-allowed;' : ' cursor:pointer;');
+
+                            let aviso = '';
+                            if (est.en_grupo) {
+                                aviso = 'Ya está en este grupo';
+                            } else if (est.conflicto_curso && est.grupo_conflicto) {
+                                aviso = `Ya está en «${esc(est.grupo_conflicto.nombre_grupo)}», que tiene el mismo curso (${esc(est.grupo_conflicto.cursos)}). Debe salir de ese grupo primero.`;
+                            }
+                            item.innerHTML = `<strong>${esc(est.nombre || aliasDeEstudiante(est))}</strong> <small style="color:#718096;">(@${esc(aliasDeEstudiante(est))})</small>`
+                                + (aviso ? `<div style="font-size:12px; color:#C53030; margin-top:4px; font-weight:600;">${aviso}</div>` : '');
+
+                            if (!bloqueado) {
+                                item.addEventListener('click', () => {
+                                    document.querySelectorAll('#searchResultsList > div').forEach(d => d.style.borderColor = '#CBD5E0');
+                                    item.style.borderColor = '#10B981';
+                                    item.style.backgroundColor = '#ECFDF5';
+                                    selectedStudentToAdd = est;
+                                    if (btnConfirmAddStudent) {
+                                        btnConfirmAddStudent.disabled = false;
+                                        btnConfirmAddStudent.style.opacity = '1';
+                                    }
+                                });
+                            }
                             searchResultsList.appendChild(item);
                         });
                     }
@@ -269,23 +327,31 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnConfirmAddStudent) {
         btnConfirmAddStudent.addEventListener('click', async () => {
             if (!selectedStudentToAdd) return;
+            const idEstudiante = idDeEstudiante(selectedStudentToAdd);
+            if (idEstudiante === undefined || idEstudiante === null) {
+                alert('No se pudo identificar al estudiante seleccionado. Vuelve a buscarlo.');
+                return;
+            }
             try {
                 const res = await fetch(`${BASE_URL}/grupos/${idGrupo}/estudiantes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id_estudiante: selectedStudentToAdd.id_usuario || selectedStudentToAdd.id })
+                    body: JSON.stringify({ id_estudiante: idEstudiante })
                 });
                 const data = await res.json();
                 if (addStudentModalOverlay) addStudentModalOverlay.style.display = 'none';
+                selectedStudentToAdd = null;
 
                 if (res.ok && data.success) {
-                    mostrarFeedback('✓ Estudiante agregado al grupo.', '#DCFCE7', '#166534');
+                    mostrarFeedback('✓ ' + (data.message || 'Estudiante agregado al grupo.'), '#DCFCE7', '#166534', 8000);
                     cargarDetalleGrupo();
                 } else {
+                    // 409 CURSO_DUPLICADO: el mensaje del servidor ya indica de qué grupo debe salir
                     alert(data.message || 'Error agregando estudiante.');
                 }
             } catch (err) {
                 console.error('Error agregando estudiante:', err);
+                alert('No se pudo conectar con el servidor.');
             }
         });
     }
@@ -388,13 +454,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function mostrarFeedback(mensaje, bg, color) {
+    function mostrarFeedback(mensaje, bg, color, duracion = 4000) {
         if (!alertFeedbackBanner) return;
         alertFeedbackBanner.textContent = mensaje;
         alertFeedbackBanner.style.backgroundColor = bg;
         alertFeedbackBanner.style.color = color;
         alertFeedbackBanner.style.display = 'block';
-        setTimeout(() => { alertFeedbackBanner.style.display = 'none'; }, 4000);
+        setTimeout(() => { alertFeedbackBanner.style.display = 'none'; }, duracion);
     }
 
     cargarDetalleGrupo();

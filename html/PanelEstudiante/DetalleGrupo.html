@@ -69,8 +69,13 @@
                     <h1 id="groupDetailName" style="font-size:28px; font-weight:800; color:#2D3748; margin:0 0 4px 0;">Cargando grupo...</h1>
                     <p style="color:#718096; margin:0; font-weight:600;"><span id="groupDetailGrade">Grado -</span> · <span id="groupDetailStudentCount">0 estudiantes</span></p>
                 </div>
-                <div style="background:#E0F2FE; color:#0369A1; font-weight:800; padding:8px 16px; border-radius:14px; font-size:14px;">
-                    Código de clase: <span id="groupDetailClassCode">--</span>
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+                    <div style="background:#E0F2FE; color:#0369A1; font-weight:800; padding:8px 16px; border-radius:14px; font-size:14px;">
+                        Código de clase: <span id="groupDetailClassCode">--</span>
+                    </div>
+                    <button type="button" id="btnLeaveGroup" style="display:none; background:#FFF; color:#C53030; border:1px solid #FEB2B2; border-radius:12px; padding:6px 14px; font-size:13px; font-weight:800; cursor:pointer;">
+                        Salir del grupo
+                    </button>
                 </div>
             </div>
 
