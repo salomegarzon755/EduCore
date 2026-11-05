@@ -30,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (roleBadgeDisplay) {
         if (savedRole === 'Docente') {
-            // VISTA DOCENTE
             roleBadgeDisplay.textContent = 'ESPACIO DOCENTE';
             if (loginTitle) loginTitle.textContent = '¡Bienvenido, docente!';
             if (loginSubtitle) loginSubtitle.textContent = 'Ingresa para organizar tus clases y acompañar a tus estudiantes.';
@@ -40,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (footerNotice) footerNotice.textContent = 'Acceso reservado para profesores registrados.';
 
         } else if (savedRole === 'Padre o Madre') {
-            // VISTA FAMILIA (Único que requiere Código de Clase)
             roleBadgeDisplay.textContent = 'ESPACIO FAMILIA';
             if (loginTitle) loginTitle.textContent = 'Acompaña el aprendizaje de tu hijo';
             if (loginSubtitle) loginSubtitle.textContent = 'Ingresa con los datos de acceso de tu hijo';
@@ -50,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (footerNotice) footerNotice.textContent = 'No necesitas registrarte. Usa los datos del estudiante y el código de su clase.';
 
         } else {
-            // VISTA ESTUDIANTE (Mismo form que el docente, sin código de clase)
             roleBadgeDisplay.textContent = 'ESPACIO ESTUDIANTE';
             if (loginTitle) loginTitle.textContent = '¡Bienvenido, estudiante!';
             if (loginSubtitle) loginSubtitle.textContent = 'Ingresa tu usuario y contraseña para continuar tu aprendizaje.';
@@ -61,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 3. Procesar Inicio de Sesión conectando a la BD mediante API Flask
+    // 3. Procesar Inicio de Sesión con validación estricta del portal
     const loginForm = document.getElementById('loginForm');
     const authErrorAlert = document.getElementById('authErrorAlert');
 
@@ -75,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const usuarioVal = userInput ? userInput.value.trim() : '';
             const contrasenaVal = passInput ? passInput.value.trim() : '';
 
-            // Ocultar alerta de error previa si existe
             if (authErrorAlert) authErrorAlert.classList.add('alert-hidden');
 
             try {
@@ -84,36 +80,58 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         usuario: usuarioVal,
-                        contrasena: contrasenaVal
+                        contrasena: contrasenaVal,
+                        rol_esperado: savedRole
                     })
                 });
 
                 const data = await response.json();
 
-                if (data.success) {
-                    // Guardamos el objeto devuelto por PostgreSQL (contiene id_usuario, nombre, usuario, rol)
+                if (data.success && data.user) {
+                    const rolReal = data.user.rol;
+
+                    // Exclusividad de portales en frontend
+                    if (savedRole === 'Docente' && rolReal !== 'Docente') {
+                        mostrarError('Esta cuenta es de un estudiante. Por favor ingresa desde el Portal Estudiantes.');
+                        return;
+                    }
+
+                    if (savedRole === 'Estudiante' && rolReal !== 'Estudiante') {
+                        mostrarError('Esta cuenta es de un docente. Por favor ingresa desde el Portal Docentes.');
+                        return;
+                    }
+
+                    // Si la autenticación es válida para el portal correcto
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
                     localStorage.setItem('loggedUserName', data.user.nombre || usuarioVal);
-                    
-                    // Si el usuario intentó ingresar desde el 'ESPACIO FAMILIA', priorizamos esa vista
+
                     if (savedRole === 'Padre o Madre') {
                         localStorage.setItem('userRole', 'Padre o Madre');
                         window.location.href = 'PanelFamilia.html';
-                    } else if (data.user.rol === 'Docente') {
+                    } else if (rolReal === 'Docente') {
                         localStorage.setItem('userRole', 'Docente');
                         window.location.href = 'PanelDocente/PanelPrincipal.html';
                     } else {
                         localStorage.setItem('userRole', 'Estudiante');
                         window.location.href = 'PanelEstudiante/Inicio.html';
                     }
+
                 } else {
-                    if (authErrorAlert) authErrorAlert.classList.remove('alert-hidden');
+                    mostrarError(data.message || 'Usuario o contraseña incorrectos.');
                 }
             } catch (error) {
                 console.error('Error de conexión con el servidor Python:', error);
-                if (authErrorAlert) authErrorAlert.classList.remove('alert-hidden');
+                mostrarError('No se pudo conectar con el servidor.');
             }
         });
     }
 
+    function mostrarError(mensaje) {
+        if (authErrorAlert) {
+            authErrorAlert.textContent = mensaje;
+            authErrorAlert.classList.remove('alert-hidden');
+        } else {
+            alert(mensaje);
+        }
+    }
 });

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCore - Actividad</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/Actividad.css">
+</head>
+<body class="act-body">
+    <div class="act-wrap" id="actividadApp" aria-live="polite"></div>
+
+    <script src="../../js/config.js"></script>
+    <script src="../../js/actividad.js"></script>
+    <script>
+        // Todo el contenido llega de la API: aquí solo se lee el id de la URL.
+        const idActividad = new URLSearchParams(location.search).get('id_actividad');
+        if (!idActividad) location.href = 'MiCamino.html';
+        else EduActividad.abrir(idActividad, {
+            contenedor: document.getElementById('actividadApp'),
+            alSalir: (meta) => { location.href = 'MiCamino.html' + (meta ? `?id_curso=${meta.id_curso}` : ''); }
+        });
+    </script>
+</body>
+</html>

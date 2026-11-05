@@ -113,7 +113,8 @@ class CursoDAO:
         try:
             cursor = conn.cursor()
             query = """
-                SELECT id_punto, id_actividad, enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respuesta_correcta
+                SELECT id_punto, id_actividad, enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respuesta_correcta,
+                    visual, explicacion, es_opinion
                 FROM preg_punto
                 WHERE id_actividad = %s
                 ORDER BY id_punto ASC;
@@ -123,7 +124,7 @@ class CursoDAO:
             cursor.close()
 
             return [
-                PregPunto(r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7]).to_dict()
+                PregPunto(*r).to_dict()
                 for r in rows
             ]
         except Exception as e:
@@ -187,7 +188,7 @@ class CursoDAO:
             if conn: DatabaseConnection.return_connection(conn)
 
     @staticmethod
-    def obtener_detalle_completo(id_curso):
+    def obtener_detalle_completo(id_curso, id_estudiante=None):
         conn = DatabaseConnection.get_connection()
         if not conn: return None
         try:
@@ -207,6 +208,23 @@ class CursoDAO:
             
             unidades_list = []
             total_actividades = 0
+            actividades_completadas = 0
+
+            # Si nos pasan id_estudiante, obtenemos el set de IDs de actividades completadas
+            completadas_set = set()
+            if id_estudiante:
+                cursor.execute("""
+                    SELECT ra.id_actividad 
+                    FROM resultado_actividad ra
+                    JOIN actividad a ON ra.id_actividad = a.id_actividad
+                    JOIN unidad u ON a.id_unidad = u.id_unidad
+                    LEFT JOIN usuario usr ON usr.id_usuario = ra.id_estudiante
+                    WHERE u.id_curso = %s 
+                        AND (ra.id_estudiante = %s OR usr.id_usuario = %s)
+                        AND ra.completada = TRUE;
+                """, (id_curso, id_estudiante, id_estudiante))
+                completadas_set = {r[0] for r in cursor.fetchall()}
+
             for u_row in rows_unidades:
                 u_id, u_titulo = u_row[0], u_row[1]
                 cursor.execute("""
@@ -216,10 +234,16 @@ class CursoDAO:
                     ORDER BY id_actividad ASC;
                 """, (u_id,))
                 rows_actividades = cursor.fetchall()
-                actividades = [
-                    Actividad(a[0], a[1], a[2], u_id).to_dict()
-                    for a in rows_actividades
-                ]
+                
+                actividades = []
+                for a in rows_actividades:
+                    act_dict = Actividad(a[0], a[1], a[2], u_id).to_dict()
+                    es_completada = a[0] in completadas_set
+                    act_dict["completada"] = es_completada
+                    if es_completada:
+                        actividades_completadas += 1
+                    actividades.append(act_dict)
+
                 total_actividades += len(actividades)
                 u_dict = Unidad(u_id, u_titulo, c_id).to_dict()
                 u_dict["actividades"] = actividades
@@ -228,6 +252,12 @@ class CursoDAO:
             curso_dict["unidades"] = unidades_list
             curso_dict["total_unidades"] = len(unidades_list)
             curso_dict["total_actividades"] = total_actividades
+            curso_dict["actividades_completadas"] = actividades_completadas
+            
+            # Cálculo del porcentaje
+            porcentaje = round((actividades_completadas / total_actividades) * 100) if total_actividades > 0 else 0
+            curso_dict["porcentaje_progreso"] = porcentaje
+
             cursor.close()
             return curso_dict
         except Exception as e:

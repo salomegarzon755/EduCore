@@ -4,9 +4,11 @@ from dao.usuario_dao import UsuarioDAO
 from models.usuario import Usuario
 from dao.curso_dao import CursoDAO
 from dao.grupo_dao import GrupoDAO
+from routes.actividades import actividades_bp
 
 app = Flask(__name__)
 CORS(app)
+app.register_blueprint(actividades_bp)   # /api/actividades/<id>, /api/resultados, /api/estudiantes/<id>/progreso
 
 # --- AUTENTICACIÓN Y REGISTRO ---
 
@@ -15,25 +17,67 @@ def login():
     data = request.get_json() or {}
     username = data.get('usuario')
     password = data.get('contrasena')
+    rol_esperado = data.get('rol_esperado')  # 'Estudiante', 'Docente' o 'Padre o Madre'
 
     usuario_obj = UsuarioDAO.autenticar(username, password)
+
     if usuario_obj:
-        return jsonify({"success": True, "user": usuario_obj.to_dict()}), 200
-    return jsonify({"success": False, "message": "Usuario o contraseña incorrectos"}), 401
+        user_dict = usuario_obj.to_dict()
+        rol_real = user_dict.get('rol')
+
+        # Validación estricta por rol si se especifica en el Login
+        if rol_esperado:
+            if rol_esperado == 'Estudiante' and rol_real != 'Estudiante':
+                return jsonify({
+                    "success": False,
+                    "message": "Esta cuenta pertenece a un docente. Debes ingresar desde el portal para docentes."
+                }), 403
+            elif rol_esperado == 'Docente' and rol_real != 'Docente':
+                return jsonify({
+                    "success": False,
+                    "message": "Esta cuenta pertenece a un estudiante. Debes ingresar desde el portal para estudiantes."
+                }), 403
+
+        return jsonify({
+            "success": True,
+            "user": user_dict
+        }), 200
+    else:
+        return jsonify({
+            "success": False,
+            "message": "Usuario o contraseña incorrectos"
+        }), 401
 
 @app.route('/api/registro', methods=['POST'])
 def registro():
     data = request.get_json() or {}
+    
+    nombre = data.get('nombre')
+    username = data.get('usuario')
+    correo = data.get('correo', '')
+    password = data.get('contrasena')
+    rol = data.get('rol', 'Estudiante')
+
     nuevo_usuario = Usuario(
-        nombre=data.get('nombre'),
-        usuario=data.get('usuario'),
-        contrasena=data.get('contrasena'),
-        rol=data.get('rol', 'Estudiante')
+        nombre=nombre,
+        usuario=username,
+        contrasena=password,
+        rol=rol
     )
-    creado = UsuarioDAO.crear(nuevo_usuario, correo=data.get('correo', ''))
+
+    creado = UsuarioDAO.crear(nuevo_usuario, correo=correo)
+
     if creado:
-        return jsonify({"success": True, "message": "Usuario registrado exitosamente", "user": nuevo_usuario.to_dict()}), 201
-    return jsonify({"success": False, "message": "No se pudo registrar el usuario en la base de datos."}), 400
+        return jsonify({
+            "success": True,
+            "message": "Usuario registrado exitosamente",
+            "user": nuevo_usuario.to_dict()
+        }), 201
+    else:
+        return jsonify({
+            "success": False,
+            "message": "No se pudo registrar el usuario en la base de datos."
+        }), 400
 
 # --- RUTAS DE CURSOS Y CONTENIDO ---
 
@@ -77,17 +121,15 @@ def get_puntos_actividad(id_actividad):
     puntos = CursoDAO.obtener_puntos_de_actividad(id_actividad)
     return jsonify({"success": True, "puntos": puntos, "preguntas": puntos}), 200
 
-# --- RUTAS DE GRUPOS (DOCENTE Y ESTUDIANTE) ---
+# --- RUTAS DE GRUPOS ---
 
 @app.route('/api/estudiantes/<int:id_estudiante>/grupos', methods=['GET'])
 def obtener_grupos_estudiante(id_estudiante):
-    """Retorna los grupos en los que está inscrito el estudiante."""
     grupos = GrupoDAO.obtener_grupos_por_estudiante(id_estudiante)
     return jsonify({"success": True, "grupos": grupos}), 200
 
 @app.route('/api/estudiantes/<int:id_estudiante>/cursos', methods=['GET'])
 def obtener_cursos_estudiante(id_estudiante):
-    """Retorna los cursos asignados a los grupos del estudiante calculando actividades reales de la BD."""
     cursos = GrupoDAO.obtener_cursos_por_estudiante(id_estudiante)
     return jsonify({"success": True, "cursos": cursos}), 200
 

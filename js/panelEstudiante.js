@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const storedUserRaw = localStorage.getItem('currentUser');
     let studentFullName = localStorage.getItem('loggedUserName') || 'Luna';
     let studentUser = { id_usuario: 3, nombre: studentFullName };
+    
 
     if (storedUserRaw) {
         try {
@@ -20,7 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const firstName = studentFullName.split(' ')[0];
-    const studentId = studentUser.id_usuario || studentUser.id || 3;
+    // Cambia la extracción del ID del estudiante por esto:
+    const studentId = studentUser.id_estudiante || studentUser.id_usuario || studentUser.id || 1;
 
     const displayStudentName = document.getElementById('displayStudentName');
     const studentFirstNameLabels = document.querySelectorAll('.student-first-name');
@@ -155,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // -----------------------------------------------------------
-    // 3. VISTA: MIS CURSOS (MisCursos.html)
+    // 3. VISTA: MIS CURSOS (MisCursos.html) - CON PROGRESO CALCULADO
     // -----------------------------------------------------------
     const studentCoursesContainer = document.getElementById('studentCoursesContainer');
     const emptyStudentCoursesContainer = document.getElementById('emptyStudentCoursesContainer');
@@ -170,7 +172,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
 
             if (data.success && data.cursos && data.cursos.length > 0) {
-                renderCursosEstudianteEstiloImagen3(data.cursos);
+                // Obtener el progreso real enriquecido para cada curso
+                const cursosConProgreso = await Promise.all(
+                    data.cursos.map(async (c) => {
+                        try {
+                            const resDetalle = await fetch(`${BASE_URL}/cursos/${c.id_curso}/detalle_completo?id_estudiante=${studentId}`);
+                            const dataDetalle = await resDetalle.json();
+                            if (dataDetalle.success && dataDetalle.curso) {
+                                return {
+                                    ...c,
+                                    total_actividades: dataDetalle.curso.total_actividades || 0,
+                                    actividades_completadas: dataDetalle.curso.actividades_completadas || 0,
+                                    porcentaje_progreso: dataDetalle.curso.porcentaje_progreso || 0
+                                };
+                            }
+                        } catch (e) {
+                            console.error(`Error obteniendo detalle para curso ${c.id_curso}:`, e);
+                        }
+                        return c;
+                    })
+                );
+
+                renderCursosEstudianteEstiloImagen3(cursosConProgreso);
             } else {
                 if (emptyStudentCoursesContainer) emptyStudentCoursesContainer.style.display = 'flex';
                 if (studentCoursesContainer) studentCoursesContainer.style.display = 'none';
@@ -190,7 +213,12 @@ document.addEventListener('DOMContentLoaded', () => {
         cursos.forEach(c => {
             const totalAct = c.total_actividades || 0;
             const compAct = c.actividades_completadas || 0;
-            const porcentaje = totalAct > 0 ? Math.round((compAct / totalAct) * 100) : 0;
+            
+            // Usar el porcentaje devuelto o calcularlo como fallback
+            const porcentaje = c.porcentaje_progreso !== undefined 
+                ? c.porcentaje_progreso 
+                : (totalAct > 0 ? Math.round((compAct / totalAct) * 100) : 0);
+
             const esGrado2 = c.id_curso == 2 || (c.titulo_curso && c.titulo_curso.toLowerCase().includes('exploramos'));
             const gradoTexto = esGrado2 ? 'Matemáticas · Grado 2.°' : 'Matemáticas · Grado 1.°';
 
@@ -204,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="student-course-content">
                     <span class="grade-pill-purple">${gradoTexto}</span>
-                    <p class="student-course-description">${c.descripcion}</p>
+                    <p class="student-course-description">${c.descripcion || ''}</p>
                     
                     <div class="progress-info-row">
                         <span>${compAct} de ${totalAct} actividades completadas</span>
@@ -252,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const idCurso = urlParams.get('id_curso') || 1;
 
         try {
-            const res = await fetch(`${BASE_URL}/cursos/${idCurso}/detalle_completo`);
+            const res = await fetch(`${BASE_URL}/cursos/${idCurso}/detalle_completo?id_estudiante=${studentId}`);
             const data = await res.json();
 
             if (data.success && data.curso) {
@@ -261,37 +289,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pathCourseTitle) pathCourseTitle.textContent = curso.titulo_curso;
 
                 unidadesCursoGlobal = curso.unidades || [];
+                await aplicarProgreso(idCurso);
 
-                // Si no hay unidades cargadas en BD para este curso
-                if (unidadesCursoGlobal.length === 0) {
-                    unidadesCursoGlobal = [
-                        {
-                            titulo_unidad: 'Unidad 1: Contando del 1 al 10',
-                            actividades: [
-                                { titulo_actividad: 'Conociendo los números del 1 al 10', tipo_contenido: 'Teoría', estado: 'actual' },
-                                { titulo_actividad: 'Encuesta: ¿Cómo te sientes contando?', tipo_contenido: 'Encuesta', estado: 'bloqueada' },
-                                { titulo_actividad: 'Práctica: Contando en la orilla del río', tipo_contenido: 'Práctica', estado: 'bloqueada' },
-                                { titulo_actividad: 'Reto: El conteo de los animales', tipo_contenido: 'Práctica', estado: 'bloqueada' }
-                            ]
-                        },
-                        {
-                            titulo_unidad: 'Unidad 2: Sumando pequeñas cantidades',
-                            actividades: [
-                                { titulo_actividad: 'Sumas con frutas de Acandí', tipo_contenido: 'Teoría', estado: 'bloqueada' },
-                                { titulo_actividad: 'Juntamos objetos', tipo_contenido: 'Práctica', estado: 'bloqueada' },
-                                { titulo_actividad: '¿Cuánto nos queda?', tipo_contenido: 'Práctica', estado: 'bloqueada' },
-                                { titulo_actividad: 'Gran reto de la selva', tipo_contenido: 'Práctica', estado: 'bloqueada' }
-                            ]
-                        }
-                    ];
-                }
-
-                indiceUnidadActual = 0;
+                // Abre el carrusel en la unidad donde está la estación actual
+                const idxActual = unidadesCursoGlobal.findIndex(u => (u.actividades || []).some(a => a.estado === 'actual'));
+                indiceUnidadActual = idxActual >= 0 ? idxActual : 0;
                 renderizarCarruselUnidades();
             }
         } catch (err) {
             console.error('Error al obtener los datos del camino:', err);
         }
+    }
+
+    // Estado de cada estación según los resultados guardados en la base de datos
+    async function aplicarProgreso(idCurso) {
+        let progreso = {};
+        try {
+            const res = await fetch(`${BASE_URL}/estudiantes/${studentId}/progreso?id_curso=${idCurso}`);
+            const data = await res.json();
+            if (data.success) progreso = data.progreso || {};
+        } catch (err) {
+            console.error('Error cargando el progreso:', err);
+        }
+        let actualAsignada = false;
+        unidadesCursoGlobal.forEach(u => (u.actividades || []).forEach(a => {
+            const r = progreso[a.id_actividad];
+            if (r && r.completada) {
+                a.estado = 'completada';
+            } else if (!actualAsignada) {
+                a.estado = 'actual';
+                actualAsignada = true;
+            } else {
+                a.estado = 'bloqueada';
+            }
+        }));
     }
 
     function renderizarCarruselUnidades() {
@@ -324,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     nodosHTML += `
-                        <div class="path-node-card ${posClass} ${estado}">
+                        <div class="path-node-card ${posClass} ${estado}" ${estado !== 'bloqueada' ? `data-href="Actividad.html?id_actividad=${act.id_actividad}" style="cursor:pointer"` : ''}>
                             <div class="node-avatar-badge">${icono}</div>
                             <h4 class="node-title">${act.titulo_actividad}</h4>
                             <p class="node-status-text">${estadoLabel}</p>
@@ -371,6 +402,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (btnPrevUnit) btnPrevUnit.disabled = (indiceUnidadActual === 0);
         if (btnNextUnit) btnNextUnit.disabled = (indiceUnidadActual >= unidadesCursoGlobal.length - 1);
+    }
+
+    // Abrir la actividad al tocar una estación disponible
+    if (pathUnitsTrack) {
+        pathUnitsTrack.addEventListener('click', (e) => {
+            const nodo = e.target.closest('[data-href]');
+            if (nodo) window.location.href = nodo.dataset.href;
+        });
     }
 
     // Listeners para botones Anterior / Siguiente Unidad

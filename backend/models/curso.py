@@ -41,7 +41,8 @@ class Actividad:
 
 class PregPunto:
     def __init__(self, id_punto=None, id_actividad=None, enunciado="", 
-                opcion_a=None, opcion_b=None, opcion_c=None, opcion_d=None, respuesta_correcta=None):
+                opcion_a=None, opcion_b=None, opcion_c=None, opcion_d=None, respuesta_correcta=None,
+                visual=None, explicacion=None, es_opinion=False):
         self.id_punto = id_punto
         self.id_actividad = id_actividad
         self.enunciado = enunciado
@@ -50,6 +51,9 @@ class PregPunto:
         self.opcion_c = opcion_c
         self.opcion_d = opcion_d
         self.respuesta_correcta = respuesta_correcta
+        self.visual = visual              # JSON con las imágenes del enunciado/solución
+        self.explicacion = explicacion
+        self.es_opinion = es_opinion
 
     def to_dict(self):
         return {
@@ -60,5 +64,8 @@ class PregPunto:
             "opcion_b": self.opcion_b,
             "opcion_c": self.opcion_c,
             "opcion_d": self.opcion_d,
-            "respuesta_correcta": self.respuesta_correcta
+            "respuesta_correcta": self.respuesta_correcta,
+            "visual": self.visual,
+            "explicacion": self.explicacion,
+            "es_opinion": self.es_opinion
         }
