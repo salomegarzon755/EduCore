@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dao.usuario_dao import UsuarioDAO
@@ -5,9 +6,13 @@ from models.usuario import Usuario
 from dao.curso_dao import CursoDAO
 from dao.grupo_dao import GrupoDAO
 from routes.actividades import actividades_bp
+from config.database import DatabaseConnection
 
 app = Flask(__name__)
-CORS(app)
+# En produccion define FRONTEND_ORIGIN con la URL del sitio estatico (sin barra final).
+# Varias URLs se separan con coma. Por defecto (*) acepta cualquier origen.
+_origenes = [o.strip() for o in os.getenv('FRONTEND_ORIGIN', '*').split(',') if o.strip()]
+CORS(app, origins=_origenes)
 app.register_blueprint(actividades_bp)   # /api/actividades/<id>, /api/resultados, /api/estudiantes/<id>/progreso
 
 # --- AUTENTICACIÓN Y REGISTRO ---
@@ -236,6 +241,23 @@ def quitar_curso_de_grupo(id_grupo, id_curso):
         return jsonify(resultado), 200
     else:
         return jsonify(resultado), 400
+
+@app.route('/api/health', methods=['GET'])
+def health():
+    """Comprobacion del despliegue: abre /api/health en el navegador."""
+    try:
+        conn = DatabaseConnection.get_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute('SELECT 1')
+            cur.close()
+            conn.rollback()
+        finally:
+            DatabaseConnection.return_connection(conn)
+        return jsonify({"status": "ok", "db": "ok"}), 200
+    except Exception as e:
+        print(f"Error en /api/health: {e}")
+        return jsonify({"status": "error", "db": "error"}), 503
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
