@@ -61,15 +61,19 @@
                 <p style="color:#718096; margin-top:4px; margin-bottom:24px;">Mira los resultados y reconoce necesidades de acompañamiento.</p>
             </div>
 
-            <div class="empty-state-card">
+            <div id="teacherFollowupSummary" class="hu15-summary" aria-live="polite"></div>
+            <div id="teacherFollowupList" class="hu15-activity-list" aria-live="polite"></div>
+            <div id="teacherFollowupEmpty" class="empty-state-card" hidden>
                 <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_resultados.png" alt="Sin datos" class="empty-state-img">
-                <h3 class="empty-state-title">Sin datos de seguimiento</h3>
-                <p class="empty-state-desc">Cuando tus estudiantes completen actividades en sus grupos, sus avances aparecerán detallados aquí.</p>
+                <h3 class="empty-state-title">Aún no hay estudiantes para mostrar</h3>
+                <p class="empty-state-desc">Cuando tengas estudiantes inscritos en tus grupos, podrás acompañar sus procesos desde aquí.</p>
             </div>
         </section>
     </main>
     <script src="../../js/config.js"></script>
     <script src="../../js/panelDocente.js"></script>
+    <script src="../../js/hu15Common.js"></script>
+    <script src="../../js/seguimientoDocente.js"></script>
     <script src="../../js/logout.js"></script>
 </body>
 </html>

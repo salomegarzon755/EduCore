@@ -14,12 +14,12 @@ class Resultado:
 
     @staticmethod
     def calcular(aciertos, total):
-        """Regla única (servidor): >=80 % verde/3★, >=50 % amarillo/2★, resto rojo/1★. Teoría (total=0): sin nota."""
+        """Regla única (servidor): >=80 % verde/3★, >=60 % amarillo/2★, resto rojo/1★. Teoría (total=0): sin nota."""
         if total <= 0:
             return 0, None
         pct = aciertos / total
         if pct >= 0.8:
             return 3, 'verde'
-        if pct >= 0.5:
+        if pct >= 0.6:
             return 2, 'amarillo'
         return 1, 'rojo'

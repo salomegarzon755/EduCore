@@ -50,46 +50,17 @@
                 </div>
             </section>
 
-            <!-- Métricas / Indicadores -->
-            <section class="metrics-grid">
-                <div class="metric-card metric-blue">
-                    <span class="metric-label">Actividades realizadas</span>
-                    <span class="metric-value" id="totalActivities">3</span>
-                </div>
-
-                <div class="metric-card metric-yellow">
-                    <span class="metric-label">Última actividad</span>
-                    <span class="metric-value" id="lastActivityScore">4 de 5</span>
-                </div>
-
-                <div class="metric-card metric-green">
-                    <span class="metric-label">Rendimiento ilustrativo</span>
-                    <div class="performance-pill">
-                        <span>✓</span> Buen desempeño
-                    </div>
-                </div>
-            </section>
-
-            <!-- Lista de Actividades y Descubrimientos -->
+            <!-- Seguimiento de solo lectura: datos reales del estudiante -->
             <section class="discoveries-section">
-                <h2 class="discoveries-title">Sus últimos descubrimientos</h2>
-                
-                <div class="discoveries-list">
-                    <div class="discovery-item">
-                        <span class="activity-name">Contemos las frutas</span>
-                        <span class="activity-score-badge">4 de 5 · realizadas</span>
-                    </div>
-
-                    <div class="discovery-item">
-                        <span class="activity-name">Contemos mariposas</span>
-                        <span class="activity-score-badge">5 de 5 · realizadas</span>
-                    </div>
-
-                    <div class="discovery-item">
-                        <span class="activity-name">Números del 1 al 5</span>
-                        <span class="activity-score-badge">3 de 5 · realizadas</span>
-                    </div>
+                <h2 class="discoveries-title">Resultados y actividades</h2>
+                <div id="familyProgressSummary" class="hu15-summary" aria-live="polite"></div>
+                <div id="familyProgressList" class="hu15-activity-list" aria-live="polite"></div>
+                <div id="familyProgressEmpty" class="empty-state-card" hidden>
+                    <img src="../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_resultados.png" alt="Sin resultados" class="empty-state-img">
+                    <h3 class="empty-state-title">Este estudiante todavía no tiene resultados registrados</h3>
+                    <p class="empty-state-desc">Cuando realice su primera actividad, podrás consultar aquí sus resultados y los comentarios del docente.</p>
                 </div>
+                <p id="familyProgressError" class="hu15-error" role="alert" hidden>No fue posible cargar los resultados. Intenta nuevamente.</p>
             </section>
 
             <!-- Pie de página informativo -->
@@ -100,7 +71,9 @@
         </div>
     </main>
     <script src="../js/config.js"></script>
-    <script src="../../js/panelFamilia.js"></script>
-    <script src="../../js/logout.js"></script>
+    <script src="../js/panelFamilia.js"></script>
+    <script src="../js/hu15Common.js"></script>
+    <script src="../js/seguimientoFamilia.js"></script>
+    <script src="../js/logout.js"></script>
 </body>
 </html>
