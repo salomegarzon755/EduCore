@@ -63,17 +63,28 @@ class ActividadDAO:
         try:
             estrellas, semaforo = Resultado.calcular(aciertos, total)
             cur = conn.cursor()
-            cur.execute("""
-                INSERT INTO resultado_actividad
-                    (id_estudiante, id_actividad, aciertos, total, estrellas, semaforo, completada, intentos, fecha)
-                VALUES (%s, %s, %s, %s, %s, %s, TRUE, 1, NOW())
-                ON CONFLICT (id_estudiante, id_actividad) DO UPDATE SET
-                    aciertos = EXCLUDED.aciertos, total = EXCLUDED.total,
-                    estrellas = EXCLUDED.estrellas, semaforo = EXCLUDED.semaforo,
-                    completada = TRUE, intentos = resultado_actividad.intentos + 1, fecha = NOW()
-                RETURNING intentos;""",
-                (id_estudiante, id_actividad, aciertos, total, estrellas, semaforo))
-            intentos = cur.fetchone()[0]
+            # Serializar intentos por estudiante/actividad, incluso si dos peticiones llegan a la vez.
+            cur.execute("SELECT pg_advisory_xact_lock(%s, %s)", (id_estudiante, id_actividad))
+            cur.execute("SELECT COALESCE(MAX(numero_intento), 0) FROM intento_actividad WHERE id_estudiante=%s AND id_actividad=%s", (id_estudiante,id_actividad))
+            intentos = cur.fetchone()[0] + 1
+            cur.execute("""INSERT INTO intento_actividad
+                (id_estudiante,id_actividad,numero_intento,aciertos,total,estrellas,semaforo)
+                VALUES (%s,%s,%s,%s,%s,%s,%s)""",
+                (id_estudiante,id_actividad,intentos,aciertos,total,estrellas,semaforo))
+            # Resultado principal = mejor intento (empate: el más reciente).
+            cur.execute("""SELECT aciertos,total,estrellas,semaforo
+                FROM intento_actividad WHERE id_estudiante=%s AND id_actividad=%s
+                ORDER BY CASE WHEN total>0 THEN aciertos::numeric/total ELSE -1 END DESC,
+                         numero_intento DESC LIMIT 1""", (id_estudiante,id_actividad))
+            mejor = cur.fetchone()
+            cur.execute("""INSERT INTO resultado_actividad
+                (id_estudiante,id_actividad,aciertos,total,estrellas,semaforo,completada,intentos,fecha)
+                VALUES (%s,%s,%s,%s,%s,%s,TRUE,%s,NOW())
+                ON CONFLICT(id_estudiante,id_actividad) DO UPDATE SET
+                aciertos=EXCLUDED.aciertos,total=EXCLUDED.total,
+                estrellas=EXCLUDED.estrellas,semaforo=EXCLUDED.semaforo,
+                completada=TRUE,intentos=EXCLUDED.intentos,fecha=NOW()""",
+                (id_estudiante,id_actividad,*mejor,intentos))
             for r in respuestas:
                 cur.execute("""
                     INSERT INTO respuesta_estudiante (id_estudiante, id_punto, intento, opcion_elegida, es_correcta)
@@ -82,7 +93,7 @@ class ActividadDAO:
             conn.commit()
             cur.close()
             return {"success": True, "resultado": Resultado(
-                id_actividad, aciertos, total, estrellas, semaforo, True, intentos).to_dict()}
+                id_actividad, mejor[0], mejor[1], mejor[2], mejor[3], True, intentos).to_dict()}
         except Exception as e:
             conn.rollback()
             print(f"Error en ActividadDAO.guardar_resultado: {e}")

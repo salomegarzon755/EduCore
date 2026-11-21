@@ -6,6 +6,7 @@ from models.usuario import Usuario
 from dao.curso_dao import CursoDAO
 from dao.grupo_dao import GrupoDAO
 from routes.actividades import actividades_bp
+from routes.seguimiento import seguimiento_bp
 from config.database import DatabaseConnection
 
 app = Flask(__name__)
@@ -13,7 +14,8 @@ app = Flask(__name__)
 # Varias URLs se separan con coma. Por defecto (*) acepta cualquier origen.
 _origenes = [o.strip() for o in os.getenv('FRONTEND_ORIGIN', '*').split(',') if o.strip()]
 CORS(app, origins=_origenes)
-app.register_blueprint(actividades_bp)   # /api/actividades/<id>, /api/resultados, /api/estudiantes/<id>/progreso
+app.register_blueprint(actividades_bp)   # actividades y resultados
+app.register_blueprint(seguimiento_bp)   # HU.15 · seguimiento docente, estudiante y familia
 
 # --- AUTENTICACIÓN Y REGISTRO ---
 
@@ -98,7 +100,8 @@ def obtener_cursos_completo():
 
 @app.route('/api/cursos/<int:id_curso>/detalle_completo', methods=['GET'])
 def get_curso_detalle_completo(id_curso):
-    detalle = CursoDAO.obtener_detalle_completo(id_curso)
+    id_estudiante = request.args.get('id_estudiante', type=int)
+    detalle = CursoDAO.obtener_detalle_completo(id_curso, id_estudiante)
     if not detalle:
         return jsonify({"success": False, "message": "Curso no encontrado"}), 404
     return jsonify({"success": True, "curso": detalle}), 200

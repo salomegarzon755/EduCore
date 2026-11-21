@@ -65,15 +65,20 @@
                 <p>Reconoce tus logros y tus descubrimientos.</p>
             </div>
 
-            <div class="empty-state-card">
+            <div id="studentProgressSummary" class="hu15-summary" aria-live="polite"></div>
+            <div id="studentProgressList" class="hu15-activity-list" aria-live="polite"></div>
+            <div id="studentProgressEmpty" class="empty-state-card" hidden>
                 <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_resultados.png" alt="Sin progreso" class="empty-state-img">
                 <h3 class="empty-state-title">Aún no hay resultados para mostrar</h3>
-                <p class="empty-state-desc">A medida que resuelvas las actividades de tus cursos, verás aquí tus estadísticas y avance.</p>
+                <p class="empty-state-desc">Cuando completes tus actividades, tus resultados y los comentarios de tu docente aparecerán aquí.</p>
             </div>
+            <p id="studentProgressError" class="hu15-error" role="alert" hidden>No fue posible cargar tu progreso. Intenta nuevamente.</p>
         </section>
     </main>
     <script src="../../js/config.js"></script>
     <script src="../../js/panelEstudiante.js"></script>
+    <script src="../../js/hu15Common.js"></script>
+    <script src="../../js/seguimientoEstudiante.js"></script>
     <script src="../../js/logout.js"></script>
 </body>
 </html>

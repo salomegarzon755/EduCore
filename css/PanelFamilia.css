@@ -374,3 +374,35 @@ ESTILOS PARA EL PANEL DE FAMILIAS (HU.03)
     padding: 24px;
   }
 }
+/* HU.15 · Seguimiento familiar en modo consulta */
+.hu15-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:18px 0 22px}
+.hu15-stat{background:#D9EDF7;border:1px solid #C7E4F1;border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:5px;color:#23445A}
+.hu15-stat strong{font-size:27px;font-weight:800;color:#203A56}.hu15-stat span{font-size:13px;font-weight:700}
+.hu15-activity-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.hu15-card{background:#fff;border:1px solid #EFEAE0;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(45,55,72,.05);display:flex;flex-direction:column;gap:12px}
+.hu15-card h3{margin:0;color:#26364B;font-size:17px}.hu15-card p{margin:5px 0 0;color:#718096;font-size:13px}
+.hu15-card-head,.hu15-card-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.hu15-card-foot{font-size:13px;color:#596579;border-top:1px solid #F0EDE6;padding-top:10px}
+.hu15-status{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:18px;font-size:12px;font-weight:800;white-space:nowrap}
+.hu15-status.good{background:#CDEBD2;color:#24643A}.hu15-status.progress{background:#FFF0BD;color:#805D12}.hu15-status.support{background:#F8C9C1;color:#8B342B}.hu15-status.nodata{background:#F1E8D9;color:#705F49}
+.hu15-comment{background:#F8F5EC;border-radius:12px;padding:12px;color:#4B5563!important;line-height:1.5}[hidden]{display:none!important}
+
+/* HU.15 · Tarjetas vivas, sin fondos crema */
+.hu15-activity-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:18px}
+.hu15-student{background:#e1f3ff;border:2px solid #a9dafa;border-radius:22px;padding:18px;min-width:0}
+.hu15-student h2{margin:0;font-size:20px;color:#193953}
+.hu15-student p{color:#38546a}
+.hu15-nested{display:grid;gap:12px;margin-top:16px}
+.hu15-card{background:#d8f5e4!important;border:2px solid #a5e3bd!important;border-radius:18px;padding:16px;min-width:0;color:#1d3940}
+.hu15-card.hu15-tone-progress{background:#ffe69d!important;border-color:#f5c35b!important}
+.hu15-card.hu15-tone-support{background:#ffd4dc!important;border-color:#f5a8b7!important}
+.hu15-card.hu15-tone-nodata{background:#dce6ff!important;border-color:#adc2fa!important}
+.hu15-card h3{color:#193953!important}
+.hu15-card p{color:#405469!important}
+.hu15-card-foot{border-top:1px solid #8eb5ac!important}
+.hu15-card textarea{background:#fff!important;border:1px solid #90b7aa!important;min-height:75px}
+.hu15-card details{background:#ffffffa8;border-radius:12px;padding:10px;color:#233e53;font-size:13px}
+.hu15-card summary{cursor:pointer;font-weight:800}
+.hu15-card li{margin:7px 0}
+.hu15-comment{background:#fff!important;color:#264453!important;padding:12px;border-radius:12px}
+.hu15-status.nodata{background:#c5d5ff!important;color:#283e78!important}
+.hu15-save{background:#267a40!important}

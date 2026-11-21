@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const totalGrupos = grupos.length;
                     const totalEstudiantes = grupos.reduce((acc, g) => acc + (parseInt(g.total_estudiantes) || 0), 0);
                     const totalCursosAsociados = grupos.reduce((acc, g) => acc + (parseInt(g.total_cursos) || 0), 0);
-                    const totalActividades = 0; // Estado inicial
+                    const totalActividades = 0; // Se actualiza con los resultados reales de seguimiento
 
                     // Actualizar indicadores KPI en el HTML
                     const elStatGrupos = document.getElementById('statTotalGrupos');
@@ -164,7 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (elStatGrupos) elStatGrupos.textContent = totalGrupos;
                     if (elStatCursos) elStatCursos.textContent = totalCursosAsociados;
                     if (elStatEstudiantes) elStatEstudiantes.textContent = totalEstudiantes;
-                    if (elStatActividades) elStatActividades.textContent = totalActividades;
+                    if (elStatActividades) {
+                        elStatActividades.textContent = '…';
+                        fetch(`${BASE_URL}/docentes/${teacherId}/seguimiento`).then(r=>r.json()).then(d=>{
+                            if(d.success) elStatActividades.textContent=(d.estudiantes||[]).reduce((n,x)=>n+x.actividades,0);
+                            else elStatActividades.textContent='—';
+                        }).catch(()=>{elStatActividades.textContent='—';});
+                    }
 
                     // Mostrar contenedores de métricas y grupos en Dashboard
                     if (kpiMetricsContainer) kpiMetricsContainer.style.display = 'grid';
