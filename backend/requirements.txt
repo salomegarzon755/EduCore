@@ -3,3 +3,5 @@ flask-cors
 psycopg2-binary >= 2.9.10
 gunicorn
 python-dotenv
+
+itsdangerous>=2.2

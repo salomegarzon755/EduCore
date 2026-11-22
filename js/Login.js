@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     const BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('familyGroupId');
 
     // 1. Alternar visibilidad de contraseña (👁️ / 🙈)
     const togglePasswordBtns = document.querySelectorAll('.toggle-password-btn');
@@ -62,6 +64,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const authErrorAlert = document.getElementById('authErrorAlert');
 
+    const selector = document.getElementById('codigoClase');
+    let pending = null;
+    function resetGroups() {
+        pending = null;
+        if (selector) { selector.disabled = true; selector.innerHTML = '<option value="">Valida tus credenciales para cargar los grupos</option>'; }
+    }
+    ['usuario', 'contrasena'].forEach(id => document.getElementById(id)?.addEventListener('input', resetGroups));
+
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -74,6 +84,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (authErrorAlert) authErrorAlert.classList.add('alert-hidden');
 
+            if (savedRole === 'Padre o Madre' && pending) {
+                if (!selector?.value) { mostrarError('Selecciona un grupo para consultar el progreso.'); return; }
+                localStorage.setItem('currentUser', JSON.stringify(pending.user));
+                localStorage.setItem('authToken', pending.token);
+                localStorage.setItem('familyGroupId', selector.value);
+                localStorage.setItem('userRole', 'Padre o Madre');
+                window.location.href = 'PanelFamilia.html';
+                return;
+            }
             try {
                 const response = await fetch(`${BASE_URL}/login`, {
                     method: 'POST',
@@ -102,13 +121,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     // Si la autenticación es válida para el portal correcto
+                    if (savedRole === 'Padre o Madre') {
+                        const gr = await fetch(`${BASE_URL}/familia/grupos`, {headers: {Authorization: `Bearer ${data.token}`}});
+                        const gd = await gr.json();
+                        if (!gr.ok || !gd.success) { mostrarError(gd.message || 'No se pudieron cargar los grupos'); return; }
+                        const grupos = gd.grupos || [];
+                        if (!grupos.length) { mostrarError('Este estudiante no tiene grupos asignados.'); return; }
+                        pending = {user: data.user, token: data.token};
+                        selector.innerHTML = '<option value=>Selecciona un grupo</option>';
+                        grupos.forEach(grupo => { const option = document.createElement('option'); option.value = grupo.id_grupo; option.textContent = `${grupo.nombre_grupo} (${grupo.codigo_clase})`; selector.appendChild(option); });
+                        selector.disabled = false; selector.focus();
+                        if (submitBtn) submitBtn.textContent = '→ Consultar progreso';
+                        return;
+                    }
+                    localStorage.setItem('authToken', data.token);
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
                     localStorage.setItem('loggedUserName', data.user.nombre || usuarioVal);
 
-                    if (savedRole === 'Padre o Madre') {
-                        localStorage.setItem('userRole', 'Padre o Madre');
-                        window.location.href = 'PanelFamilia.html';
-                    } else if (rolReal === 'Docente') {
+                    if (rolReal === 'Docente') {
                         localStorage.setItem('userRole', 'Docente');
                         window.location.href = 'PanelDocente/PanelPrincipal.html';
                     } else {

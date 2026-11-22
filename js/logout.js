@@ -64,6 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function ejecutarCierreSesion() {
         // Limpiar credenciales y variables guardadas
         localStorage.removeItem('currentUser');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('familyGroupId');
         localStorage.removeItem('loggedUserName');
         sessionStorage.clear();
 
