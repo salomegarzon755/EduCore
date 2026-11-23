@@ -1,4 +1,5 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
+from auth import require_auth
 from config.database import DatabaseConnection
 
 seguimiento_bp = Blueprint('seguimiento', __name__, url_prefix='/api')
@@ -44,11 +45,24 @@ def _actividades(cur, id_estudiante, id_grupo=None):
 
 
 @seguimiento_bp.get('/estudiantes/<int:id_estudiante>/seguimiento')
+@require_auth('Estudiante')
 def seguimiento_estudiante(id_estudiante):
+    if g.identity['id'] != id_estudiante:
+        return jsonify(success=False, message='No autorizado para consultar este estudiante'), 403
+    familia = g.identity.get('portal') == 'Padre o Madre'
+    grupo = request.args.get('id_grupo', type=int)
+    if familia and not grupo:
+        return jsonify(success=False, message='Selecciona un grupo'), 400
     conn=DatabaseConnection.get_connection()
     if not conn: return jsonify(success=False,message='Sin conexión'),503
     try:
-        cur=conn.cursor(); rows=_actividades(cur,id_estudiante);cur.close()
+        cur=conn.cursor()
+        if familia:
+            cur.execute('SELECT 1 FROM estudiante_grupo WHERE id_estudiante=%s AND id_grupo=%s', (id_estudiante, grupo))
+            if not cur.fetchone():
+                cur.close()
+                return jsonify(success=False, message='Grupo no asignado al estudiante'), 403
+        rows=_actividades(cur,id_estudiante,grupo if familia else None);cur.close()
         return jsonify(success=True,actividades=rows)
     except Exception as e:
         print('Error seguimiento estudiante:',e)
@@ -57,7 +71,9 @@ def seguimiento_estudiante(id_estudiante):
 
 
 @seguimiento_bp.get('/docentes/<int:id_docente>/seguimiento')
+@require_auth('Docente')
 def seguimiento_docente(id_docente):
+    if g.identity['id'] != id_docente: return jsonify(success=False, message='No autorizado'), 403
     conn=DatabaseConnection.get_connection()
     if not conn: return jsonify(success=False,message='Sin conexión'),503
     try:
@@ -81,7 +97,9 @@ def seguimiento_docente(id_docente):
 
 
 @seguimiento_bp.put('/docentes/<int:id_docente>/seguimiento')
+@require_auth('Docente')
 def actualizar_seguimiento(id_docente):
+    if g.identity['id'] != id_docente: return jsonify(success=False, message='No autorizado'), 403
     d=request.get_json(silent=True) or {}
     try:
         estudiante=int(d['id_estudiante']);grupo=int(d['id_grupo']);actividad=int(d['id_actividad'])

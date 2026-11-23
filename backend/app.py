@@ -8,6 +8,8 @@ from dao.grupo_dao import GrupoDAO
 from routes.actividades import actividades_bp
 from routes.seguimiento import seguimiento_bp
 from config.database import DatabaseConnection
+from auth import issue_token, require_auth
+from flask import g
 
 app = Flask(__name__)
 # En produccion define FRONTEND_ORIGIN con la URL del sitio estatico (sin barra final).
@@ -32,6 +34,9 @@ def login():
         user_dict = usuario_obj.to_dict()
         rol_real = user_dict.get('rol')
 
+        if rol_esperado == 'Padre o Madre' and rol_real != 'Estudiante':
+            return jsonify(success=False, message="El acceso familiar requiere una cuenta de estudiante"), 403
+
         # Validación estricta por rol si se especifica en el Login
         if rol_esperado:
             if rol_esperado == 'Estudiante' and rol_real != 'Estudiante':
@@ -47,7 +52,8 @@ def login():
 
         return jsonify({
             "success": True,
-            "user": user_dict
+            "user": user_dict,
+            "token": issue_token(user_dict, rol_esperado or rol_real)
         }), 200
     else:
         return jsonify({
@@ -130,6 +136,14 @@ def get_puntos_actividad(id_actividad):
     return jsonify({"success": True, "puntos": puntos, "preguntas": puntos}), 200
 
 # --- RUTAS DE GRUPOS ---
+
+@app.route('/api/familia/grupos', methods=['GET'])
+@require_auth('Estudiante')
+def grupos_familia():
+    if g.identity.get('portal') != 'Padre o Madre':
+        return jsonify(success=False, message='Acceso reservado al portal familiar'), 403
+    grupos = GrupoDAO.obtener_grupos_por_estudiante(g.identity['id'])
+    return jsonify(success=True, grupos=[{'id_grupo': x['id_grupo'], 'nombre_grupo': x['nombre_grupo'], 'grado': x.get('grado'), 'codigo_clase': x.get('codigo_clase')} for x in grupos])
 
 @app.route('/api/estudiantes/<int:id_estudiante>/grupos', methods=['GET'])
 def obtener_grupos_estudiante(id_estudiante):
