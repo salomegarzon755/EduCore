@@ -393,6 +393,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const idxActual = unidadesCursoGlobal.findIndex(u => (u.actividades || []).some(a => a.estado === 'actual'));
                 indiceUnidadActual = idxActual >= 0 ? idxActual : 0;
                 renderizarCarruselUnidades();
+
+                // HU.25 · avisa a la barra de progreso (js/progresoCurso.js) que el camino ya tiene su estado
+                document.dispatchEvent(new CustomEvent('educore:camino-cargado', {
+                    detail: { idCurso, studentId, firstName, curso, unidades: unidadesCursoGlobal }
+                }));
             }
         } catch (err) {
             console.error('Error al obtener los datos del camino:', err);

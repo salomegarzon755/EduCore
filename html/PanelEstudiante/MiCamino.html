@@ -6,6 +6,7 @@
     <title>EduCore - Mi Camino</title>
     <link rel="stylesheet" href="../../css/paneles.css">
     <link rel="stylesheet" href="../../css/PanelEstudiante.css">
+    <link rel="stylesheet" href="../../css/ProgresoCurso.css?v=25">
 </head>
 <body class="student-body">
 
@@ -73,6 +74,35 @@
                 <p class="empty-state-desc">Cuando tu docente te agregue a un grupo con cursos, aparecerán aquí.</p>
             </div>
 
+            <!-- HU.25 · BARRA DE PROGRESO DEL CURSO (avance por temas) -->
+            <section id="courseProgress" class="hu25" aria-labelledby="hu25Course" hidden>
+                <div class="hu25-hero">
+                    <div class="hu25-hero-text">
+                        <p class="hu25-hello">¡Hola, <span class="student-first-name">estudiante</span>!</p>
+                        <h2 class="hu25-course" id="hu25Course"></h2>
+                        <p class="hu25-message" id="hu25Message"></p>
+                        <div class="hu25-bar" id="hu25Bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="hu25Count">
+                            <span class="hu25-bar-fill" id="hu25Fill"></span>
+                        </div>
+                        <p class="hu25-count" id="hu25Count"></p>
+                    </div>
+                    <div class="hu25-mascot" aria-hidden="true">
+                        <img src="../../img/files/EduCore_Identidad/03_personajes/png/kokoi_celebracion.png" alt="">
+                    </div>
+                </div>
+
+                <div class="hu25-topics-card">
+                    <h3 class="hu25-topics-title">Tu camino por el río</h3>
+                    <ol class="hu25-topics" id="hu25Topics"></ol>
+                </div>
+
+                <div class="hu25-actions">
+                    <a class="hu25-btn" id="hu25Main" href="#">Comenzar aventura</a>
+                    <a class="hu25-btn hu25-btn-light" href="MiProgreso.html">Ver mi avance</a>
+                    <p class="hu25-toast" id="hu25Toast" role="status" hidden></p>
+                </div>
+            </section>
+
             <!-- HEADER DE NAVEGACIÓN DE UNIDADES Y AVANCE -->
             <div class="path-header-banner">
                 <div>
@@ -97,7 +127,8 @@
     </main>
 
     <script src="../../js/config.js"></script>
-    <script src="../../js/panelEstudiante.js"></script>
+    <script src="../../js/progresoCurso.js?v=25"></script>
+    <script src="../../js/panelEstudiante.js?v=25"></script>
     <script src="../../js/logout.js"></script>
 </body>
 </html>

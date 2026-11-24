@@ -1,0 +1,139 @@
+/* ==========================================
+   EDUCORE · HU.25 Barra de progreso del curso (MiCamino.html)
+   Colores tomados del mockup "HU.25 Ver barra de progreso del curso"
+   ========================================== */
+.hu25 {
+  --hu25-ink: #24443A;
+  --hu25-text: #33443D;
+  --hu25-sky: #DDF2FC;
+  --hu25-track: #B9E2F5;
+  --hu25-fill: #8CCBA2;
+  --hu25-mint: #BFE8C8;
+  --hu25-mint-strong: #A9DDB5;
+  --hu25-yellow: #FFE5A0;
+  --hu25-cream: #FFF6E6;
+  margin-bottom: 28px;
+  color: var(--hu25-text);
+}
+.hu25[hidden] { display: none; }
+
+/* Banner con la barra */
+.hu25-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: var(--hu25-sky);
+  border-radius: 18px;
+  padding: 24px 28px 20px;
+}
+.hu25-hero-text { flex: 1; min-width: 0; }
+.hu25-hello { margin: 0; font-size: 19px; font-weight: 700; color: var(--hu25-ink); }
+.hu25-course { margin: 14px 0 0; font-size: 28px; font-weight: 800; color: var(--hu25-ink); line-height: 1.2; }
+.hu25-message { margin: 8px 0 0; font-size: 16px; }
+.hu25-bar {
+  margin-top: 22px;
+  width: 100%;
+  max-width: 735px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--hu25-track);
+  overflow: hidden;
+}
+.hu25-bar-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: var(--hu25-fill);
+  transition: width .9s cubic-bezier(.22, .9, .3, 1);
+}
+.hu25-count { margin: 10px 0 0; font-size: 12px; font-weight: 700; color: var(--hu25-ink); }
+.hu25-mascot {
+  flex-shrink: 0;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: var(--hu25-mint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.hu25-mascot img { width: 118px; height: 118px; object-fit: contain; }
+
+/* Temas */
+.hu25-topics-card {
+  margin-top: 20px;
+  background: #FFFFFF;
+  border-radius: 18px;
+  padding: 22px 24px 24px;
+}
+.hu25-topics-title { margin: 0 0 18px; font-size: 19px; font-weight: 800; color: var(--hu25-ink); }
+.hu25-topics {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 20px;
+}
+.hu25-topic {
+  border-radius: 14px;
+  padding: 16px 18px 18px;
+  background: var(--hu25-cream);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 112px;
+}
+.hu25-topic.is-completado { background: var(--hu25-mint); }
+.hu25-topic.is-explorar { background: var(--hu25-yellow); }
+.hu25-topic-num { font-size: 20px; font-weight: 800; color: var(--hu25-ink); line-height: 1; }
+.hu25-topic-title { font-size: 16px; font-weight: 800; color: var(--hu25-ink); }
+.hu25-topic-state { font-size: 13px; font-weight: 700; color: var(--hu25-text); margin-top: auto; }
+
+/* Botones y aviso */
+.hu25-actions { margin-top: 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.hu25-btn {
+  display: inline-block;
+  background: var(--hu25-mint);
+  color: var(--hu25-ink);
+  font-weight: 800;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 14px 20px;
+  box-shadow: 0 1px 3px rgba(36, 68, 58, .12);
+  transition: background-color .15s;
+}
+.hu25-btn:hover { background: var(--hu25-mint-strong); }
+.hu25-btn-light { background: #FFFFFF; }
+.hu25-btn-light:hover { background: #F3FAF5; }
+.hu25-btn:focus-visible { outline: 2px solid #7CC79A; outline-offset: 2px; }
+.hu25-toast {
+  flex: 1 1 320px;
+  margin: 0;
+  background: var(--hu25-mint);
+  border-radius: 14px;
+  padding: 16px 22px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--hu25-ink);
+  animation: hu25-aparecer .4s ease-out;
+}
+.hu25-toast[hidden] { display: none; }
+@keyframes hu25-aparecer { from { opacity: 0; transform: translateY(6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hu25-bar-fill, .hu25-toast { transition: none; animation: none; }
+}
+
+@media (max-width: 720px) {
+  .hu25-hero { padding: 20px 18px; }
+  .hu25-mascot { display: none; }
+  .hu25-course { font-size: 23px; }
+  .hu25-topics-card { padding: 18px 16px; }
+  .hu25-topics { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .hu25-btn { flex: 1 1 auto; text-align: center; }
+}
