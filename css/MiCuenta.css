@@ -1,0 +1,223 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #e8f5e9 url(../img/files/EduCore_Identidad/02_fondos/png/crema_botanico.png) center/cover fixed no-repeat;
+    color: #29483a;
+    font: 16px 'Segoe UI',system-ui,sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background: #78bb81;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 20px max(5%,calc((100% - 1100px)/2));
+    flex-wrap: wrap;
+}
+
+header a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.marca {
+    font-size: 25px;
+    font-weight: 800;
+}
+
+#usuario {
+    margin-left: auto;
+}
+
+main {
+    width: min(1100px,90%);
+    margin: 40px auto;
+    flex: 1;
+}
+
+h1 {
+    margin-bottom: 8px;
+}
+
+h2 {
+    font-size: 21px;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-top: 28px;
+}
+
+.tarjeta,.perfil {
+    border-radius: 20px;
+    padding: 32px;
+    background: #d9f5e3;
+    border: 1px solid #91d5ac;
+    box-shadow: 0 8px 24px #23583b18;
+}
+
+.perfil {
+    background: #aee2f5;
+    border-color: #81cce8;
+    text-align: center;
+}
+
+.perfil img {
+    width: min(190px,100%);
+    height: 190px;
+    object-fit: contain;
+}
+
+.campos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin: 20px 0 8px;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #a8c8b5;
+    border-radius: 8px;
+    font: inherit;
+    color: inherit;
+    background: white;
+}
+
+input[readonly] {
+    background: #f0fff5;
+}
+
+input[aria-invalid=true] {
+    border: 2px solid #b74437;
+}
+
+small {
+    display: block;
+    color: #a33126;
+    margin-top: 5px;
+}
+
+.acciones {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+}
+
+button {
+    border: 0;
+    border-radius: 9px;
+    background: #23783f;
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    padding: 13px 18px;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: default;
+}
+
+#cancelar {
+    background: #fff;
+    color: #23583b;
+    border: 1px solid #91c5a4;
+}
+
+#mensaje:not(:empty) {
+    padding: 16px;
+    border-radius: 9px;
+    background: #bce5c8;
+}
+
+#mensaje.error:not(:empty) {
+    background: #ffc0b1;
+    color: #792d23;
+}
+
+footer {
+    padding: 24px 5%;
+    font-size: 13px;
+}
+
+[hidden] {
+    display: none!important;
+}
+
+@media(max-width:700px) {
+    .layout,.campos {
+        grid-template-columns: 1fr;
+    }
+
+    .tarjeta,.perfil {
+        padding: 20px;
+    }
+
+    #usuario {
+        margin-left: 0;
+    }
+
+}
+
+header {
+    color: white;
+    box-shadow: 0 4px 14px #164b3033;
+}
+
+.volver-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    background: #fff;
+    color: #175b35!important;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: background .2s;
+}
+
+.volver-btn:hover {
+    background: #c9f4d7;
+}
+
+#usuario {
+    font-weight: 600;
+}
+
+.perfil img {
+    width: min(230px,100%);
+    height: 230px;
+}
+
+.perfil h2 {
+    overflow-wrap: anywhere;
+}
+
+button:hover:not(:disabled) {
+    filter: brightness(.93);
+}
+
+a:focus-visible,button:focus-visible,input:focus-visible {
+    outline: 3px solid #1769aa;
+    outline-offset: 3px;
+}
+
+footer {
+    color: #24583b;
+}

@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (elStatEstudiantes) elStatEstudiantes.textContent = totalEstudiantes;
                     if (elStatActividades) {
                         elStatActividades.textContent = '…';
-                        fetch(`${BASE_URL}/docentes/${teacherId}/seguimiento`).then(r=>r.json()).then(d=>{
+                        fetch(`${BASE_URL}/docentes/${teacherId}/seguimiento`, { headers: { Authorization: `Bearer ${localStorage.getItem('authToken') || ''}` } }).then(r=>r.json()).then(d=>{
                             if(d.success) elStatActividades.textContent=(d.estudiantes||[]).reduce((n,x)=>n+x.actividades,0);
                             else elStatActividades.textContent='—';
                         }).catch(()=>{elStatActividades.textContent='—';});

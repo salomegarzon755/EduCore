@@ -364,3 +364,13 @@ body {
   .sidebar-banner, .sidebar-tag { display: none; }
   .main-wrapper { padding: 20px; }
 }
+/* HU16: barra compacta de perfil compartida */
+.account-profile{background:#e1f6e7;border:1px solid #a3d8b1;border-radius:18px;padding:8px 10px;gap:10px;box-shadow:0 4px 14px #205d3420;max-width:100%;flex-wrap:wrap}
+.account-profile .user-avatar{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#b8e8c5;font-size:22px;flex-shrink:0}
+.account-profile .user-text{text-align:left;min-width:0;max-width:240px;overflow-wrap:anywhere}
+.account-profile .user-grade{display:block;color:#38634b}
+.account-profile .account-link{display:inline-flex;align-items:center;justify-content:center;background:#23783f;color:#fff;padding:9px 14px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;transition:background .2s}
+.account-profile .account-link:hover{background:#185a2e}
+.account-profile .account-link:focus-visible{outline:3px solid #1769aa;outline-offset:3px}
+.account-profile .logout-btn{margin-left:0}
+@media(max-width:760px){.top-header{flex-wrap:wrap;gap:12px}.account-profile{gap:8px}.account-profile .user-text{max-width:150px}}
