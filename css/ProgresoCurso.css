@@ -2,6 +2,48 @@
    EDUCORE · HU.25 Barra de progreso del curso (MiCamino.html)
    Colores tomados del mockup "HU.25 Ver barra de progreso del curso"
    ========================================== */
+
+/* ---------- Página Mi camino con el diseño del mockup: menú superior, título y letra ---------- */
+body.hu25-page {
+  display: block;
+  font-family: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #FFF9ED;
+  color: #33443D;
+}
+.hu25-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  min-height: 80px;
+  padding: 0 56px;
+  background: #FFFFFF;
+  box-shadow: 0 1px 0 rgba(36, 68, 58, .06);
+}
+.hu25-topbar-brand { font-size: 26px; font-weight: 800; color: #2E6B4A; text-decoration: none; letter-spacing: -.3px; }
+.hu25-topbar-nav { display: flex; gap: 8px; flex: 1; margin-left: 70px; }
+.hu25-topbar-nav a {
+  font-size: 15px; font-weight: 600; color: #24443A; text-decoration: none;
+  padding: 8px 12px; border-radius: 10px;
+}
+.hu25-topbar-nav a:hover { background: #F3FAF5; }
+.hu25-topbar-nav a.is-active { box-shadow: inset 0 -3px 0 #8CCBA2; border-radius: 10px 10px 4px 4px; }
+.hu25-topbar-user { display: flex; align-items: center; gap: 14px; }
+.hu25-topbar-name { font-size: 14px; font-weight: 700; color: #24443A; }
+.hu25-topbar-link {
+  font-size: 13px; font-weight: 700; color: #5E6B65; text-decoration: none;
+  border: 1px solid #D5F0DB; border-radius: 10px; padding: 6px 12px;
+}
+.hu25-topbar-link:hover { background: #F3FAF5; color: #24443A; }
+.hu25-topbar a:focus-visible { outline: 2px solid #7CC79A; outline-offset: 2px; }
+
+body.hu25-page .hu25-main { max-width: 1240px; margin: 0 auto; padding: 28px 56px 40px; overflow: visible; }
+.hu25-page-head { margin-bottom: 26px; }
+.hu25-page-title { margin: 0; font-size: 28px; font-weight: 800; color: #24443A; letter-spacing: -.2px; }
+.hu25-page-subtitle { margin: 6px 0 0; font-size: 15px; color: #5E6B65; }
+
 .hu25 {
   --hu25-ink: #24443A;
   --hu25-text: #33443D;
@@ -29,7 +71,7 @@
 }
 .hu25-hero-text { flex: 1; min-width: 0; }
 .hu25-hello { margin: 0; font-size: 19px; font-weight: 700; color: var(--hu25-ink); }
-.hu25-course { margin: 14px 0 0; font-size: 28px; font-weight: 800; color: var(--hu25-ink); line-height: 1.2; }
+.hu25-course { margin: 14px 0 0; font-size: 28px; font-weight: 700; color: var(--hu25-ink); line-height: 1.2; }
 .hu25-message { margin: 8px 0 0; font-size: 16px; }
 .hu25-bar {
   margin-top: 22px;
@@ -69,7 +111,7 @@
   border-radius: 18px;
   padding: 22px 24px 24px;
 }
-.hu25-topics-title { margin: 0 0 18px; font-size: 19px; font-weight: 800; color: var(--hu25-ink); }
+.hu25-topics-title { margin: 0 0 18px; font-size: 19px; font-weight: 700; color: var(--hu25-ink); }
 .hu25-topics {
   list-style: none;
   margin: 0;
@@ -90,8 +132,8 @@
 .hu25-topic.is-completado { background: var(--hu25-mint); }
 .hu25-topic.is-explorar { background: var(--hu25-yellow); }
 .hu25-topic-num { font-size: 20px; font-weight: 800; color: var(--hu25-ink); line-height: 1; }
-.hu25-topic-title { font-size: 16px; font-weight: 800; color: var(--hu25-ink); }
-.hu25-topic-state { font-size: 13px; font-weight: 700; color: var(--hu25-text); margin-top: auto; }
+.hu25-topic-title { font-size: 16px; font-weight: 700; color: var(--hu25-ink); }
+.hu25-topic-state { font-size: 13px; font-weight: 600; color: var(--hu25-text); margin-top: auto; }
 
 /* Botones y aviso */
 .hu25-actions { margin-top: 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
@@ -99,7 +141,7 @@
   display: inline-block;
   background: var(--hu25-mint);
   color: var(--hu25-ink);
-  font-weight: 800;
+  font-weight: 700;
   font-size: 14px;
   text-decoration: none;
   border-radius: 12px;
@@ -129,11 +171,28 @@
   .hu25-bar-fill, .hu25-toast { transition: none; animation: none; }
 }
 
+@media (max-width: 900px) {
+  .hu25-topbar { flex-wrap: wrap; gap: 6px 16px; padding: 12px 16px; }
+  .hu25-topbar-nav { order: 3; flex-basis: 100%; margin-left: -12px; }
+  .hu25-topbar-user { margin-left: auto; }
+  body.hu25-page .hu25-main { padding: 20px 16px 32px; }
+}
+
 @media (max-width: 720px) {
+  /* Carrusel de Mi camino: en pantallas pequeñas los controles bajan y se reparten el ancho */
+  body.hu25-page .path-header-banner { flex-direction: column; align-items: stretch; gap: 14px; padding: 18px; }
+  body.hu25-page .unit-nav-controls { flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+  body.hu25-page .path-progress-badge { order: -1; flex-basis: 100%; text-align: center; }
+  body.hu25-page .btn-unit-nav { flex: 1 1 0; min-height: 44px; }
   .hu25-hero { padding: 20px 18px; }
   .hu25-mascot { display: none; }
   .hu25-course { font-size: 23px; }
   .hu25-topics-card { padding: 18px 16px; }
-  .hu25-topics { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .hu25-topics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .hu25-btn { flex: 1 1 auto; text-align: center; }
+}
+
+/* Celulares muy pequeños (320 px): un tema por fila para que ningún título se salga de la tarjeta */
+@media (max-width: 360px) {
+  .hu25-topics { grid-template-columns: minmax(0, 1fr); }
 }
