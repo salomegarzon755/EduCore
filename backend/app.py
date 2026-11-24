@@ -7,6 +7,7 @@ from dao.curso_dao import CursoDAO
 from dao.grupo_dao import GrupoDAO
 from routes.actividades import actividades_bp
 from routes.seguimiento import seguimiento_bp
+from routes.cuenta import cuenta_bp
 from config.database import DatabaseConnection
 from auth import issue_token, require_auth
 from flask import g
@@ -18,6 +19,7 @@ _origenes = [o.strip() for o in os.getenv('FRONTEND_ORIGIN', '*').split(',') if 
 CORS(app, origins=_origenes)
 app.register_blueprint(actividades_bp)   # actividades y resultados
 app.register_blueprint(seguimiento_bp)   # HU.15 · seguimiento docente, estudiante y familia
+app.register_blueprint(cuenta_bp)
 
 # --- AUTENTICACIÓN Y REGISTRO ---
 
