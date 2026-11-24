@@ -29,6 +29,11 @@ END $$;
 UPDATE curso SET grado = 1 WHERE id_curso = 1 AND grado IS NULL;
 UPDATE curso SET grado = 2 WHERE id_curso = 2 AND grado IS NULL;
 
+-- Sincroniza el contador de id_curso: los cursos existentes se insertaron con id fijo
+-- y el contador quedó atrasado (provocaba "duplicate key ... curso_pkey" al crear un curso).
+SELECT setval(pg_get_serial_sequence('curso', 'id_curso'),
+              GREATEST((SELECT COALESCE(MAX(id_curso), 0) FROM curso), 1));
+
 -- Rol Administrador en usuario.rol
 DO $$
 DECLARE
