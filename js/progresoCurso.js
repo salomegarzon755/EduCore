@@ -153,3 +153,53 @@
         catch (err) { console.error('HU.25 · no se pudo mostrar la barra de progreso:', err); }
     });
 })();
+
+// HU.25 · Panel lateral desplegable de Mi camino (botón ☰ del menú superior)
+(function () {
+    'use strict';
+    const iniciar = () => {
+        const boton = document.getElementById('hu25MenuBtn');
+        const panel = document.getElementById('hu25Drawer');
+        const fondo = document.getElementById('hu25DrawerBackdrop');
+        const cerrarBtn = document.getElementById('hu25DrawerClose');
+        if (!boton || !panel || !fondo) return;
+
+        const enfocables = () => [...panel.querySelectorAll('a[href], button:not([disabled])')];
+
+        function abrir() {
+            panel.classList.add('is-open');
+            panel.setAttribute('aria-hidden', 'false');
+            fondo.hidden = false;
+            boton.setAttribute('aria-expanded', 'true');
+            document.body.classList.add('hu25-drawer-abierto');
+            (cerrarBtn || enfocables()[0])?.focus();
+        }
+        function cerrar({ devolverFoco = true } = {}) {
+            if (!panel.classList.contains('is-open')) return;
+            panel.classList.remove('is-open');
+            panel.setAttribute('aria-hidden', 'true');
+            fondo.hidden = true;
+            boton.setAttribute('aria-expanded', 'false');
+            document.body.classList.remove('hu25-drawer-abierto');
+            if (devolverFoco) boton.focus();
+        }
+
+        boton.addEventListener('click', () => (panel.classList.contains('is-open') ? cerrar() : abrir()));
+        cerrarBtn?.addEventListener('click', () => cerrar());
+        fondo.addEventListener('click', () => cerrar());
+        // Al elegir "Cerrar sesión" el panel se cierra para que se vea el aviso de confirmación
+        panel.querySelector('.logout-btn')?.addEventListener('click', () => cerrar({ devolverFoco: false }));
+        document.addEventListener('keydown', (e) => {
+            if (!panel.classList.contains('is-open')) return;
+            if (e.key === 'Escape') { e.preventDefault(); cerrar(); return; }
+            if (e.key === 'Tab') {   // mantiene el foco dentro del panel abierto
+                const items = enfocables();
+                const primero = items[0], ultimo = items[items.length - 1];
+                if (e.shiftKey && document.activeElement === primero) { e.preventDefault(); ultimo.focus(); }
+                else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primero.focus(); }
+            }
+        });
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
+    else iniciar();
+})();

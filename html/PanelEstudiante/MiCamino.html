@@ -9,12 +9,55 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/ProgresoCurso.css?v=25b">
+    <link rel="stylesheet" href="../../css/ProgresoCurso.css?v=25c">
 </head>
 <body class="student-body hu25-page">
 
+    <!-- HU.25 · Panel lateral desplegable (el mismo menú del resto del panel del estudiante) -->
+    <div class="hu25-drawer-backdrop" id="hu25DrawerBackdrop" hidden></div>
+    <aside class="sidebar hu25-drawer" id="hu25Drawer" aria-label="Menú del estudiante" aria-hidden="true">
+        <div class="hu25-drawer-head">
+            <div class="sidebar-brand">
+                <img src="../../img/files/EduCore_Identidad/01_logos/png/logo_compacto_color.png" alt="EduCore Logo" class="brand-logo">
+                <span class="brand-title">EduCore</span>
+            </div>
+            <button type="button" class="hu25-drawer-close" id="hu25DrawerClose" aria-label="Cerrar menú">✕</button>
+        </div>
+        <div class="sidebar-tag">Mi aventura</div>
+        <nav class="sidebar-nav">
+            <a href="Inicio.html" class="nav-item">
+                <span class="nav-icon">🏠</span> Inicio
+            </a>
+            <a href="MiCamino.html" class="nav-item active" aria-current="page">
+                <span class="nav-icon">🗺️</span> Mi camino
+            </a>
+            <a href="MisGrupos.html" class="nav-item">
+                <span class="nav-icon">👥</span> Mis grupos
+            </a>
+            <a href="MisCursos.html" class="nav-item">
+                <span class="nav-icon">📚</span> Mis cursos
+            </a>
+            <a href="MiProgreso.html" class="nav-item">
+                <span class="nav-icon">📊</span> Mi progreso
+            </a>
+            <a href="../Login.html" class="nav-item logout-btn logout-nav-item">
+                <span class="nav-icon">🚪</span> Cerrar sesión
+            </a>
+        </nav>
+        <div class="sidebar-banner">
+            <span class="banner-icon">🌱</span>
+            <div class="banner-text">
+                <strong>Aprendemos desde Acandí</strong>
+                <p>Cada paso cuenta.</p>
+            </div>
+        </div>
+    </aside>
+
     <!-- HU.25 · Menú superior como en el mockup (solo en Mi camino) -->
     <header class="hu25-topbar">
+        <button type="button" class="hu25-menu-btn" id="hu25MenuBtn" aria-label="Abrir menú" aria-controls="hu25Drawer" aria-expanded="false">
+            <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+        </button>
         <a href="Inicio.html" class="hu25-topbar-brand" title="Ir al inicio">EduCore</a>
         <nav class="hu25-topbar-nav" aria-label="Navegación del estudiante">
             <a href="MiCamino.html" class="is-active" aria-current="page">Mi aventura</a>
@@ -99,8 +142,8 @@
     </main>
 
     <script src="../../js/config.js"></script>
-    <script src="../../js/progresoCurso.js?v=25b"></script>
-    <script src="../../js/panelEstudiante.js?v=25b"></script>
+    <script src="../../js/progresoCurso.js?v=25c"></script>
+    <script src="../../js/panelEstudiante.js?v=25c"></script>
     <script src="../../js/logout.js"></script>
 </body>
 </html>
