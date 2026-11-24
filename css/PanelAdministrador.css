@@ -150,6 +150,7 @@ body.admin-body {
 }
 textarea.field-control { resize: none; overflow: hidden; min-height: 24px; line-height: 1.45; }
 select.field-control { cursor: pointer; appearance: none; -webkit-appearance: none; padding-right: 18px; }
+input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
 .field-select-wrap { position: relative; display: inline-block; }
 .field-select-wrap::after {
   content: "▾";
