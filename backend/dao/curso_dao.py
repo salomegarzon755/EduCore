@@ -318,3 +318,30 @@ class CursoDAO:
             return None
         finally:
             if conn: DatabaseConnection.return_connection(conn)
+
+    # ------------------------------------------------------------------
+    # HU.24 · Detalle de un curso para el administrador
+    # ------------------------------------------------------------------
+    @staticmethod
+    def obtener_para_admin(id_curso):
+        """Nombre, grado y descripción de un curso. Devuelve None si no existe
+        y lanza la excepción si falla la consulta (para distinguir 404 de 500)."""
+        conn = DatabaseConnection.get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT c.id_curso, c.titulo_curso, c.grado, c.descripcion,
+                       COUNT(gc.id_grupo) AS total_grupos
+                FROM curso c
+                LEFT JOIN grupo_curso gc ON gc.id_curso = c.id_curso
+                WHERE c.id_curso = %s
+                GROUP BY c.id_curso, c.titulo_curso, c.grado, c.descripcion;
+            """, (id_curso,))
+            r = cursor.fetchone()
+            cursor.close()
+            if not r:
+                return None
+            return {"id_curso": r[0], "titulo_curso": r[1], "grado": r[2],
+                    "descripcion": r[3] or "", "total_grupos": r[4]}
+        finally:
+            if conn: DatabaseConnection.return_connection(conn)

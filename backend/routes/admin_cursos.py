@@ -1,6 +1,7 @@
 """HU.23 · Crear curso predefinido (rol Administrador).
 
-GET  /api/admin/cursos  -> listado de cursos disponibles (nombre, grado, descripción)
+GET  /api/admin/cursos       -> listado de cursos disponibles (nombre, grado, descripción)
+GET  /api/admin/cursos/<id>  -> HU.24 · detalle de un curso (nombre, grado y descripción)
 POST /api/admin/cursos  -> registra un curso predefinido; nombre, grado y descripción
                            son obligatorios (CA-02: si falta alguno no se guarda).
 """
@@ -79,3 +80,17 @@ def crear_curso():
     return jsonify(success=True,
                    message=f"{curso['titulo_curso']} se guardó correctamente.",
                    curso=curso), 201
+
+
+@admin_cursos_bp.route('/cursos/<int:id_curso>', methods=['GET'])
+@require_auth('Administrador')
+def detalle_curso(id_curso):
+    """HU.24 · CA-02: nombre, grado y descripción del curso seleccionado."""
+    try:
+        curso = CursoDAO.obtener_para_admin(id_curso)
+    except Exception as e:
+        print(f"Error en detalle_curso: {e}")
+        return jsonify(success=False, message='No se pudo cargar el curso. Intenta de nuevo.'), 500
+    if not curso:
+        return jsonify(success=False, message='No encontramos ese curso.'), 404
+    return jsonify(success=True, curso=curso), 200
