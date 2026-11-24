@@ -1,5 +1,5 @@
-// HU.23 · Crear curso predefinido (Administrador)
-// Vistas: listado de cursos disponibles (C) y formulario "Crear nuevo curso" (A / B).
+// HU.23 · Crear curso predefinido · HU.24 · Ver listado de cursos y su detalle (Administrador)
+// Vistas: listado de cursos disponibles, detalle de un curso (?curso=<id>) y formulario "Crear nuevo curso".
 document.addEventListener('DOMContentLoaded', () => {
     const BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
     const LOGIN_URL = '../Login.html';
@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const $ = (id) => document.getElementById(id);
     const listView = $('listView');
     const formView = $('formView');
+    const detailView = $('detailView');
+    const btnClearSearch = $('btnClearSearch');
     const pageTitle = $('pageTitle');
     const pageSubtitle = $('pageSubtitle');
     const breadcrumbState = $('breadcrumbState');
@@ -67,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---------- Cambio de vista ----------
     function mostrarListado({ trasGuardar = false } = {}) {
         formView.hidden = true;
+        detailView.hidden = true;
         listView.hidden = false;
         if (trasGuardar) {
             pageTitle.textContent = 'Crear nuevo curso';
@@ -75,14 +78,22 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             pageTitle.textContent = 'Gestión de cursos';
             pageSubtitle.textContent = 'Consulta los cursos disponibles en EduCore.';
-            breadcrumbState.textContent = 'Listado';
+            actualizarMigaListado();
         }
+    }
+
+    // Miga de pan del listado: "Listado" o "Sin resultados" (HU.24 C)
+    function actualizarMigaListado() {
+        if (listView.hidden || pageTitle.textContent !== 'Gestión de cursos') return;
+        const sinResultados = !listEmpty.hidden && Boolean(searchInput.value.trim() || gradeFilter.value);
+        breadcrumbState.textContent = sinResultados ? 'Sin resultados' : 'Listado';
     }
 
     function mostrarFormulario() {
         ocultarBanner();
         limpiarFormulario();
         listView.hidden = true;
+        detailView.hidden = true;
         formView.hidden = false;
         pageTitle.textContent = 'Crear nuevo curso';
         pageSubtitle.textContent = 'Prepara cursos predefinidos para los docentes.';
@@ -127,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="col-grado">${gradoTexto(c.grado)}</td>
                 <td class="col-desc">${esc(c.descripcion)}</td>
                 <td class="col-acciones">
-                    <button type="button" class="btn-detalle" disabled title="El detalle del curso estará disponible en HU.24">Ver detalle</button>
+                    <button type="button" class="btn-detalle" data-id="${c.id_curso}" aria-label="Ver detalle de ${esc(c.titulo_curso)}">Ver detalle</button>
                 </td>
                 <td class="col-extra">${Number(c.total_grupos) > 0
                     ? '<span class="no-action" title="Asignado a grupos">—</span>'
@@ -142,6 +153,62 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? 'Prueba con otro nombre o vuelve a ver todos los cursos.'
                 : 'Crea el primer curso predefinido para los docentes.';
         }
+        btnClearSearch.hidden = !(n === 0 && filtrando);
+        actualizarMigaListado();
+    }
+
+    // ---------- Detalle (HU.24 B) ----------
+    const gradoDetalle = (g) => (g ? `Grado ${g}.° de primaria` : 'Grado sin definir');
+    const urlListado = () => window.location.pathname;
+
+    async function abrirDetalle(idCurso, { agregarHistorial = true } = {}) {
+        ocultarBanner();
+        listView.hidden = true;
+        formView.hidden = true;
+        detailView.hidden = false;
+        pageTitle.textContent = 'Gestión de cursos';
+        pageSubtitle.textContent = 'Consulta los cursos disponibles en EduCore.';
+        breadcrumbState.textContent = 'Detalle';
+        $('detailTitle').textContent = 'Cargando curso…';
+        $('detailGrade').textContent = '';
+        $('detailDescription').textContent = '';
+        if (agregarHistorial) history.pushState({ curso: idCurso }, '', `?curso=${idCurso}`);
+
+        try {
+            const res = await fetch(`${BASE_URL}/admin/cursos/${encodeURIComponent(idCurso)}`, { headers: authHeaders() });
+            if (res.status === 401) return sesionVencida();
+            const data = await res.json();
+            if (res.status === 404) {
+                volverAlListado({ reemplazar: true });
+                mostrarBanner('error', data.message || 'No encontramos ese curso.');
+                return;
+            }
+            if (!res.ok || !data.success) throw new Error(data.message || 'No se pudo cargar el curso.');
+            const c = data.curso;
+            $('detailTitle').textContent = c.titulo_curso;
+            $('detailGrade').textContent = gradoDetalle(c.grado);
+            $('detailDescription').textContent = c.descripcion || 'Este curso no tiene descripción.';
+            document.title = `EduCore - ${c.titulo_curso}`;
+            $('btnBackToList').focus();
+        } catch (err) {
+            console.error('Error cargando el detalle:', err);
+            volverAlListado({ reemplazar: true });
+            mostrarBanner('error', err.message && err.message !== 'Failed to fetch'
+                ? err.message : 'No se pudo conectar con el servidor. Intenta de nuevo.');
+        }
+    }
+
+    function volverAlListado({ reemplazar = false } = {}) {
+        document.title = 'EduCore - Gestión de cursos';
+        if (reemplazar) history.replaceState({}, '', urlListado());
+        else if (history.state && history.state.curso) history.back();   // vuelve a la entrada anterior
+        else history.pushState({}, '', urlListado());
+        mostrarListado();
+    }
+
+    function idCursoDeUrl() {
+        const id = new URLSearchParams(window.location.search).get('curso');
+        return id && /^\d+$/.test(id) ? id : null;
     }
 
     // ---------- Formulario ----------
@@ -237,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // CA-01: el curso queda registrado y aparece en el listado de cursos disponibles
             idResaltado = data.curso.id_curso;
+            history.replaceState({}, '', urlListado());
             searchInput.value = '';
             gradeFilter.value = '';
             await cargarCursos();
@@ -263,6 +331,27 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('input', renderListado);
     gradeFilter.addEventListener('change', renderListado);
 
-    mostrarListado();
+    // HU.24 · Ver detalle, volver y limpiar búsqueda
+    tbody.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-detalle');
+        if (btn) abrirDetalle(btn.dataset.id);
+    });
+    $('btnBackToList').addEventListener('click', () => volverAlListado());
+    btnClearSearch.addEventListener('click', () => {
+        searchInput.value = '';
+        gradeFilter.value = '';
+        renderListado();
+        searchInput.focus();
+    });
+    // Botones Atrás / Adelante del navegador
+    window.addEventListener('popstate', () => {
+        const id = idCursoDeUrl();
+        if (id) abrirDetalle(id, { agregarHistorial: false });
+        else { document.title = 'EduCore - Gestión de cursos'; ocultarBanner(); mostrarListado(); }
+    });
+
     cargarCursos();
+    const idInicial = idCursoDeUrl();
+    if (idInicial) abrirDetalle(idInicial, { agregarHistorial: false });
+    else mostrarListado();
 });

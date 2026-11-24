@@ -257,15 +257,37 @@ select.field-control { cursor: pointer; appearance: none; -webkit-appearance: no
   font-weight: 700;
   font-size: 14px;
   color: var(--adm-ink);
-  cursor: not-allowed;
 }
 .course-table tbody tr:nth-child(odd) .btn-detalle { box-shadow: var(--adm-shadow); }
 .btn-eliminar { background: none; border: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--adm-error-ink); cursor: not-allowed; }
 .no-action { color: #C0533F; font-weight: 700; }
 
-.list-empty { text-align: center; padding: 28px 12px 24px; color: var(--adm-muted); }
-.list-empty img { width: 120px; height: auto; display: block; margin: 0 auto 10px; }
-.list-empty strong { display: block; font-size: 17px; color: var(--adm-ink); margin-bottom: 4px; }
+.list-empty { text-align: center; padding: 48px 12px 36px; color: var(--adm-muted); }
+.list-empty strong { display: block; font-size: 24px; font-weight: 700; color: var(--adm-ink); margin-bottom: 18px; }
+.list-empty > span { display: block; font-size: 15px; }
+
+.btn-clear { display: inline-block; margin-top: 40px; padding: 12px 24px; }
+.btn-detalle { cursor: pointer; transition: background-color .15s, box-shadow .15s; }
+.btn-detalle:hover { background: #F3FAF5; }
+.btn-detalle:focus-visible, .btn-text:focus-visible, .btn-primary:focus-visible { outline: 2px solid #7CC79A; outline-offset: 2px; }
+
+/* ---------- Vista detalle (HU.24 B) ---------- */
+.course-detail-card { margin-top: 28px; max-width: 938px; padding: 28px 26px 34px; }
+.detail-kicker { font-size: 12px; font-weight: 600; color: var(--adm-muted); }
+.detail-title { margin-top: 22px; font-size: 26px; font-weight: 700; color: var(--adm-ink); line-height: 1.25; }
+.detail-grade {
+  display: inline-block;
+  margin-top: 18px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--adm-ink);
+  background: var(--adm-cream);
+  border-radius: 10px;
+  padding: 8px 14px;
+}
+.detail-label { margin-top: 44px; font-size: 15px; font-weight: 700; color: var(--adm-ink); }
+.detail-description { margin-top: 14px; font-size: 18px; line-height: 1.55; color: var(--adm-text); white-space: pre-line; max-width: 720px; }
+.detail-back { display: inline-block; margin-top: 56px; padding: 12px 20px; }
 
 /* ---------- Modal de cierre de sesión (logout.js) ---------- */
 .logout-modal-overlay {

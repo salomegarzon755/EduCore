@@ -89,11 +89,23 @@
                         <tbody id="courseTableBody"></tbody>
                     </table>
                     <div class="list-empty" id="listEmpty" hidden>
-                        <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_resultados.png" alt="">
                         <strong id="listEmptyTitle">No encontramos cursos</strong>
                         <span id="listEmptyText">Prueba con otro nombre o vuelve a ver todos los cursos.</span>
+                        <button type="button" class="btn-text btn-clear" id="btnClearSearch" hidden>Limpiar búsqueda</button>
                     </div>
                 </div>
+            </section>
+
+            <!-- ===== Vista: detalle de un curso (HU.24 B) ===== -->
+            <section id="detailView" hidden aria-labelledby="detailTitle">
+                <article class="admin-card course-detail-card">
+                    <p class="detail-kicker">Curso predefinido</p>
+                    <h2 class="detail-title" id="detailTitle"></h2>
+                    <p class="detail-grade" id="detailGrade"></p>
+                    <h3 class="detail-label">Descripción</h3>
+                    <p class="detail-description" id="detailDescription"></p>
+                    <button type="button" class="btn-text detail-back" id="btnBackToList">Volver a cursos</button>
+                </article>
             </section>
 
             <!-- ===== Vista: formulario Crear nuevo curso (HU.23 A / B) ===== -->
