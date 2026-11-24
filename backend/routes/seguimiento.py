@@ -131,3 +131,45 @@ def actualizar_seguimiento(id_docente):
         conn.rollback();print('Error guardando comentario:',e)
         return jsonify(success=False,message='No se pudo guardar comentario'),500
     finally: DatabaseConnection.return_connection(conn)
+
+
+@seguimiento_bp.get('/estudiantes/inicio')
+@require_auth('Estudiante')
+def inicio_estudiante():
+    if g.identity.get('portal') != 'Estudiante':
+        return jsonify(success=False, message='Acceso reservado al estudiante'), 403
+    estudiante = g.identity['id']
+    conn = None
+    try:
+        conn = DatabaseConnection.get_connection()
+        if not conn:
+            return jsonify(success=False, message='Sin conexión'), 503
+        with conn.cursor() as cur:
+            cur.execute('''SELECT g.id_grupo, g.nombre_grupo, g.grado
+                FROM grupo g JOIN estudiante_grupo eg ON eg.id_grupo=g.id_grupo
+                WHERE eg.id_estudiante=%s ORDER BY g.nombre_grupo''', (estudiante,))
+            grupos = [dict(id_grupo=r[0], nombre=r[1], grado=r[2]) for r in cur.fetchall()]
+            cur.execute('''SELECT DISTINCT c.id_curso, c.titulo_curso
+                FROM curso c JOIN grupo_curso gc ON gc.id_curso=c.id_curso
+                JOIN estudiante_grupo eg ON eg.id_grupo=gc.id_grupo
+                WHERE eg.id_estudiante=%s ORDER BY c.id_curso''', (estudiante,))
+            cursos = []
+            for cid, titulo in cur.fetchall():
+                cur.execute('''SELECT a.id_actividad, a.titulo_actividad,
+                    EXISTS (SELECT 1 FROM resultado_actividad r
+                        WHERE r.id_estudiante=%s AND r.id_actividad=a.id_actividad
+                        AND r.completada IS TRUE)
+                    FROM actividad a JOIN unidad u ON u.id_unidad=a.id_unidad
+                    WHERE u.id_curso=%s ORDER BY u.id_unidad,a.id_actividad''', (estudiante,cid))
+                actividades = cur.fetchall()
+                pendientes = [dict(id_actividad=a[0], titulo=a[1]) for a in actividades if not a[2]]
+                cursos.append(dict(id_curso=cid, titulo=titulo, total=len(actividades),
+                    completadas=len(actividades)-len(pendientes), pendientes=pendientes))
+        return jsonify(success=True, grupos=grupos, cursos=cursos)
+    except Exception as e:
+        print('Error inicio estudiante:', e)
+        return jsonify(success=False, message='No se pudo consultar tu aventura'), 500
+    finally:
+        if conn:
+            conn.rollback()
+            DatabaseConnection.return_connection(conn)
