@@ -265,3 +265,56 @@ class CursoDAO:
             return None
         finally:
             if conn: DatabaseConnection.return_connection(conn)
+    # ------------------------------------------------------------------
+    # HU.23 · Administración de cursos predefinidos (rol Administrador)
+    # Requiere la columna curso.grado (backend/db/migracion_hu23_cursos_admin.sql)
+    # ------------------------------------------------------------------
+    @staticmethod
+    def listar_para_admin():
+        """Listado de cursos disponibles con nombre, grado y descripción."""
+        conn = DatabaseConnection.get_connection()
+        if not conn: return None
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT c.id_curso, c.titulo_curso, c.grado, c.descripcion,
+                       COUNT(gc.id_grupo) AS total_grupos
+                FROM curso c
+                LEFT JOIN grupo_curso gc ON gc.id_curso = c.id_curso
+                GROUP BY c.id_curso, c.titulo_curso, c.grado, c.descripcion
+                ORDER BY c.id_curso ASC;
+            """)
+            rows = cursor.fetchall()
+            cursor.close()
+            return [{"id_curso": r[0], "titulo_curso": r[1], "grado": r[2],
+                     "descripcion": r[3] or "", "total_grupos": r[4]}
+                    for r in rows]
+        except Exception as e:
+            print(f"Error en CursoDAO.listar_para_admin: {e}")
+            return None
+        finally:
+            if conn: DatabaseConnection.return_connection(conn)
+
+    @staticmethod
+    def crear_predefinido(titulo_curso, grado, descripcion):
+        """Registra un curso predefinido. Devuelve el curso creado o None si falla."""
+        conn = DatabaseConnection.get_connection()
+        if not conn: return None
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO curso (titulo_curso, grado, descripcion)
+                VALUES (%s, %s, %s)
+                RETURNING id_curso;
+            """, (titulo_curso, grado, descripcion))
+            id_curso = cursor.fetchone()[0]
+            conn.commit()
+            cursor.close()
+            return {"id_curso": id_curso, "titulo_curso": titulo_curso,
+                    "grado": grado, "descripcion": descripcion}
+        except Exception as e:
+            conn.rollback()
+            print(f"Error en CursoDAO.crear_predefinido: {e}")
+            return None
+        finally:
+            if conn: DatabaseConnection.return_connection(conn)

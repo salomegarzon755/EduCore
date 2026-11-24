@@ -199,6 +199,17 @@ body {
     color: #E65100;
 }
 
+.role-admin {
+    background-color: #DDF2FC;
+    color: #24443A;
+}
+
+.role-admin .role-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
 .role-footer-note {
     font-size: 13px;
     color: #A0AEC0;

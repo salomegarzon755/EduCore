@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCore - Gestión de cursos</title>
+    <link rel="icon" href="../../img/files/EduCore_Identidad/01_logos/png/favicon_32.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/PanelAdministrador.css">
+</head>
+<body class="admin-body">
+
+    <!-- ===== Barra lateral de administración ===== -->
+    <aside class="admin-sidebar">
+        <div class="admin-brand">
+            <span class="admin-brand-name">EduCore</span>
+            <span class="admin-brand-tag">ADMINISTRACIÓN</span>
+        </div>
+        <nav class="admin-nav" aria-label="Menú de administración">
+            <a href="GestionCursos.html" class="admin-nav-item active" aria-current="page">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V4z"/><path d="M5 16h13"/></svg>
+                Gestión de cursos
+            </a>
+            <!-- "Mi cuenta" corresponde a otras HU (16/19); se deja visible como en el mockup -->
+            <a href="#" class="admin-nav-item" aria-disabled="true" title="Disponible próximamente">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M5 21c1.5-4 4-6 7-6s5.5 2 7 6"/></svg>
+                Mi cuenta
+            </a>
+        </nav>
+        <div class="admin-sidebar-foot">
+            Acandí, Chocó<br>La aventura de aprender
+        </div>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-header">
+            <span class="admin-motto">Matemáticas que nos conectan</span>
+            <div class="admin-user">
+                <span><span id="adminName">Administrador</span> · Administrador</span>
+                <a href="../Login.html" class="admin-logout logout-btn" title="Cerrar sesión">Salir</a>
+            </div>
+        </header>
+
+        <main class="admin-content">
+            <nav class="admin-breadcrumb" aria-label="Ruta">
+                <span>Gestión de cursos</span><span id="breadcrumbState">Listado</span>
+            </nav>
+            <h1 class="admin-title" id="pageTitle">Gestión de cursos</h1>
+            <p class="admin-subtitle" id="pageSubtitle">Consulta los cursos disponibles en EduCore.</p>
+
+            <!-- ===== Vista: listado de cursos disponibles (HU.23 C) ===== -->
+            <section id="listView" aria-labelledby="listCount">
+                <div class="list-toolbar">
+                    <div class="field">
+                        <label class="field-box" for="searchCourse">
+                            <span class="field-label">Buscar curso</span>
+                            <input type="search" id="searchCourse" class="field-control" placeholder="Buscar por nombre…" autocomplete="off">
+                        </label>
+                    </div>
+                    <div class="field field-grado-filter">
+                        <label class="field-box" for="filterGrade">
+                            <span class="field-label">Grado</span>
+                            <span class="field-select-wrap">
+                                <select id="filterGrade" class="field-control">
+                                    <option value="">Todos los grados</option>
+                                    <option value="1">1.° primaria</option>
+                                    <option value="2">2.° primaria</option>
+                                </select>
+                            </span>
+                        </label>
+                    </div>
+                    <button type="button" class="btn-primary" id="btnShowCreate">Crear curso</button>
+                </div>
+
+                <div class="admin-card course-list-card">
+                    <h2 class="admin-card-title" id="listCount">Cargando cursos…</h2>
+                    <table class="course-table" id="courseTable">
+                        <thead>
+                            <tr>
+                                <th class="col-nombre" scope="col">Nombre del curso</th>
+                                <th class="col-grado" scope="col">Grado</th>
+                                <th class="col-desc" scope="col">Descripción</th>
+                                <th class="col-acciones" scope="col">Acciones</th>
+                                <th class="col-extra" scope="col"><span class="visually-hidden"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="courseTableBody"></tbody>
+                    </table>
+                    <div class="list-empty" id="listEmpty" hidden>
+                        <img src="../../img/files/EduCore_Identidad/06_estados_vacios/png/vacio_sin_resultados.png" alt="">
+                        <strong id="listEmptyTitle">No encontramos cursos</strong>
+                        <span id="listEmptyText">Prueba con otro nombre o vuelve a ver todos los cursos.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== Vista: formulario Crear nuevo curso (HU.23 A / B) ===== -->
+            <section id="formView" hidden>
+                <div class="course-form-layout">
+                    <div class="admin-card">
+                        <h2 class="admin-card-title">Información del curso</h2>
+                        <p class="admin-required-note">* Campos obligatorios</p>
+
+                        <form id="createCourseForm" novalidate>
+                            <div class="field" data-field="nombre">
+                                <label class="field-box" for="courseName">
+                                    <span class="field-label">Nombre del curso *</span>
+                                    <input type="text" id="courseName" name="nombre" class="field-control" maxlength="150" autocomplete="off" aria-describedby="errorNombre">
+                                </label>
+                                <p class="field-error" id="errorNombre" role="alert">Escribe el nombre del curso.</p>
+                            </div>
+
+                            <div class="field field-grado" data-field="grado">
+                                <label class="field-box" for="courseGrade">
+                                    <span class="field-label">Grado *</span>
+                                    <span class="field-select-wrap">
+                                        <select id="courseGrade" name="grado" class="field-control" aria-describedby="errorGrado">
+                                            <option value="">Selecciona el grado</option>
+                                            <option value="1">1.° primaria</option>
+                                            <option value="2">2.° primaria</option>
+                                        </select>
+                                    </span>
+                                </label>
+                                <p class="field-error" id="errorGrado" role="alert">Selecciona el grado del curso.</p>
+                            </div>
+
+                            <div class="field" data-field="descripcion">
+                                <label class="field-box" for="courseDescription">
+                                    <span class="field-label">Descripción *</span>
+                                    <textarea id="courseDescription" name="descripcion" class="field-control" rows="1" maxlength="500" aria-describedby="errorDescripcion"></textarea>
+                                </label>
+                                <p class="field-error" id="errorDescripcion" role="alert">Escribe la descripción del curso.</p>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary" id="btnSaveCourse">Guardar curso</button>
+                                <button type="button" class="btn-text" id="btnCancelCourse">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <aside class="info-card">
+                        <h2>Para los docentes</h2>
+                        <p>Registra el nombre, el grado y una descripción clara. El curso aparecerá en el listado disponible para consulta.</p>
+                    </aside>
+                </div>
+            </section>
+
+            <!-- Banner de estado: error de validación (B) o curso guardado (C) -->
+            <div class="admin-banner" id="statusBanner" role="status" aria-live="polite" hidden></div>
+
+            <p class="admin-footer-note">EduCore · La aventura matemática de Acandí</p>
+        </main>
+    </div>
+
+    <script src="../../js/config.js"></script>
+    <script src="../../js/adminCursos.js"></script>
+    <script src="../../js/logout.js"></script>
+</body>
+</html>

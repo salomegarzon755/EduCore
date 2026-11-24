@@ -7,6 +7,7 @@ from dao.curso_dao import CursoDAO
 from dao.grupo_dao import GrupoDAO
 from routes.actividades import actividades_bp
 from routes.seguimiento import seguimiento_bp
+from routes.admin_cursos import admin_cursos_bp
 from config.database import DatabaseConnection
 from auth import issue_token, require_auth
 from flask import g
@@ -18,6 +19,7 @@ _origenes = [o.strip() for o in os.getenv('FRONTEND_ORIGIN', '*').split(',') if 
 CORS(app, origins=_origenes)
 app.register_blueprint(actividades_bp)   # actividades y resultados
 app.register_blueprint(seguimiento_bp)   # HU.15 · seguimiento docente, estudiante y familia
+app.register_blueprint(admin_cursos_bp)  # HU.23 · cursos predefinidos (Administrador)
 
 # --- AUTENTICACIÓN Y REGISTRO ---
 
@@ -36,6 +38,13 @@ def login():
 
         if rol_esperado == 'Padre o Madre' and rol_real != 'Estudiante':
             return jsonify(success=False, message="El acceso familiar requiere una cuenta de estudiante"), 403
+
+        # HU.23 · Portal de administración: solo cuentas con rol Administrador,
+        # y una cuenta de administrador no entra por los demás portales.
+        if rol_esperado == 'Administrador' and rol_real != 'Administrador':
+            return jsonify(success=False, message="Esta cuenta no tiene permisos de administración."), 403
+        if rol_real == 'Administrador' and rol_esperado and rol_esperado != 'Administrador':
+            return jsonify(success=False, message="Esta cuenta es de administración. Ingresa desde «Soy administrador»."), 403
 
         # Validación estricta por rol si se especifica en el Login
         if rol_esperado:
