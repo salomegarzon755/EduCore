@@ -40,6 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (groupCodigoClase) groupCodigoClase.style.display = 'none';
             if (footerNotice) footerNotice.textContent = 'Acceso reservado para profesores registrados.';
 
+        } else if (savedRole === 'Administrador') {
+            roleBadgeDisplay.textContent = 'ESPACIO ADMINISTRACIÓN';
+            if (loginTitle) loginTitle.textContent = 'Bienvenido, administrador';
+            if (loginSubtitle) loginSubtitle.textContent = 'Ingresa para gestionar los cursos predefinidos de EduCore.';
+            if (labelUsuario) labelUsuario.textContent = 'Usuario *';
+            if (submitBtn) submitBtn.textContent = '→ Ingresar';
+            if (groupCodigoClase) groupCodigoClase.style.display = 'none';
+            if (footerNotice) footerNotice.textContent = 'Acceso reservado para administradores de EduCore.';
+
         } else if (savedRole === 'Padre o Madre') {
             roleBadgeDisplay.textContent = 'ESPACIO FAMILIA';
             if (loginTitle) loginTitle.textContent = 'Acompaña el aprendizaje de tu hijo';
@@ -110,6 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const rolReal = data.user.rol;
 
                     // Exclusividad de portales en frontend
+                    if (savedRole === 'Administrador' && rolReal !== 'Administrador') {
+                        mostrarError('Esta cuenta no tiene permisos de administración.');
+                        return;
+                    }
+
                     if (savedRole === 'Docente' && rolReal !== 'Docente') {
                         mostrarError('Esta cuenta es de un estudiante. Por favor ingresa desde el Portal Estudiantes.');
                         return;
@@ -138,7 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
                     localStorage.setItem('loggedUserName', data.user.nombre || usuarioVal);
 
-                    if (rolReal === 'Docente') {
+                    if (rolReal === 'Administrador') {
+                        localStorage.setItem('userRole', 'Administrador');
+                        window.location.href = 'PanelAdministrador/GestionCursos.html';
+                    } else if (rolReal === 'Docente') {
                         localStorage.setItem('userRole', 'Docente');
                         window.location.href = 'PanelDocente/PanelPrincipal.html';
                     } else {
