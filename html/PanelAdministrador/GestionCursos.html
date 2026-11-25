@@ -8,29 +8,36 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/PanelAdministrador.css?v=24">
+    <link rel="stylesheet" href="../../css/paneles.css?v=26">
+    <link rel="stylesheet" href="../../css/PanelAdministrador.css?v=26">
 </head>
 <body class="admin-body">
 
-    <!-- ===== Barra lateral de administración ===== -->
-    <aside class="admin-sidebar">
-        <div class="admin-brand">
-            <span class="admin-brand-name">EduCore</span>
-            <span class="admin-brand-tag">ADMINISTRACIÓN</span>
+    <!-- ===== Barra lateral de administración (mismo diseño que el panel del estudiante) ===== -->
+    <aside class="sidebar admin-sidebar-verde">
+        <div class="sidebar-brand">
+            <img src="../../img/files/EduCore_Identidad/01_logos/png/logo_compacto_color.png" alt="EduCore Logo" class="brand-logo">
+            <span class="brand-title">EduCore</span>
         </div>
-        <nav class="admin-nav" aria-label="Menú de administración">
-            <a href="GestionCursos.html" class="admin-nav-item active" aria-current="page">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V4z"/><path d="M5 16h13"/></svg>
-                Gestión de cursos
+        <div class="sidebar-tag">Administración</div>
+        <nav class="sidebar-nav" aria-label="Menú de administración">
+            <a href="GestionCursos.html" class="nav-item active" aria-current="page">
+                <span class="nav-icon" aria-hidden="true">📚</span> Gestión de cursos
             </a>
-            <!-- "Mi cuenta" corresponde a otras HU (16/19); se deja visible como en el mockup -->
-            <a href="#" class="admin-nav-item" aria-disabled="true" title="Disponible próximamente">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M5 21c1.5-4 4-6 7-6s5.5 2 7 6"/></svg>
-                Mi cuenta
+            <!-- "Mi cuenta" del administrador aún no existe; se deja visible pero inactivo -->
+            <a href="#" class="nav-item nav-item-inactivo" aria-disabled="true" title="Disponible próximamente">
+                <span class="nav-icon" aria-hidden="true">👤</span> Mi cuenta
+            </a>
+            <a href="../Login.html" class="nav-item logout-btn logout-nav-item">
+                <span class="nav-icon" aria-hidden="true">🚪</span> Cerrar sesión
             </a>
         </nav>
-        <div class="admin-sidebar-foot">
-            Acandí, Chocó<br>La aventura de aprender
+        <div class="sidebar-banner">
+            <span class="banner-icon" aria-hidden="true">🌱</span>
+            <div class="banner-text">
+                <strong>Aprendemos desde Acandí</strong>
+                <p>Cada paso cuenta.</p>
+            </div>
         </div>
     </aside>
 
@@ -38,8 +45,8 @@
         <header class="admin-header">
             <span class="admin-motto">Matemáticas que nos conectan</span>
             <div class="admin-user">
-                <span><span id="adminName">Administrador</span> · Administrador</span>
-                <a href="../Login.html" class="admin-logout logout-btn" title="Cerrar sesión">Salir</a>
+                <span class="admin-user-avatar" aria-hidden="true">🧑‍🏫</span>
+                <span class="admin-user-text"><strong id="adminName">Administrador</strong><small>Administrador</small></span>
             </div>
         </header>
 
@@ -160,6 +167,20 @@
                 </div>
             </section>
 
+            <!-- ===== HU.26 · Confirmación para eliminar un curso ===== -->
+            <div class="confirm-overlay" id="deleteOverlay" hidden>
+                <div class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="deleteTitle" aria-describedby="deleteText">
+                    <span class="confirm-icon" aria-hidden="true">!</span>
+                    <h2 class="confirm-title" id="deleteTitle">¿Eliminar este curso?</h2>
+                    <p class="confirm-course" id="deleteCourse"></p>
+                    <p class="confirm-text" id="deleteText">El curso seleccionado se eliminará de los cursos predefinidos. Confirma que es el curso correcto.</p>
+                    <div class="confirm-actions">
+                        <button type="button" class="btn-text" id="btnCancelDelete">Cancelar</button>
+                        <button type="button" class="btn-danger" id="btnConfirmDelete">Eliminar curso</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Banner de estado: error de validación (B) o curso guardado (C) -->
             <div class="admin-banner" id="statusBanner" role="status" aria-live="polite" hidden></div>
 
@@ -168,7 +189,7 @@
     </div>
 
     <script src="../../js/config.js"></script>
-    <script src="../../js/adminCursos.js?v=24"></script>
-    <script src="../../js/logout.js?v=24"></script>
+    <script src="../../js/adminCursos.js?v=26"></script>
+    <script src="../../js/logout.js?v=26"></script>
 </body>
 </html>

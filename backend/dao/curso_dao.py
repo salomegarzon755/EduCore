@@ -278,16 +278,15 @@ class CursoDAO:
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT c.id_curso, c.titulo_curso, c.grado, c.descripcion,
-                       COUNT(gc.id_grupo) AS total_grupos
+                       (SELECT COUNT(*) FROM grupo_curso gc WHERE gc.id_curso = c.id_curso) AS total_grupos,
+                       (SELECT COUNT(*) FROM unidad u WHERE u.id_curso = c.id_curso) AS total_unidades
                 FROM curso c
-                LEFT JOIN grupo_curso gc ON gc.id_curso = c.id_curso
-                GROUP BY c.id_curso, c.titulo_curso, c.grado, c.descripcion
                 ORDER BY c.id_curso ASC;
             """)
             rows = cursor.fetchall()
             cursor.close()
             return [{"id_curso": r[0], "titulo_curso": r[1], "grado": r[2],
-                     "descripcion": r[3] or "", "total_grupos": r[4]}
+                     "descripcion": r[3] or "", "total_grupos": r[4], "total_unidades": r[5]}
                     for r in rows]
         except Exception as e:
             print(f"Error en CursoDAO.listar_para_admin: {e}")
@@ -331,17 +330,51 @@ class CursoDAO:
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT c.id_curso, c.titulo_curso, c.grado, c.descripcion,
-                       COUNT(gc.id_grupo) AS total_grupos
+                       (SELECT COUNT(*) FROM grupo_curso gc WHERE gc.id_curso = c.id_curso) AS total_grupos,
+                       (SELECT COUNT(*) FROM unidad u WHERE u.id_curso = c.id_curso) AS total_unidades
                 FROM curso c
-                LEFT JOIN grupo_curso gc ON gc.id_curso = c.id_curso
-                WHERE c.id_curso = %s
-                GROUP BY c.id_curso, c.titulo_curso, c.grado, c.descripcion;
+                WHERE c.id_curso = %s;
             """, (id_curso,))
             r = cursor.fetchone()
             cursor.close()
             if not r:
                 return None
             return {"id_curso": r[0], "titulo_curso": r[1], "grado": r[2],
-                    "descripcion": r[3] or "", "total_grupos": r[4]}
+                    "descripcion": r[3] or "", "total_grupos": r[4], "total_unidades": r[5]}
+        finally:
+            if conn: DatabaseConnection.return_connection(conn)
+
+    # ------------------------------------------------------------------
+    # HU.26 · Eliminar un curso (solo si no está en uso)
+    # ------------------------------------------------------------------
+    @staticmethod
+    def eliminar_si_sin_uso(id_curso):
+        """Elimina el curso solo si NO tiene grupos asignados ni contenido (unidades).
+        Devuelve {"ok": True, "curso": {...}} o {"ok": False, "codigo": "NO_ENCONTRADO"|"EN_USO", ...}.
+        Lanza la excepción si falla la base de datos."""
+        conn = DatabaseConnection.get_connection()
+        try:
+            cursor = conn.cursor()
+            # Bloquea la fila para que nadie asigne el curso a un grupo mientras se valida
+            cursor.execute("SELECT id_curso, titulo_curso, grado FROM curso WHERE id_curso = %s FOR UPDATE;", (id_curso,))
+            fila = cursor.fetchone()
+            if not fila:
+                conn.rollback()
+                return {"ok": False, "codigo": "NO_ENCONTRADO"}
+            cursor.execute("SELECT COUNT(*) FROM grupo_curso WHERE id_curso = %s;", (id_curso,))
+            grupos = cursor.fetchone()[0]
+            cursor.execute("SELECT COUNT(*) FROM unidad WHERE id_curso = %s;", (id_curso,))
+            unidades = cursor.fetchone()[0]
+            if grupos or unidades:
+                conn.rollback()
+                return {"ok": False, "codigo": "EN_USO", "total_grupos": grupos, "total_unidades": unidades,
+                        "titulo_curso": fila[1]}
+            cursor.execute("DELETE FROM curso WHERE id_curso = %s;", (id_curso,))
+            conn.commit()
+            cursor.close()
+            return {"ok": True, "curso": {"id_curso": fila[0], "titulo_curso": fila[1], "grado": fila[2]}}
+        except Exception:
+            conn.rollback()
+            raise
         finally:
             if conn: DatabaseConnection.return_connection(conn)

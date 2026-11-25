@@ -1,4 +1,4 @@
-// HU.23 · Crear curso predefinido · HU.24 · Ver listado de cursos y su detalle (Administrador)
+// HU.23 · Crear curso predefinido · HU.24 · Ver listado y detalle · HU.26 · Eliminar un curso (Administrador)
 // Vistas: listado de cursos disponibles, detalle de un curso (?curso=<id>) y formulario "Crear nuevo curso".
 document.addEventListener('DOMContentLoaded', () => {
     const BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
@@ -140,9 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="col-acciones">
                     <button type="button" class="btn-detalle" data-id="${c.id_curso}" aria-label="Ver detalle de ${esc(c.titulo_curso)}">Ver detalle</button>
                 </td>
-                <td class="col-extra">${Number(c.total_grupos) > 0
-                    ? '<span class="no-action" title="Asignado a grupos">—</span>'
-                    : '<button type="button" class="btn-eliminar" disabled title="Eliminar un curso estará disponible en HU.26">Eliminar</button>'}
+                <td class="col-extra">${puedeEliminarse(c)
+                    ? `<button type="button" class="btn-eliminar" data-id="${c.id_curso}" aria-label="Eliminar ${esc(c.titulo_curso)}">Eliminar</button>`
+                    : `<span class="no-action" title="${esc(motivoNoEliminar(c))}" aria-label="${esc(motivoNoEliminar(c))}">—</span>`}
                 </td>
             </tr>`).join('');
 
@@ -155,6 +155,84 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         btnClearSearch.hidden = !(n === 0 && filtrando);
         actualizarMigaListado();
+    }
+
+    // ---------- Eliminar (HU.26) ----------
+    // Solo se eliminan cursos sin grupos asignados y sin contenido (para no borrar progreso de estudiantes)
+    function puedeEliminarse(c) {
+        return Number(c.total_grupos || 0) === 0 && Number(c.total_unidades || 0) === 0;
+    }
+    function motivoNoEliminar(c) {
+        const m = [];
+        if (Number(c.total_grupos) > 0) m.push('está asignado a grupos');
+        if (Number(c.total_unidades) > 0) m.push('ya tiene contenido');
+        return `No se puede eliminar: ${m.join(' y ')}`;
+    }
+
+    const deleteOverlay = $('deleteOverlay');
+    const btnConfirmDelete = $('btnConfirmDelete');
+    const btnCancelDelete = $('btnCancelDelete');
+    let cursoAEliminar = null;
+    let botonOrigen = null;
+
+    function abrirConfirmacion(idCurso, boton) {
+        const c = cursos.find((x) => String(x.id_curso) === String(idCurso));
+        if (!c) return;
+        cursoAEliminar = c;
+        botonOrigen = boton;
+        ocultarBanner();
+        // El grado va en un bloque que no se parte ("Grado 2.°" nunca queda en dos líneas)
+        const grado = document.createElement('span');
+        grado.className = 'confirm-grade';
+        grado.textContent = c.grado ? `Grado ${c.grado}.°` : 'Grado sin definir';
+        $('deleteCourse').replaceChildren(document.createTextNode(`${c.titulo_curso} · `), grado);
+        btnConfirmDelete.disabled = false;
+        btnConfirmDelete.textContent = 'Eliminar curso';
+        deleteOverlay.hidden = false;
+        document.body.classList.add('modal-abierto');
+        breadcrumbState.textContent = 'Confirmación';
+        btnCancelDelete.focus();   // la opción segura queda enfocada
+    }
+
+    function cerrarConfirmacion() {
+        deleteOverlay.hidden = true;
+        document.body.classList.remove('modal-abierto');
+        cursoAEliminar = null;
+        actualizarMigaListado();
+        if (botonOrigen && document.body.contains(botonOrigen)) botonOrigen.focus();
+        else searchInput.focus();
+        botonOrigen = null;
+    }
+
+    async function confirmarEliminacion() {
+        if (!cursoAEliminar) return;
+        const c = cursoAEliminar;
+        btnConfirmDelete.disabled = true;
+        btnConfirmDelete.textContent = 'Eliminando…';
+        try {
+            const res = await fetch(`${BASE_URL}/admin/cursos/${encodeURIComponent(c.id_curso)}`, {
+                method: 'DELETE', headers: authHeaders()
+            });
+            if (res.status === 401) return sesionVencida();
+            const data = await res.json().catch(() => ({}));
+            cerrarConfirmacion();
+            if (res.ok && data.success) {
+                // CA-01: el curso sale del listado y se confirma
+                cursos = cursos.filter((x) => x.id_curso !== c.id_curso);
+                renderListado();
+                breadcrumbState.textContent = 'Curso eliminado';
+                mostrarBanner('success', data.message || `Se eliminó el curso ${c.titulo_curso}.`);
+                searchInput.focus();
+                return;
+            }
+            // 409 (en uso) o 404 (ya no existe): se avisa y se recarga el listado real
+            mostrarBanner('error', data.message || 'No se pudo eliminar el curso. Intenta de nuevo.');
+            await cargarCursos();
+        } catch (err) {
+            console.error('Error eliminando curso:', err);
+            cerrarConfirmacion();
+            mostrarBanner('error', 'No se pudo conectar con el servidor. Intenta de nuevo.');
+        }
     }
 
     // ---------- Detalle (HU.24 B) ----------
@@ -334,7 +412,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // HU.24 · Ver detalle, volver y limpiar búsqueda
     tbody.addEventListener('click', (e) => {
         const btn = e.target.closest('.btn-detalle');
-        if (btn) abrirDetalle(btn.dataset.id);
+        if (btn) { abrirDetalle(btn.dataset.id); return; }
+        const del = e.target.closest('.btn-eliminar');
+        if (del) abrirConfirmacion(del.dataset.id, del);
+    });
+    // HU.26 · CA-02: Cancelar (botón, Esc o clic fuera) deja el curso disponible
+    btnCancelDelete.addEventListener('click', cerrarConfirmacion);
+    btnConfirmDelete.addEventListener('click', confirmarEliminacion);
+    deleteOverlay.addEventListener('click', (e) => { if (e.target === deleteOverlay) cerrarConfirmacion(); });
+    document.addEventListener('keydown', (e) => {
+        if (deleteOverlay.hidden) return;
+        if (e.key === 'Escape') { e.preventDefault(); cerrarConfirmacion(); return; }
+        if (e.key === 'Tab') {   // el foco se queda dentro de la confirmación
+            const items = [btnCancelDelete, btnConfirmDelete].filter((b) => !b.disabled);
+            const i = items.indexOf(document.activeElement);
+            e.preventDefault();
+            items[(i + (e.shiftKey ? -1 : 1) + items.length) % items.length].focus();
+        }
     });
     $('btnBackToList').addEventListener('click', () => volverAlListado());
     btnClearSearch.addEventListener('click', () => {
