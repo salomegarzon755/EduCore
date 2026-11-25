@@ -2,6 +2,7 @@
 
 GET  /api/admin/cursos       -> listado de cursos disponibles (nombre, grado, descripción)
 GET  /api/admin/cursos/<id>  -> HU.24 · detalle de un curso (nombre, grado y descripción)
+DELETE /api/admin/cursos/<id> -> HU.26 · elimina un curso sin grupos ni contenido
 POST /api/admin/cursos  -> registra un curso predefinido; nombre, grado y descripción
                            son obligatorios (CA-02: si falta alguno no se guarda).
 """
@@ -94,3 +95,26 @@ def detalle_curso(id_curso):
     if not curso:
         return jsonify(success=False, message='No encontramos ese curso.'), 404
     return jsonify(success=True, curso=curso), 200
+
+
+@admin_cursos_bp.route('/cursos/<int:id_curso>', methods=['DELETE'])
+@require_auth('Administrador')
+def eliminar_curso(id_curso):
+    """HU.26 · CA-01: quita el curso de la plataforma y confirma.
+    Solo se eliminan cursos sin grupos asignados y sin contenido, para no borrar el progreso de estudiantes."""
+    try:
+        r = CursoDAO.eliminar_si_sin_uso(id_curso)
+    except Exception as e:
+        print(f"Error en eliminar_curso: {e}")
+        return jsonify(success=False, message='No se pudo eliminar el curso. Intenta de nuevo.'), 500
+    if r["ok"]:
+        return jsonify(success=True, message=f"Se eliminó el curso {r['curso']['titulo_curso']}.", curso=r["curso"]), 200
+    if r["codigo"] == "NO_ENCONTRADO":
+        return jsonify(success=False, message='Ese curso ya no existe.'), 404
+    motivos = []
+    if r["total_grupos"]:
+        motivos.append(f"está asignado a {r['total_grupos']} grupo{'s' if r['total_grupos'] != 1 else ''}")
+    if r["total_unidades"]:
+        motivos.append("ya tiene contenido (unidades y actividades)")
+    return jsonify(success=False, codigo='EN_USO',
+                   message=f"No se puede eliminar {r['titulo_curso']}: {' y '.join(motivos)}."), 409
