@@ -1,4 +1,5 @@
 // HU.23 · Crear curso predefinido · HU.24 · Ver listado y detalle · HU.26 · Eliminar un curso (Administrador)
+// HU.28: las unidades y actividades viven en js/adminActividades.js y usan window.EduAdmin
 // Vistas: listado de cursos disponibles, detalle de un curso (?curso=<id>) y formulario "Crear nuevo curso".
 document.addEventListener('DOMContentLoaded', () => {
     const BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
@@ -67,7 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function ocultarBanner() { banner.hidden = true; banner.textContent = ''; }
 
     // ---------- Cambio de vista ----------
+    const ocultarVistasExtra = () => document.querySelectorAll('.admin-vista-extra').forEach((v) => { v.hidden = true; });
+
     function mostrarListado({ trasGuardar = false } = {}) {
+        ocultarVistasExtra();
         formView.hidden = true;
         detailView.hidden = true;
         listView.hidden = false;
@@ -92,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function mostrarFormulario() {
         ocultarBanner();
         limpiarFormulario();
+        ocultarVistasExtra();
         listView.hidden = true;
         detailView.hidden = true;
         formView.hidden = false;
@@ -241,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function abrirDetalle(idCurso, { agregarHistorial = true } = {}) {
         ocultarBanner();
+        ocultarVistasExtra();
         listView.hidden = true;
         formView.hidden = true;
         detailView.hidden = false;
@@ -268,6 +274,8 @@ document.addEventListener('DOMContentLoaded', () => {
             $('detailDescription').textContent = c.descripcion || 'Este curso no tiene descripción.';
             document.title = `EduCore - ${c.titulo_curso}`;
             $('btnBackToList').focus();
+            // HU.28 · js/adminActividades.js carga las unidades del curso
+            document.dispatchEvent(new CustomEvent('educore:detalle-curso', { detail: { curso: c } }));
         } catch (err) {
             console.error('Error cargando el detalle:', err);
             volverAlListado({ reemplazar: true });
@@ -439,13 +447,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // Botones Atrás / Adelante del navegador
     window.addEventListener('popstate', () => {
+        if (new URLSearchParams(window.location.search).has('unidad')) return;   // HU.28 (adminActividades.js)
         const id = idCursoDeUrl();
         if (id) abrirDetalle(id, { agregarHistorial: false });
         else { document.title = 'EduCore - Gestión de cursos'; ocultarBanner(); mostrarListado(); }
     });
 
+    // HU.28 · funciones compartidas con js/adminActividades.js
+    window.EduAdmin = {
+        BASE_URL, authHeaders, esc, sesionVencida, mostrarBanner, ocultarBanner, abrirDetalle,
+        mostrarVista(vista, { titulo, subtitulo, miga }) {
+            ocultarBanner();
+            listView.hidden = true; formView.hidden = true; detailView.hidden = true;
+            ocultarVistasExtra();
+            vista.hidden = false;
+            pageTitle.textContent = titulo;
+            pageSubtitle.textContent = subtitulo;
+            breadcrumbState.textContent = miga;
+        },
+        recargarCursos: cargarCursos
+    };
+
     cargarCursos();
     const idInicial = idCursoDeUrl();
-    if (idInicial) abrirDetalle(idInicial, { agregarHistorial: false });
+    if (new URLSearchParams(window.location.search).has('unidad')) { /* HU.28: lo abre adminActividades.js */ }
+    else if (idInicial) abrirDetalle(idInicial, { agregarHistorial: false });
     else mostrarListado();
 });

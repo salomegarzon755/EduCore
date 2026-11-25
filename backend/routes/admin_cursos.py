@@ -118,3 +118,119 @@ def eliminar_curso(id_curso):
         motivos.append("ya tiene contenido (unidades y actividades)")
     return jsonify(success=False, codigo='EN_USO',
                    message=f"No se puede eliminar {r['titulo_curso']}: {' y '.join(motivos)}."), 409
+
+
+# ======================================================================
+# HU.28 · Unidades y actividades interactivas (rol Administrador)
+#   GET  /api/admin/cursos/<id>/unidades        -> unidades del curso
+#   POST /api/admin/cursos/<id>/unidades        -> agrega una unidad (solo nombre)
+#   GET  /api/admin/unidades/<id>/actividades   -> actividades de la unidad
+#   POST /api/admin/unidades/<id>/actividades   -> crea una actividad (CA-01 / CA-02)
+# ======================================================================
+from dao.contenido_admin_dao import ContenidoAdminDAO
+
+# Galería de imágenes de EduCore (img/files/EduCore_Identidad/04_decorativos/png/<nombre>.png)
+GALERIA = ('ave_tuki', 'banano', 'coco', 'estrella', 'flor_coral', 'flor_lila', 'flor_rosa', 'helecho',
+           'hoja_palma', 'hoja_tropical', 'mango', 'manos', 'mariposa', 'nube', 'papaya', 'piedra',
+           'pina', 'rana_kokoi', 'sandia')
+MAX_TITULO, MAX_TEXTO, MAX_OPCION = 150, 300, 60
+
+
+@admin_cursos_bp.route('/cursos/<int:id_curso>/unidades', methods=['GET'])
+@require_auth('Administrador')
+def listar_unidades(id_curso):
+    try:
+        unidades = ContenidoAdminDAO.listar_unidades(id_curso)
+    except Exception as e:
+        print(f"Error en listar_unidades: {e}")
+        return jsonify(success=False, message='No se pudieron cargar las unidades.'), 500
+    if unidades is None:
+        return jsonify(success=False, message='No encontramos ese curso.'), 404
+    return jsonify(success=True, unidades=unidades), 200
+
+
+@admin_cursos_bp.route('/cursos/<int:id_curso>/unidades', methods=['POST'])
+@require_auth('Administrador')
+def crear_unidad(id_curso):
+    titulo = ((request.get_json(silent=True) or {}).get('titulo') or '').strip()
+    if not titulo:
+        return jsonify(success=False, message='Escribe el nombre de la unidad.', errores={'titulo': 'Escribe el nombre de la unidad.'}), 400
+    if len(titulo) > MAX_TITULO:
+        return jsonify(success=False, message=f'El nombre no puede superar {MAX_TITULO} caracteres.'), 400
+    try:
+        unidad = ContenidoAdminDAO.crear_unidad(id_curso, titulo)
+    except Exception as e:
+        print(f"Error en crear_unidad: {e}")
+        return jsonify(success=False, message='No se pudo crear la unidad. Intenta de nuevo.'), 500
+    if unidad is None:
+        return jsonify(success=False, message='No encontramos ese curso.'), 404
+    return jsonify(success=True, message=f"Se agregó la unidad {titulo}.", unidad=unidad), 201
+
+
+@admin_cursos_bp.route('/unidades/<int:id_unidad>/actividades', methods=['GET'])
+@require_auth('Administrador')
+def listar_actividades_unidad(id_unidad):
+    try:
+        unidad = ContenidoAdminDAO.detalle_unidad(id_unidad)
+    except Exception as e:
+        print(f"Error en listar_actividades_unidad: {e}")
+        return jsonify(success=False, message='No se pudieron cargar las actividades.'), 500
+    if unidad is None:
+        return jsonify(success=False, message='No encontramos esa unidad.'), 404
+    return jsonify(success=True, unidad=unidad), 200
+
+
+ETIQUETAS_ACT = {'titulo': 'el título', 'pregunta': 'la pregunta', 'correcta': 'la respuesta correcta',
+                 'otras': 'las otras opciones', 'imagen': 'la imagen'}
+
+
+def _validar_actividad(d):
+    t = lambda k: (d.get(k) or '').strip() if isinstance(d.get(k), str) else ''
+    titulo, pregunta, correcta, pista = t('titulo'), t('pregunta'), t('correcta'), t('pista')
+    otras = [o.strip() for o in (d.get('otras') or []) if isinstance(o, str) and o.strip()]
+    imagen = d.get('imagen') if isinstance(d.get('imagen'), str) else ''
+    try:
+        cantidad = int(d.get('cantidad') or 1)
+    except (TypeError, ValueError):
+        cantidad = 0
+    e, faltan = {}, []
+    if not titulo: e['titulo'] = 'Escribe el título de la actividad.'; faltan.append('titulo')
+    elif len(titulo) > MAX_TITULO: e['titulo'] = f'El título no puede superar {MAX_TITULO} caracteres.'
+    if not pregunta: e['pregunta'] = 'Escribe el texto de la pregunta.'; faltan.append('pregunta')
+    elif len(pregunta) > MAX_TEXTO: e['pregunta'] = f'La pregunta no puede superar {MAX_TEXTO} caracteres.'
+    if not correcta: e['correcta'] = 'Escribe la respuesta correcta.'; faltan.append('correcta')
+    elif len(correcta) > MAX_OPCION: e['correcta'] = f'La respuesta no puede superar {MAX_OPCION} caracteres.'
+    if len(otras) < 2: e['otras'] = 'Escribe al menos 2 opciones más para que el estudiante elija.'; faltan.append('otras')
+    elif len(otras) > 3 or any(len(o) > MAX_OPCION for o in otras): e['otras'] = f'Máximo 3 opciones de hasta {MAX_OPCION} caracteres.'
+    else:
+        normal = [x.lower() for x in [correcta] + otras]
+        if len(set(normal)) != len(normal): e['otras'] = 'Las opciones no pueden repetirse ni ser iguales a la respuesta correcta.'
+    if imagen not in GALERIA: e['imagen'] = 'Elige una imagen de la galería.'; faltan.append('imagen')
+    if not 1 <= cantidad <= 12: e['cantidad'] = 'La cantidad de imágenes debe estar entre 1 y 12.'
+    if len(pista) > MAX_TEXTO: e['pista'] = f'La pista no puede superar {MAX_TEXTO} caracteres.'
+    valores = dict(titulo=titulo, pregunta=pregunta, correcta=correcta, otras=otras, pista=pista,
+                   imagen=imagen, cantidad=cantidad)
+    return valores, e, faltan
+
+
+@admin_cursos_bp.route('/unidades/<int:id_unidad>/actividades', methods=['POST'])
+@require_auth('Administrador')
+def crear_actividad(id_unidad):
+    """HU.28 · CA-01: crea la actividad dentro de la unidad. CA-02: si falta algo, la indica y no la crea."""
+    v, errores, faltan = _validar_actividad(request.get_json(silent=True) or {})
+    if errores:
+        if faltan:
+            nombres = [ETIQUETAS_ACT[k] for k in faltan]
+            msg = f"Completa {nombres[0]}." if len(nombres) == 1 else f"Completa {', '.join(nombres[:-1])} y {nombres[-1]}."
+        else:
+            msg = 'Revisa los campos marcados para guardar la actividad.'
+        return jsonify(success=False, message=msg, errores=errores), 400
+    try:
+        act = ContenidoAdminDAO.crear_actividad(id_unidad, v['titulo'], v['pregunta'], v['correcta'],
+                                                v['otras'], v['pista'], v['imagen'], v['cantidad'])
+    except Exception as e:
+        print(f"Error en crear_actividad: {e}")
+        return jsonify(success=False, message='No se pudo crear la actividad. Intenta de nuevo.'), 500
+    if act is None:
+        return jsonify(success=False, message='No encontramos esa unidad.'), 404
+    return jsonify(success=True, message='Actividad creada en la unidad.', actividad=act), 201

@@ -38,7 +38,7 @@ FROM (VALUES
   ('Cuenta las esquinas del recuadro de la regla: 1, 2, 3... ¿cuántas son?', 'Pon el dedo en cada esquina y cuenta hasta volver a la primera.'),
   ('Si tienes 2 mangos y te regalan 2 más, ¿cuántos mangos tienes?', 'Junta los 2 mangos con los 2 nuevos y cuéntalos todos.'),
   ('¿Cuál de las opciones representa una cantidad mayor?', 'Cuenta cuántos hay en cada opción: la mayor es la que tiene más.'),
-  ('Cuenta las patas de una rana: 1, 2, 3, 4. ¿Cuántas patas son?', 'Sigue el conteo del enunciado: el último número que dices es la respuesta.'),
+  ('Cuenta las patas de una rana: 1, 2, 3, 4. ¿Cuántas patas son?', 'Mira la rana y señala cada pata mientras cuentas, sin saltarte ninguna.'),
   ('Observas 6 aves Tuki volando juntas. ¿Cómo se escribe el número seis?', 'Cuenta las aves y busca el número que corresponde a esa cantidad.'),
   ('Si le das 1 piña a cada uno de tus 3 amigos, ¿cuántas piñas usaste?', 'Una piña para cada amigo: cuenta una piña por cada uno de los 3.'),
   ('¿Cuántas frutas ves?', 'Señala cada fruta con el dedo mientras cuentas.'),
