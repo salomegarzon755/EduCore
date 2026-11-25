@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/paneles.css?v=26">
-    <link rel="stylesheet" href="../../css/PanelAdministrador.css?v=26">
+    <link rel="stylesheet" href="../../css/paneles.css?v=28">
+    <link rel="stylesheet" href="../../css/PanelAdministrador.css?v=28">
 </head>
 <body class="admin-body">
 
@@ -111,8 +111,126 @@
                     <p class="detail-grade" id="detailGrade"></p>
                     <h3 class="detail-label">Descripción</h3>
                     <p class="detail-description" id="detailDescription"></p>
+
+                    <!-- HU.28 · Unidades del curso -->
+                    <section class="detail-units" aria-labelledby="unitsTitle">
+                        <h3 class="detail-label" id="unitsTitle">Unidades del curso</h3>
+                        <p class="units-status" id="unitsStatus" role="status">Cargando unidades…</p>
+                        <ol class="units-list" id="unitsList"></ol>
+                        <form class="unit-add" id="unitAddForm" novalidate>
+                            <div class="field" data-field="unidad">
+                                <label class="field-box" for="unitName">
+                                    <span class="field-label">Nueva unidad</span>
+                                    <input type="text" id="unitName" class="field-control" maxlength="150" placeholder="Ej. Números del 1 al 5" autocomplete="off" aria-describedby="errorUnidad">
+                                </label>
+                                <p class="field-error" id="errorUnidad" role="alert">Escribe el nombre de la unidad.</p>
+                            </div>
+                            <button type="submit" class="btn-primary" id="btnAddUnit">Agregar unidad</button>
+                        </form>
+                        <p class="unit-add-msg" id="unitAddMsg" role="status" hidden></p>
+                    </section>
+
                     <button type="button" class="btn-text detail-back" id="btnBackToList">Volver a cursos</button>
                 </article>
+            </section>
+
+            <!-- ===== HU.28 · Actividades de la unidad (C) ===== -->
+            <section id="unitView" class="admin-vista-extra" hidden aria-labelledby="unitCardTitle">
+                <div class="admin-banner success unit-banner" id="unitBanner" role="status" hidden></div>
+                <div class="admin-card unit-card">
+                    <div class="unit-card-head">
+                        <div>
+                            <h2 class="admin-card-title" id="unitCardTitle"></h2>
+                            <p class="unit-count" id="unitCount"></p>
+                        </div>
+                        <button type="button" class="btn-primary" id="btnNewActivity">Crear actividad</button>
+                    </div>
+                    <p class="unit-note" id="unitNote" hidden>En «Mi camino» el estudiante ve hasta 4 actividades por unidad.</p>
+                    <ul class="activity-list" id="activityList"></ul>
+                    <div class="list-empty" id="activityEmpty" hidden>
+                        <strong>Esta unidad aún no tiene actividades</strong>
+                        <span>Crea la primera con «Crear actividad».</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-text detail-back" id="btnBackToCourse">Volver al curso</button>
+            </section>
+
+            <!-- ===== HU.28 · Crear actividad interactiva (A / B) ===== -->
+            <section id="activityFormView" class="admin-vista-extra" hidden>
+                <form id="activityForm" class="course-form-layout activity-layout" novalidate>
+                    <div class="admin-card">
+                        <h2 class="admin-card-title">Contenido de la actividad</h2>
+                        <p class="admin-required-note">* Campos obligatorios</p>
+
+                        <div class="field" data-field="titulo">
+                            <label class="field-box" for="actTitle">
+                                <span class="field-label">Título *</span>
+                                <input type="text" id="actTitle" class="field-control" maxlength="150" autocomplete="off" aria-describedby="errorActTitulo">
+                            </label>
+                            <p class="field-error" id="errorActTitulo" role="alert"></p>
+                        </div>
+                        <div class="field" data-field="pregunta">
+                            <label class="field-box" for="actQuestion">
+                                <span class="field-label">Texto sencillo de la pregunta *</span>
+                                <textarea id="actQuestion" class="field-control" rows="1" maxlength="300" aria-describedby="errorActPregunta"></textarea>
+                            </label>
+                            <p class="field-error" id="errorActPregunta" role="alert"></p>
+                        </div>
+                        <div class="field" data-field="correcta">
+                            <label class="field-box" for="actCorrect">
+                                <span class="field-label">Respuesta correcta *</span>
+                                <input type="text" id="actCorrect" class="field-control" maxlength="60" autocomplete="off" aria-describedby="errorActCorrecta">
+                            </label>
+                            <p class="field-error" id="errorActCorrecta" role="alert"></p>
+                        </div>
+                        <fieldset class="field options-field" data-field="otras">
+                            <legend class="options-legend">Otras opciones para elegir * <span>(mínimo 2)</span></legend>
+                            <div class="options-grid">
+                                <label class="field-box" for="actOther1"><span class="field-label">Opción 2 *</span><input type="text" id="actOther1" class="field-control" maxlength="60" autocomplete="off"></label>
+                                <label class="field-box" for="actOther2"><span class="field-label">Opción 3 *</span><input type="text" id="actOther2" class="field-control" maxlength="60" autocomplete="off"></label>
+                                <label class="field-box" for="actOther3"><span class="field-label">Opción 4 (opcional)</span><input type="text" id="actOther3" class="field-control" maxlength="60" autocomplete="off"></label>
+                            </div>
+                            <p class="field-error" id="errorActOtras" role="alert"></p>
+                        </fieldset>
+                        <div class="field" data-field="pista">
+                            <label class="field-box" for="actHint">
+                                <span class="field-label">Pista (opcional)</span>
+                                <input type="text" id="actHint" class="field-control" maxlength="300" placeholder="Ej. Cuenta cada tortuga una sola vez." autocomplete="off" aria-describedby="errorActPista">
+                            </label>
+                            <p class="field-error" id="errorActPista" role="alert"></p>
+                            <p class="field-help">Se muestra cuando el estudiante se equivoca. Si la dejas vacía, se usa una pista general.</p>
+                        </div>
+
+                        <div class="admin-banner error form-banner" id="activityBanner" role="alert" hidden></div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary" id="btnSaveActivity">Guardar actividad</button>
+                            <button type="button" class="btn-text" id="btnCancelActivity">Cancelar</button>
+                        </div>
+                    </div>
+
+                    <aside class="info-card media-card" aria-labelledby="mediaTitle">
+                        <h2 id="mediaTitle">Imagen y sonido *</h2>
+                        <div class="field" data-field="imagen">
+                            <div class="media-preview" id="mediaPreview" aria-live="polite">
+                                <span class="media-empty">Elige una imagen</span>
+                            </div>
+                            <p class="media-name" id="mediaName">Ninguna imagen seleccionada</p>
+                            <p class="field-error" id="errorActImagen" role="alert"></p>
+                            <button type="button" class="btn-white" id="btnToggleGallery" aria-expanded="true" aria-controls="mediaGallery">Elegir imagen</button>
+                            <div class="media-gallery" id="mediaGallery" role="listbox" aria-label="Galería de imágenes de EduCore"></div>
+                        </div>
+                        <label class="media-qty" for="actQuantity">Cantidad de imágenes
+                            <select id="actQuantity" class="media-select">
+                                <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+                                <option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+                            </select>
+                        </label>
+                        <p class="media-sound-title">Sonido de la pregunta</p>
+                        <button type="button" class="btn-white" id="btnPlaySound">Reproducir sonido</button>
+                        <p class="media-sound-note" id="soundNote">La voz del navegador lee la pregunta en voz alta.</p>
+                        <p class="media-foot">Se guardará dentro de la unidad.</p>
+                    </aside>
+                </form>
             </section>
 
             <!-- ===== Vista: formulario Crear nuevo curso (HU.23 A / B) ===== -->
@@ -189,7 +307,8 @@
     </div>
 
     <script src="../../js/config.js"></script>
-    <script src="../../js/adminCursos.js?v=26"></script>
-    <script src="../../js/logout.js?v=26"></script>
+    <script src="../../js/adminCursos.js?v=28"></script>
+    <script src="../../js/adminActividades.js?v=28"></script>
+    <script src="../../js/logout.js?v=28"></script>
 </body>
 </html>
