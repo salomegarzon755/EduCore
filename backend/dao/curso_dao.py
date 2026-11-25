@@ -1,3 +1,5 @@
+import psycopg2
+import psycopg2.errors
 from config.database import DatabaseConnection
 from models.curso import Curso, Unidad, Actividad, PregPunto
 
@@ -112,14 +114,18 @@ class CursoDAO:
         if not conn: return []
         try:
             cursor = conn.cursor()
-            query = """
-                SELECT id_punto, id_actividad, enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respuesta_correcta,
-                    visual, explicacion, es_opinion
-                FROM preg_punto
-                WHERE id_actividad = %s
-                ORDER BY id_punto ASC;
-            """
-            cursor.execute(query, (id_actividad,))
+            columnas = """id_punto, id_actividad, enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respuesta_correcta,
+                    visual, explicacion, es_opinion"""
+            try:
+                # HU.27: incluye la pista (columna de backend/db/migracion_hu27_pistas.sql)
+                cursor.execute(f"SELECT {columnas}, pista FROM preg_punto WHERE id_actividad = %s ORDER BY id_punto ASC;",
+                               (id_actividad,))
+            except psycopg2.errors.UndefinedColumn:
+                # Si la migración aún no se ejecutó, las actividades siguen funcionando con la pista general
+                conn.rollback()
+                cursor = conn.cursor()
+                cursor.execute(f"SELECT {columnas} FROM preg_punto WHERE id_actividad = %s ORDER BY id_punto ASC;",
+                               (id_actividad,))
             rows = cursor.fetchall()
             cursor.close()
 
