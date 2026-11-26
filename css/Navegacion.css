@@ -1,0 +1,66 @@
+/* Identidad y navegación adaptable de EduCore. */
+img.brand-logo, img.brand-icon, img.brand-leaf, .ec-top-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+.sidebar-brand { gap: 5px; }
+.ec-mobile-bar, .ec-drawer-close, .ec-drawer-backdrop { display: none; }
+.hu25-topbar-brand { display: inline-flex; align-items: center; gap: 2px; }
+.ec-menu-button, .ec-drawer-close {
+    width: 44px; height: 44px; flex-shrink: 0;
+    border: 1px solid #C8E6C9; border-radius: 12px;
+    background: #fff; color: #24443A; font: inherit; font-size: 20px;
+    cursor: pointer;
+}
+.ec-menu-button:focus-visible, .ec-drawer-close:focus-visible {
+    outline: 3px solid #2E7D32; outline-offset: 2px;
+}
+@media (max-width: 900px) {
+    body:has(.ec-drawer) { flex-direction: column; }
+    .ec-mobile-bar {
+        position: sticky; top: 0; z-index: 100;
+        display: flex; align-items: center; gap: 10px;
+        padding: 6px 16px; width: 100%; background: #E8F5E9;
+        border-bottom: 1px solid #C8E6C9;
+    }
+    .ec-mobile-brand { display: flex; align-items: center; gap: 3px; font-size: 22px; font-weight: 800; color: #1B5E20; }
+    .ec-mobile-brand .ec-top-logo { width: 52px; height: 52px; }
+    body .sidebar.ec-drawer {
+        position: fixed; inset: 0 auto 0 0; z-index: 202;
+        width: min(280px, 88vw); min-width: 0; max-width: 88vw;
+        height: 100vh; height: 100dvh; padding: 16px;
+        border-right: 1px solid #C8E6C9; border-bottom: none;
+        background: #E8F5E9; flex-direction: column;
+        overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
+        transform: translateX(-105%); visibility: hidden;
+        transition: transform .22s ease, visibility 0s linear .22s;
+    }
+    body .sidebar.ec-drawer.ec-open {
+        transform: translateX(0); visibility: visible;
+        transition: transform .22s ease, visibility 0s;
+        box-shadow: 8px 0 30px #24443a30;
+    }
+    body .ec-drawer .sidebar-nav { flex-direction: column; flex-wrap: nowrap; overflow: visible; }
+    body .ec-drawer .nav-item { white-space: normal; }
+    body .ec-drawer .sidebar-tag { display: block; }
+    body .ec-drawer .sidebar-banner { display: flex; }
+    body .ec-drawer .logout-nav-item { margin-top: auto; }
+    .ec-drawer-close { display: grid; place-items: center; align-self: flex-end; margin-bottom: 4px; }
+    .ec-drawer-backdrop:not([hidden]) { display: block; position: fixed; inset: 0; z-index: 201; background: #172e2960; }
+    body.ec-menu-open { overflow: hidden; }
+    body:has(.ec-drawer) .main-wrapper { padding: 20px; width: 100%; }
+    body.hu25-page .hu25-topbar-nav { display: none; }
+    body.hu25-page .hu25-topbar { gap: 6px 12px; }
+    body.hu25-page .hu25-topbar-brand { font-size: 22px; }
+    body.hu25-page .hu25-topbar-brand .ec-top-logo { width: 46px; height: 46px; }
+}
+@media (max-width: 480px) {
+    body.hu25-page .hu25-topbar-user { flex-wrap: wrap; gap: 8px; margin-left: 0; }
+    body.hu25-page .sidebar.hu25-drawer { min-width: 0; }
+    body:has(.ec-drawer) .main-wrapper { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    body .sidebar.ec-drawer { transition: none; }
+}

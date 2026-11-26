@@ -4,19 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduCore - Gestión de cursos</title>
-    <link rel="icon" href="../../img/files/EduCore_Identidad/01_logos/png/favicon_32.png">
+    <link rel="icon" href="../../img/LogoSinFondo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../css/paneles.css?v=30">
     <link rel="stylesheet" href="../../css/PanelAdministrador.css?v=30">
+    <link rel="stylesheet" href="../../css/Navegacion.css">
 </head>
 <body class="admin-body">
 
     <!-- ===== Barra lateral de administración (mismo diseño que el panel del estudiante) ===== -->
-    <aside class="sidebar admin-sidebar-verde">
+    <header class="ec-mobile-bar">
+        <button type="button" class="ec-menu-button" id="ecMenuButton" aria-label="Abrir menú" aria-controls="ecDrawer" aria-expanded="false"><span aria-hidden="true">☰</span></button>
+        <div class="ec-mobile-brand"><img src="../../img/LogoSinFondo.png" alt="" class="ec-top-logo"><span>EduCore</span></div>
+    </header>
+    <div class="ec-drawer-backdrop" id="ecDrawerBackdrop" hidden></div>
+    <aside class="sidebar admin-sidebar-verde ec-drawer" id="ecDrawer">
+        <button type="button" id="ecDrawerClose" class="ec-drawer-close" aria-label="Cerrar menú">✕</button>
         <div class="sidebar-brand">
-            <img src="../../img/files/EduCore_Identidad/01_logos/png/logo_compacto_color.png" alt="EduCore Logo" class="brand-logo">
+            <img src="../../img/LogoSinFondo.png" alt="EduCore Logo" class="brand-logo">
             <span class="brand-title">EduCore</span>
         </div>
         <div class="sidebar-tag">Administración</div>
@@ -332,5 +339,6 @@
     <script src="../../js/adminCursos.js?v=30"></script>
     <script src="../../js/adminActividades.js?v=30"></script>
     <script src="../../js/logout.js?v=30"></script>
+    <script src="../../js/navegacion.js" defer></script>
 </body>
 </html>
