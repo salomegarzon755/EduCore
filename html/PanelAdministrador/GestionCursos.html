@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/paneles.css?v=28">
-    <link rel="stylesheet" href="../../css/PanelAdministrador.css?v=28">
+    <link rel="stylesheet" href="../../css/paneles.css?v=29">
+    <link rel="stylesheet" href="../../css/PanelAdministrador.css?v=29">
 </head>
 <body class="admin-body">
 
@@ -162,6 +162,13 @@
                         <h2 class="admin-card-title">Contenido de la actividad</h2>
                         <p class="admin-required-note">* Campos obligatorios</p>
 
+                        <!-- HU.29 · En "Editar actividad": elegir cuál de sus preguntas se edita -->
+                        <div class="question-picker" id="questionPicker" hidden>
+                            <label for="actQuestionSelect">Pregunta que vas a editar</label>
+                            <select id="actQuestionSelect" class="media-select"></select>
+                            <p class="question-type" id="questionType"></p>
+                        </div>
+
                         <div class="field" data-field="titulo">
                             <label class="field-box" for="actTitle">
                                 <span class="field-label">Título *</span>
@@ -171,28 +178,28 @@
                         </div>
                         <div class="field" data-field="pregunta">
                             <label class="field-box" for="actQuestion">
-                                <span class="field-label">Texto sencillo de la pregunta *</span>
+                                <span class="field-label" id="actQuestionLabel">Texto sencillo de la pregunta *</span>
                                 <textarea id="actQuestion" class="field-control" rows="1" maxlength="300" aria-describedby="errorActPregunta"></textarea>
                             </label>
                             <p class="field-error" id="errorActPregunta" role="alert"></p>
                         </div>
-                        <div class="field" data-field="correcta">
+                        <div class="field" data-field="correcta" id="fieldCorrect">
                             <label class="field-box" for="actCorrect">
-                                <span class="field-label">Respuesta correcta *</span>
+                                <span class="field-label" id="actCorrectLabel">Respuesta correcta *</span>
                                 <input type="text" id="actCorrect" class="field-control" maxlength="60" autocomplete="off" aria-describedby="errorActCorrecta">
                             </label>
                             <p class="field-error" id="errorActCorrecta" role="alert"></p>
                         </div>
-                        <fieldset class="field options-field" data-field="otras">
-                            <legend class="options-legend">Otras opciones para elegir * <span>(mínimo 2)</span></legend>
+                        <fieldset class="field options-field" data-field="otras" id="fieldOptions">
+                            <legend class="options-legend" id="actOptionsLegend">Otras opciones para elegir * <span>(mínimo 2)</span></legend>
                             <div class="options-grid">
-                                <label class="field-box" for="actOther1"><span class="field-label">Opción 2 *</span><input type="text" id="actOther1" class="field-control" maxlength="60" autocomplete="off"></label>
-                                <label class="field-box" for="actOther2"><span class="field-label">Opción 3 *</span><input type="text" id="actOther2" class="field-control" maxlength="60" autocomplete="off"></label>
-                                <label class="field-box" for="actOther3"><span class="field-label">Opción 4 (opcional)</span><input type="text" id="actOther3" class="field-control" maxlength="60" autocomplete="off"></label>
+                                <label class="field-box" for="actOther1"><span class="field-label" id="actOther1Label">Opción 2 *</span><input type="text" id="actOther1" class="field-control" maxlength="60" autocomplete="off"></label>
+                                <label class="field-box" for="actOther2"><span class="field-label" id="actOther2Label">Opción 3 *</span><input type="text" id="actOther2" class="field-control" maxlength="60" autocomplete="off"></label>
+                                <label class="field-box" for="actOther3"><span class="field-label" id="actOther3Label">Opción 4 (opcional)</span><input type="text" id="actOther3" class="field-control" maxlength="60" autocomplete="off"></label>
                             </div>
                             <p class="field-error" id="errorActOtras" role="alert"></p>
                         </fieldset>
-                        <div class="field" data-field="pista">
+                        <div class="field" data-field="pista" id="fieldHint">
                             <label class="field-box" for="actHint">
                                 <span class="field-label">Pista (opcional)</span>
                                 <input type="text" id="actHint" class="field-control" maxlength="300" placeholder="Ej. Cuenta cada tortuga una sola vez." autocomplete="off" aria-describedby="errorActPista">
@@ -228,7 +235,7 @@
                         <p class="media-sound-title">Sonido de la pregunta</p>
                         <button type="button" class="btn-white" id="btnPlaySound">Reproducir sonido</button>
                         <p class="media-sound-note" id="soundNote">La voz del navegador lee la pregunta en voz alta.</p>
-                        <p class="media-foot">Se guardará dentro de la unidad.</p>
+                        <p class="media-foot" id="mediaFoot">Se guardará dentro de la unidad.</p>
                     </aside>
                 </form>
             </section>
@@ -307,8 +314,8 @@
     </div>
 
     <script src="../../js/config.js"></script>
-    <script src="../../js/adminCursos.js?v=28"></script>
-    <script src="../../js/adminActividades.js?v=28"></script>
-    <script src="../../js/logout.js?v=28"></script>
+    <script src="../../js/adminCursos.js?v=29"></script>
+    <script src="../../js/adminActividades.js?v=29"></script>
+    <script src="../../js/logout.js?v=29"></script>
 </body>
 </html>

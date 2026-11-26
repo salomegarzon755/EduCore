@@ -141,3 +141,113 @@ class ContenidoAdminDAO:
             raise
         finally:
             DatabaseConnection.return_connection(conn)
+
+    # ======================================================================
+    # HU.29 · Editar el contenido de una actividad
+    # ======================================================================
+    @staticmethod
+    def _tipo_pregunta(opcion_a, es_opinion):
+        if not opcion_a or opcion_a == 'NULL':
+            return 'teoria'
+        return 'opinion' if es_opinion else 'pregunta'
+
+    @staticmethod
+    def obtener_actividad(id_actividad):
+        """Actividad con su unidad, su curso y TODAS sus preguntas. None si no existe."""
+        conn = DatabaseConnection.get_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT a.id_actividad, a.titulo_actividad, a.tipo_contenido, u.id_unidad, u.titulo_unidad,
+                       c.id_curso, c.titulo_curso,
+                       (SELECT COUNT(*) FROM unidad u2 WHERE u2.id_curso = c.id_curso AND u2.id_unidad <= u.id_unidad)
+                FROM actividad a JOIN unidad u ON u.id_unidad = a.id_unidad JOIN curso c ON c.id_curso = u.id_curso
+                WHERE a.id_actividad = %s;
+            """, (id_actividad,))
+            a = cur.fetchone()
+            if not a:
+                return None
+            try:
+                cur.execute("""SELECT id_punto, enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respuesta_correcta,
+                                      visual, es_opinion, pista
+                               FROM preg_punto WHERE id_actividad = %s ORDER BY id_punto ASC;""", (id_actividad,))
+            except Exception:   # sin la migración de la HU.27 no existe la columna pista
+                conn.rollback()
+                cur = conn.cursor()
+                cur.execute("""SELECT id_punto, enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respuesta_correcta,
+                                      visual, es_opinion, NULL
+                               FROM preg_punto WHERE id_actividad = %s ORDER BY id_punto ASC;""", (id_actividad,))
+            preguntas = []
+            for r in cur.fetchall():
+                opciones = {L: v for L, v in zip('ABCD', r[2:6]) if v and v != 'NULL'}
+                letra = (r[6] or '').strip().upper()
+                tipo = ContenidoAdminDAO._tipo_pregunta(r[2], r[8])
+                visual = r[7] if isinstance(r[7], dict) else (json.loads(r[7]) if r[7] else None)
+                q = (visual or {}).get('q') if isinstance(visual, dict) else None
+                simple = (isinstance(q, list) and len(q) == 1 and isinstance(q[0], dict) and q[0].get('i')
+                          and not str(q[0]['i']).startswith('mat_'))
+                preguntas.append({
+                    "id_punto": r[0], "enunciado": r[1], "tipo": tipo, "pista": r[9],
+                    "correcta": opciones.get(letra) if tipo == 'pregunta' else None,
+                    "otras": [v for L, v in opciones.items() if not (tipo == 'pregunta' and L == letra)],
+                    "imagen": ({"i": q[0]['i'], "n": int(q[0].get('n') or 1)} if simple else None),
+                    "tiene_visual": bool(q)
+                })
+            cur.close()
+            return {"id_actividad": a[0], "titulo_actividad": a[1], "tipo_contenido": a[2],
+                    "id_unidad": a[3], "titulo_unidad": a[4], "id_curso": a[5], "titulo_curso": a[6], "numero": a[7],
+                    "preguntas": preguntas}
+        finally:
+            DatabaseConnection.return_connection(conn)
+
+    @staticmethod
+    def actualizar_actividad(id_actividad, titulo, id_punto, cambios):
+        """Actualiza el título y UNA pregunta en una sola transacción (si algo falla, no cambia nada).
+        cambios: {enunciado, correcta, otras, pista, imagen, cantidad} según el tipo de la pregunta.
+        Devuelve None si la actividad no existe, 'PREGUNTA_NO_EXISTE' si la pregunta no es de la actividad."""
+        conn = DatabaseConnection.get_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT 1 FROM actividad WHERE id_actividad = %s FOR UPDATE;", (id_actividad,))
+            if not cur.fetchone():
+                conn.rollback()
+                return None
+            cur.execute("""SELECT opcion_a, respuesta_correcta, es_opinion, visual
+                           FROM preg_punto WHERE id_punto = %s AND id_actividad = %s FOR UPDATE;""", (id_punto, id_actividad))
+            p = cur.fetchone()
+            if not p:
+                conn.rollback()
+                return 'PREGUNTA_NO_EXISTE'
+            tipo = ContenidoAdminDAO._tipo_pregunta(p[0], p[2])
+            cur.execute("UPDATE actividad SET titulo_actividad = %s WHERE id_actividad = %s;", (titulo, id_actividad))
+
+            sets, vals = ["enunciado = %s"], [cambios['enunciado']]
+            if tipo != 'teoria':
+                # La correcta conserva su letra (el historial de respuestas guarda letras); las demás llenan el resto
+                letra = (p[1] or 'A').strip().upper() if tipo == 'pregunta' else None
+                textos = list(cambios['otras'])
+                opciones = {}
+                for L in 'ABCD':
+                    if L == letra:
+                        opciones[L] = cambios['correcta']
+                    else:
+                        opciones[L] = textos.pop(0) if textos else None
+                sets += ["opcion_a = %s", "opcion_b = %s", "opcion_c = %s", "opcion_d = %s"]
+                vals += [opciones['A'], opciones['B'], opciones['C'], opciones['D']]
+                if tipo == 'pregunta':
+                    sets.append("pista = %s")
+                    vals.append(cambios.get('pista') or None)
+            if cambios.get('imagen'):
+                # Imagen nueva de la galería: reemplaza la del enunciado y quita la "solución" anterior (ya no coincidiría)
+                visual = {"q": [{"i": cambios['imagen'], "n": cambios.get('cantidad') or 1}]}
+                sets.append("visual = %s::jsonb")
+                vals.append(json.dumps(visual))
+            cur.execute(f"UPDATE preg_punto SET {', '.join(sets)} WHERE id_punto = %s;", (*vals, id_punto))
+            conn.commit()
+            cur.close()
+            return {"id_actividad": id_actividad, "titulo_actividad": titulo, "id_punto": id_punto, "tipo": tipo}
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            DatabaseConnection.return_connection(conn)
