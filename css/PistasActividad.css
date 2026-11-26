@@ -61,3 +61,7 @@
   .hu27-pista-row .btn, .hu27-cierre .btn, .hu27-actions-left .btn { width: 100%; }
   .hu27-pista { flex-basis: 100%; }
 }
+
+/* HU.31 · botón "Ver resumen del módulo" al terminar la última actividad del módulo */
+.hu31-fin { margin-top: 12px; }
+a.btn.hu31-btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }

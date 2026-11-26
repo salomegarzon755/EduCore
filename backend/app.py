@@ -9,6 +9,7 @@ from routes.actividades import actividades_bp
 from routes.seguimiento import seguimiento_bp
 from routes.admin_cursos import admin_cursos_bp
 from routes.cuenta import cuenta_bp
+from routes.resumen_modulo import resumen_bp
 from config.database import DatabaseConnection
 from auth import issue_token, require_auth
 from flask import g
@@ -22,6 +23,7 @@ app.register_blueprint(actividades_bp)   # actividades y resultados
 app.register_blueprint(seguimiento_bp)   # HU.15 · seguimiento docente, estudiante y familia
 app.register_blueprint(admin_cursos_bp)  # HU.23 · cursos predefinidos (Administrador)
 app.register_blueprint(cuenta_bp)
+app.register_blueprint(resumen_bp)     # HU.31 · resumen al finalizar cada módulo (Estudiante)
 
 # --- AUTENTICACIÓN Y REGISTRO ---
 
