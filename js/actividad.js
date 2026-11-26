@@ -1,7 +1,9 @@
 /* EduCore · Módulo de actividades (HU.09, HU.11, HU.12, HU.13, HU.14, HU.27)
    Sin datos predefinidos: textos, opciones, imágenes, explicaciones y resultados viven en la
    base de datos y llegan por la API (config.js -> API_BASE_URL).
-   Endpoints: GET /actividades/:id · GET /actividades/:id/puntos · POST /resultados            */
+   Endpoints: GET /actividades/:id · GET /actividades/:id/puntos · POST /resultados
+   HU.31: al terminar la última actividad pendiente del módulo aparece "Ver resumen del módulo"
+          (GET /estudiantes/:id/unidades/:id/resumen, con la sesión del estudiante).          */
 (() => {
 'use strict';
 const API = () => (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/api');
@@ -21,7 +23,7 @@ function idEstudiante() {
 const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 /* ---------- Estado ---------- */
-const S = { root: null, salir: null, meta: null, puntos: [], view: 'cargando', step: 0, q: 0, pick: null, qs: [], log: [], audio: 'idle', tok: 0, res: null, guardando: false,
+const S = { root: null, salir: null, meta: null, puntos: [], view: 'cargando', step: 0, q: 0, pick: null, qs: [], log: [], audio: 'idle', tok: 0, res: null, guardando: false, moduloCompleto: false,
     // HU.27: sel = opción elegida sin comprobar · fase = elegir | pista | ok | revelado · fallos/probadas de la pregunta actual
     sel: null, fase: 'elegir', fallos: 0, probadas: [] };
 const MAX_FALLOS = 2;   // tras 2 errores en la misma pregunta se muestra la respuesta correcta
@@ -130,7 +132,7 @@ function Fin() {
     const r = S.res;
     if (!r) return `${HeaderActivity('Resultado', 1)}<main class="card center"><p>No pudimos guardar tu resultado. Revisa tu conexión e inténtalo otra vez.</p><button class="btn" data-a="guardar">Guardar de nuevo</button></main>`;
     const msg = ['', '¡Buen intento! Practicando vas a mejorar. 🌱', '¡Muy buen trabajo! Casi lo logras todo. 💪', '¡Eres un explorador increíble! 🌟'][r.estrellas];
-    return `${HeaderActivity('Completada', 1)}<main class="card center">${Mascota(r.estrellas === 3 ? 'celebracion' : 'saludo', msg)}<div class="stars" aria-label="${r.estrellas} de 3 estrellas">${ScoreStars(r.estrellas)}</div><h2>${r.aciertos} de ${r.total} correctas</h2><p><span class="light ${r.semaforo}">Tu docente verá: ${{ verde: '🟢', amarillo: '🟡', rojo: '🔴' }[r.semaforo]}</span></p><div class="actions" style="justify-content:center"><button class="btn ghost" data-a="retry">↺ Intentar de nuevo</button><button class="btn" data-a="back">Volver a mi camino</button></div></main>`;
+    return `${HeaderActivity('Completada', 1)}<main class="card center">${Mascota(r.estrellas === 3 ? 'celebracion' : 'saludo', msg)}<div class="stars" aria-label="${r.estrellas} de 3 estrellas">${ScoreStars(r.estrellas)}</div><h2>${r.aciertos} de ${r.total} correctas</h2><p><span class="light ${r.semaforo}">Tu docente verá: ${{ verde: '🟢', amarillo: '🟡', rojo: '🔴' }[r.semaforo]}</span></p><div class="actions" style="justify-content:center"><button class="btn ghost" data-a="retry">↺ Intentar de nuevo</button><button class="btn" data-a="back">Volver a mi camino</button></div>${S.moduloCompleto ? `<div class="actions hu31-fin" style="justify-content:center"><a class="btn hu31-btn" href="ResumenModulo.html?unidad=${encodeURIComponent(S.meta.id_unidad)}">📋 Ver resumen del módulo</a></div>` : ''}</main>`;
 }
 const Vistas = { cargando: () => '<p class="card center">Cargando…</p>', teoria: Teoria, intro: Intro, pregunta: Pregunta, fin: Fin, error: () => `<div class="card err"><p>${esc(S.error)}</p><button class="btn" data-a="back">Volver a mi camino</button></div>` };
 function render(mantenerScroll) { S.root.innerHTML = Vistas[S.view](); if (!mantenerScroll) window.scrollTo(0, 0); }   // HU.27: elegir/comprobar no saltan arriba
@@ -143,7 +145,7 @@ function armarPreguntas() {
         o: shuffle(['A', 'B', 'C', 'D'].map((L) => ({ L, t: p['opcion_' + L.toLowerCase()], ok: p.respuesta_correcta === L }))
             .filter((o) => o.t && o.t !== 'NULL'))
     }));
-    S.q = 0; S.log = []; S.res = null; S.view = 'pregunta'; reiniciarPregunta(); render();
+    S.q = 0; S.log = []; S.res = null; S.moduloCompleto = false; S.view = 'pregunta'; reiniciarPregunta(); render();
 }
 async function guardar() {
     const aciertos = S.log.filter((r) => r.correcta).length;
@@ -152,7 +154,18 @@ async function guardar() {
             body: JSON.stringify({ id_estudiante: idEstudiante(), id_actividad: S.meta.id_actividad, aciertos, total: S.log.length, respuestas: S.log }) });
         S.res = d.resultado;
     } catch (e) { S.res = null; }
+    S.moduloCompleto = S.res ? await moduloCompleto() : false;
     S.view = 'fin'; render();
+}
+// HU.31 · ¿Con esta actividad el estudiante terminó todas las del módulo (unidad)?
+async function moduloCompleto() {
+    if (!S.meta || !S.meta.id_unidad) return false;
+    try {
+        const r = await fetch(`${API()}/estudiantes/${idEstudiante()}/unidades/${S.meta.id_unidad}/resumen`,
+            { headers: { Authorization: `Bearer ${localStorage.getItem('authToken') || ''}` } });
+        const d = await r.json();
+        return !!(r.ok && d.success && d.resumen && d.resumen.completo && d.resumen.preguntas.length);
+    } catch (e) { return false; }
 }
 const volver = () => { detenerAudio(); S.salir(S.meta); };
 function reiniciarPregunta() { S.pick = null; S.sel = null; S.fase = 'elegir'; S.fallos = 0; S.probadas = []; }

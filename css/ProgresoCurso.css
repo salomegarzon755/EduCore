@@ -245,3 +245,12 @@ body.hu25-page .hu25-main { max-width: 1240px; margin: 0 auto; padding: 28px 56p
 @media (max-width: 360px) {
   .hu25-topics { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* HU.31 · enlace "Ver resumen" en los temas completados */
+.hu31-ver-resumen {
+    align-self: flex-start; margin-top: 6px; font-size: 13px; font-weight: 700;
+    color: #1f4d2b; background: rgba(255, 255, 255, .75); border-radius: 999px;
+    padding: 4px 10px; text-decoration: none;
+}
+.hu31-ver-resumen:hover { background: #fff; }
+.hu31-ver-resumen:focus-visible { outline: 3px solid #2e7d32; outline-offset: 2px; }

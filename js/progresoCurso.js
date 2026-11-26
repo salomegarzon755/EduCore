@@ -118,6 +118,15 @@
             estado.textContent = t.estado === 'completado' ? 'Completado'
                 : t.estado === 'explorar' ? 'Por explorar' : 'Pendiente';
             li.append(num, titulo, estado);
+            // HU.31 · en los temas completados se puede volver a ver el resumen del módulo
+            if (t.completado) {
+                const resumen = document.createElement('a');
+                resumen.className = 'hu31-ver-resumen';
+                resumen.href = `ResumenModulo.html?unidad=${encodeURIComponent(t.id)}`;
+                resumen.textContent = 'Ver resumen';
+                resumen.setAttribute('aria-label', `Ver resumen de ${t.titulo}`);
+                li.appendChild(resumen);
+            }
             lista.appendChild(li);
         });
 
