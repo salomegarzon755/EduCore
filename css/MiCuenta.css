@@ -221,3 +221,31 @@ a:focus-visible,button:focus-visible,input:focus-visible {
 footer {
     color: #24583b;
 }
+
+/* HU18 y HU19: confirmación y cambio de credenciales. */
+button.peligro {
+    background: #f6b9ae;
+    color: #792d23;
+}
+button.secundario {
+    background: white;
+    color: #23583b;
+    border: 1px solid #91c5a4;
+}
+dialog {
+    width: min(460px, 92vw);
+    max-height: 90vh;
+    overflow: auto;
+    border: 1px solid #91d5ac;
+    border-radius: 20px;
+    background: #f0fff5;
+    color: #29483a;
+    padding: 28px;
+    box-shadow: 0 12px 40px #164b3044;
+}
+dialog::backdrop {
+    background: #233b36aa;
+}
+#dialogError {
+    color: #a33126;
+}

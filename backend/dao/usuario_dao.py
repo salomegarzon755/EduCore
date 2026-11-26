@@ -1,72 +1,167 @@
 from config.database import DatabaseConnection
 from models.usuario import Usuario
+from models.credenciales import (
+    hash_contrasena,
+    verificar_contrasena,
+    correo_ocupado
+)
+from psycopg2.errors import UniqueViolation
+
 
 class UsuarioDAO:
 
     @staticmethod
-    def autenticar(username, password):
+    def autenticar(username, password, rol=None):
+        if not isinstance(username, str) or not isinstance(password, str):
+            return None
+
+        username = username.strip()
+
+        if not username or not password:
+            return None
+
         conn = DatabaseConnection.get_connection()
-        cursor = conn.cursor()
-        usuario_encontrado = None
 
         try:
-            # Se usa 'apodo' en lugar de 'usuario' según la estructura de PostgreSQL
-            query = """
-                SELECT id_usuario, nombre, apodo, contrasena, rol, avatar 
-                FROM usuario 
-                WHERE apodo = %s AND contrasena = %s
-            """
-            cursor.execute(query, (username, password))
-            row = cursor.fetchone()
+            with conn.cursor() as cur:
+                consulta = '''
+                    SELECT id_usuario, nombre, apodo, contrasena,
+                        rol, avatar, activo, version_sesion
+                    FROM usuario
+                    WHERE lower(trim(apodo)) = lower(trim(%s))
+                '''
 
-            if row:
-                usuario_encontrado = Usuario(
+                parametros = [username]
+
+                if rol:
+                    consulta += " AND lower(rol) = lower(%s)"
+                    parametros.append(rol)
+
+                cur.execute(consulta, tuple(parametros))
+                filas = cur.fetchall()
+
+                coincidencias = [
+                    row for row in filas
+                    if verificar_contrasena(password, row[3])
+                ]
+
+                if len(coincidencias) != 1:
+                    conn.rollback()
+                    return None
+
+                row = coincidencias[0]
+
+                if not row[6]:
+                    conn.rollback()
+                    return 'inactiva'
+
+                user = Usuario(
                     id_usuario=row[0],
                     nombre=row[1],
                     usuario=row[2],
-                    contrasena=row[3],
-                    rol=row[4], avatar=row[5]
+                    rol=row[4],
+                    avatar=row[5]
                 )
-        except Exception as e:
-            print(f"Error en UsuarioDAO.autenticar: {e}")
-        finally:
-            cursor.close()
-            DatabaseConnection.return_connection(conn)
 
-        return usuario_encontrado
+                user.version_sesion = row[7]
+
+            conn.commit()
+            return user
+
+        except Exception:
+            conn.rollback()
+            raise
+
+        finally:
+            DatabaseConnection.return_connection(conn)
 
     @staticmethod
-    def crear(usuario_obj, correo=""):
-        """Inserta un nuevo registro ajustándose a las columnas de educore_db."""
+    def crear(usuario_obj, correo='', nombres=None, apellidos=None):
+
+        if not isinstance(usuario_obj.usuario, str):
+            return False
+
+        apodo = usuario_obj.usuario.strip()
+
+        if not apodo:
+            return False
+
+        if not isinstance(correo, str):
+            return False
+
+        correo = correo.strip()
+
         conn = DatabaseConnection.get_connection()
-        cursor = conn.cursor()
-        exito = False
 
         try:
-            # Mapeo exacto a las columnas: nombre, apodo, correo, contrasena, rol
-            query = """
-                INSERT INTO usuario (nombre, apodo, correo, contrasena, rol, avatar)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                RETURNING id_usuario
-            """
-            cursor.execute(query, (
-                usuario_obj.nombre if usuario_obj.nombre else usuario_obj.usuario, 
-                usuario_obj.usuario,  # Se mapea la propiedad usuario al campo 'apodo'
-                correo,
-                usuario_obj.contrasena, 
-                usuario_obj.rol, usuario_obj.avatar
-            ))
-            
-            id_generado = cursor.fetchone()[0]
-            conn.commit()
-            
-            usuario_obj._id_usuario = id_generado
-            exito = True
-        except Exception as e:
-            conn.rollback()
-            print(f"Error en UsuarioDAO.crear: {e}")
-        finally:
-            cursor.close()
-            DatabaseConnection.return_connection(conn)
+            with conn.cursor() as cur:
 
-        return exito
+                # Serializa registros y cambios de correo.
+                cur.execute(
+                    'SELECT pg_advisory_xact_lock(1819001)'
+                )
+
+                # Verifica si el apodo ya existe,
+                # incluyendo las cuentas inactivas.
+                cur.execute(
+                    '''
+                    SELECT 1
+                    FROM usuario
+                    WHERE lower(trim(apodo)) = lower(trim(%s))
+                    LIMIT 1
+                    ''',
+                    (apodo,)
+                )
+
+                if cur.fetchone():
+                    conn.rollback()
+                    return False
+
+                # Verifica si el correo ya está registrado.
+                if correo_ocupado(cur, correo):
+                    conn.rollback()
+                    return False
+
+                # Registra la cuenta con una contraseña protegida.
+                cur.execute(
+                    '''
+                    INSERT INTO usuario (
+                        nombre,
+                        apodo,
+                        correo,
+                        contrasena,
+                        rol,
+                        avatar,
+                        nombres_cuenta,
+                        apellidos_cuenta
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id_usuario
+                    ''',
+                    (
+                        usuario_obj.nombre,
+                        apodo,
+                        correo,
+                        hash_contrasena(usuario_obj.contrasena),
+                        usuario_obj.rol,
+                        usuario_obj.avatar,
+                        nombres,
+                        apellidos
+                    )
+                )
+
+                usuario_obj._id_usuario = cur.fetchone()[0]
+
+            conn.commit()
+            return True
+
+        except UniqueViolation:
+            conn.rollback()
+            return False
+
+        except Exception:
+            conn.rollback()
+            raise
+
+        finally:
+            DatabaseConnection.return_connection(conn)

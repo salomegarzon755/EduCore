@@ -12,7 +12,8 @@ from routes.admin_cursos import admin_cursos_bp
 from routes.cuenta import cuenta_bp
 from routes.resumen_modulo import resumen_bp
 from config.database import DatabaseConnection
-from auth import issue_token, require_auth
+from auth import issue_token, require_auth, validar_sesion
+from models.credenciales import correo_valido
 from flask import g
 
 app = Flask(__name__)
@@ -26,6 +27,25 @@ app.register_blueprint(admin_cursos_bp)  # HU.23 · cursos predefinidos (Adminis
 app.register_blueprint(cuenta_bp)
 app.register_blueprint(resumen_bp)     # HU.31 · resumen al finalizar cada módulo (Estudiante)
 
+# Las rutas académicas privadas requieren sesión; se conservan las consultas
+# públicas de catálogo y salud. Las rutas de cuenta verifican además el portal.
+@app.before_request
+def proteger_sesion():
+    if request.method == 'OPTIONS' or not request.path.startswith('/api/'):
+        return None
+    if request.endpoint in ('login', 'registro', 'health'):
+        return None
+    publicos = ('obtener_cursos', 'obtener_cursos_completo', 'obtener_unidades_curso',
+                'obtener_actividades_unidad', 'get_puntos_actividad', 'actividades.meta_actividad')
+    if request.method == 'GET' and request.endpoint in publicos and not request.headers.get('Authorization'):
+        return None
+    return validar_sesion()
+
+@app.route('/api/sesion', methods=['GET'])
+@require_auth('Estudiante', 'Docente', 'Administrador')
+def sesion():
+    return jsonify(success=True)
+
 # --- AUTENTICACIÓN Y REGISTRO ---
 
 @app.route('/api/login', methods=['POST'])
@@ -36,6 +56,9 @@ def login():
     rol_esperado = data.get('rol_esperado')  # 'Estudiante', 'Docente' o 'Padre o Madre'
 
     usuario_obj = UsuarioDAO.autenticar(username, password)
+
+    if usuario_obj == "inactiva":
+        return jsonify(success=False, message="Cuenta eliminada. No puedes ingresar."), 401
 
     if usuario_obj:
         user_dict = usuario_obj.to_dict()
@@ -67,7 +90,7 @@ def login():
         return jsonify({
             "success": True,
             "user": user_dict,
-            "token": issue_token(user_dict, rol_esperado or rol_real)
+            "token": issue_token(user_dict, rol_esperado or rol_real, usuario_obj.version_sesion)
         }), 200
     else:
         return jsonify({
@@ -85,6 +108,20 @@ def registro():
     password = data.get('contrasena')
     rol = data.get('rol', 'Estudiante')
 
+    nombres = data.get('nombres')
+    apellidos = data.get('apellidos')
+    if rol not in ('Estudiante', 'Docente'):
+        return jsonify(success=False, message='Rol no disponible para registro.'), 400
+    if not all(isinstance(v, str) and v.strip() for v in (nombre, username, password)) or len(password) > 1024:
+        return jsonify(success=False, message='Completa los datos de registro.'), 400
+    if not correo_valido(correo):
+        return jsonify(success=False, message='Escribe un correo válido.'), 400
+    if nombres is not None or apellidos is not None:
+        if not all(isinstance(v, str) and 0 < len(v.strip()) <= 100 for v in (nombres, apellidos)):
+            return jsonify(success=False, message='Revisa nombres y apellidos.'), 400
+        nombres, apellidos = nombres.strip(), apellidos.strip()
+        nombre = nombres + ' ' + apellidos
+    username, correo = username.strip(), correo.strip()
     avatar = data.get('avatar')
     if rol in ('Estudiante', 'Docente') and not avatar_valido(avatar):
         return jsonify(success=False, message='Elige un avatar válido.'), 400
@@ -98,19 +135,33 @@ def registro():
         rol=rol, avatar=avatar
     )
 
-    creado = UsuarioDAO.crear(nuevo_usuario, correo=correo)
+    try:
+        creado = UsuarioDAO.crear(
+            nuevo_usuario,
+            correo=correo,
+            nombres=nombres,
+            apellidos=apellidos
+        )
 
-    if creado:
-        return jsonify({
-            "success": True,
-            "message": "Usuario registrado exitosamente",
-            "user": nuevo_usuario.to_dict()
-        }), 201
-    else:
-        return jsonify({
-            "success": False,
-            "message": "No se pudo registrar el usuario en la base de datos."
-        }), 400
+    except Exception:
+        app.logger.exception('Error al registrar usuario')
+
+        return jsonify(
+            success=False,
+            message='No fue posible registrar la cuenta.'
+        ), 500
+
+    if not creado:
+        return jsonify(
+            success=False,
+            message='El nombre de usuario o correo electrónico ya está en uso. Por favor, utiliza otro.'
+        ), 409
+
+    return jsonify({
+        "success": True,
+        "message": "Usuario registrado exitosamente",
+        "user": nuevo_usuario.to_dict()
+    }), 201
 
 # --- RUTAS DE CURSOS Y CONTENIDO ---
 

@@ -173,6 +173,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const avisoCuenta = sessionStorage.getItem('avisoCuenta');
+    if (avisoCuenta) {
+        sessionStorage.removeItem('avisoCuenta');
+        mostrarError(avisoCuenta);
+    }
+
     function mostrarError(mensaje) {
         if (authErrorAlert) {
             authErrorAlert.textContent = mensaje;
