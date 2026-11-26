@@ -77,7 +77,13 @@ class ContenidoAdminDAO:
                        p.enunciado, p.respuesta_correcta, p.opcion_a, p.opcion_b, p.opcion_c, p.opcion_d,
                        p.visual,
                        (SELECT COUNT(*) FROM preg_punto x WHERE x.id_actividad = a.id_actividad) AS total_preguntas,
-                       (SELECT COUNT(DISTINCT r.id_estudiante) FROM resultado_actividad r WHERE r.id_actividad = a.id_actividad) AS total_estudiantes
+                       -- HU.30: misma comprobación que al eliminar (resultados, intentos y respuestas)
+                       (SELECT COUNT(DISTINCT t.id_estudiante) FROM (
+                            SELECT r.id_estudiante FROM resultado_actividad r WHERE r.id_actividad = a.id_actividad
+                            UNION SELECT i.id_estudiante FROM intento_actividad i WHERE i.id_actividad = a.id_actividad
+                            UNION SELECT re.id_estudiante FROM respuesta_estudiante re
+                                  JOIN preg_punto pr ON pr.id_punto = re.id_punto WHERE pr.id_actividad = a.id_actividad
+                        ) t) AS total_estudiantes
                 FROM actividad a
                 LEFT JOIN LATERAL (
                     SELECT * FROM preg_punto pp WHERE pp.id_actividad = a.id_actividad ORDER BY pp.id_punto LIMIT 1
