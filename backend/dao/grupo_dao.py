@@ -289,7 +289,7 @@ class GrupoDAO:
                     ORDER BY g2.id_grupo
                     LIMIT 1
                 ) conf ON TRUE
-                WHERE u.rol = 'Estudiante'
+                WHERE u.rol = 'Estudiante' AND u.activo
                   AND (LOWER(u.nombre) LIKE %s OR LOWER(COALESCE(u.apodo, '')) LIKE %s)
                 ORDER BY u.nombre ASC
                 LIMIT 15;
@@ -365,7 +365,7 @@ class GrupoDAO:
         try:
             cursor = conn.cursor()
             # Bloquea la fila del estudiante: evita que dos altas simultáneas se salten la validación.
-            cursor.execute("SELECT nombre FROM usuario WHERE id_usuario = %s AND rol = 'Estudiante' FOR UPDATE;", (id_estudiante,))
+            cursor.execute("SELECT nombre FROM usuario WHERE id_usuario = %s AND rol = 'Estudiante' AND activo FOR UPDATE;", (id_estudiante,))
             est = cursor.fetchone()
             if not est:
                 conn.rollback(); cursor.close()

@@ -1,3 +1,73 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mi cuenta · EduCore</title><link rel="stylesheet" href="../css/MiCuenta.css"><link rel="stylesheet" href="../css/Avatares.css"></head><body>
-<header><a id="inicio" href="../index.html" class="marca">EduCore</a><a id="volver" class="volver-btn" href="../index.html">← Volver a mi panel</a><span id="usuario"></span></header>
-<main><h1>Mi cuenta</h1><p>Actualiza tu información personal.</p><div class="layout"><section class="tarjeta"><h2 id="titulo">Información personal</h2><p id="ayuda">Esta es la información registrada en tu cuenta.</p><form id="form" novalidate><div class="campos"><div><label for="nombre">Nombre *</label><input id="nombre" maxlength="100" required readonly aria-describedby="error-nombre"><small id="error-nombre"></small></div><div><label for="apellidos">Apellidos *</label><input id="apellidos" maxlength="100" required readonly aria-describedby="error-apellidos"><small id="error-apellidos"></small></div></div><label for="rol">Rol en EduCore</label><input id="rol" readonly><div class="acciones"><button id="editar" type="button" disabled>Editar información</button><button id="guardar" type="submit" hidden>Guardar cambios</button><button id="cancelar" type="button" hidden>Cancelar</button></div></form></section><aside class="perfil"><img id="perfilAvatar" class="hu17-preview" alt="Tu avatar" src="../img/files/EduCore_Identidad/03_personajes/png/kokoi_saludo.png"><h2 id="perfilNombre"></h2><p>¡Listos para seguir aprendiendo!</p><a id="cambiarAvatar" class="hu17-link" href="CambiarAvatar.html" hidden>Cambiar avatar</a></aside></div><p id="mensaje" role="status" aria-live="polite"></p></main><footer>EduCore · La aventura matemática de Acandí</footer><script src="../js/config.js"></script><script src="../js/avatares.js"></script><script src="../js/miCuenta.js"></script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Mi cuenta · EduCore</title>
+    <link rel="stylesheet" href="../css/MiCuenta.css">
+    <link rel="stylesheet" href="../css/Avatares.css">
+</head>
+<body>
+<header>
+    <a id="inicio" href="../index.html" class="marca">EduCore</a>
+    <a id="volver" class="volver-btn" href="../index.html">← Volver a mi panel</a>
+    <span id="usuario"></span>
+</header>
+<main>
+    <h1>Mi cuenta</h1>
+    <p>Gestiona tu información personal.</p>
+    <div class="layout">
+        <section class="tarjeta">
+            <h2 id="titulo">Información personal</h2>
+            <p id="ayuda">Esta es la información registrada en tu cuenta.</p>
+            <form id="form" novalidate>
+                <div class="campos">
+                    <div><label for="nombre">Nombre *</label><input id="nombre" maxlength="100" readonly><small id="error-nombre"></small></div>
+                    <div><label for="apellidos">Apellidos *</label><input id="apellidos" maxlength="100" readonly><small id="error-apellidos"></small></div>
+                </div>
+                <label for="apodo">Usuario</label><input id="apodo" readonly>
+                <label for="correo">Correo electrónico *</label><input id="correo" type="email" maxlength="254" readonly><small id="error-correo"></small>
+                <label for="claveOculta">Contraseña</label><input id="claveOculta" value="••••••••" readonly aria-label="Contraseña protegida">
+                <label for="rol">Rol en EduCore</label><input id="rol" readonly>
+                <div class="acciones">
+                    <button id="editar" type="button" disabled>Editar información</button>
+                    <button id="guardar" type="submit" hidden>Guardar cambios</button>
+                    <button id="cancelar" type="button" hidden>Cancelar</button>
+                    <button id="cambiarClave" type="button" disabled>Cambiar contraseña</button>
+                    <button id="eliminar" class="peligro" type="button" disabled>Eliminar cuenta</button>
+                </div>
+            </form>
+        </section>
+        <aside class="perfil">
+            <img id="perfilAvatar" class="hu17-preview" alt="Tu avatar" src="../img/files/EduCore_Identidad/03_personajes/png/kokoi_saludo.png">
+            <h2 id="perfilNombre"></h2><p>¡Listos para seguir aprendiendo!</p>
+            <a id="cambiarAvatar" class="hu17-link" href="CambiarAvatar.html" hidden>Cambiar avatar</a>
+        </aside>
+    </div>
+    <p id="mensaje" role="status" aria-live="polite"></p>
+</main>
+<dialog id="dialogo" aria-labelledby="dialogTitulo">
+    <form id="formCredenciales">
+        <h2 id="dialogTitulo"></h2>
+        <p id="dialogTexto"></p>
+        <label for="actual">Contraseña actual *</label>
+        <input id="actual" type="password" autocomplete="current-password" required maxlength="1024">
+        <div id="nuevas">
+            <label for="nueva">Nueva contraseña *</label>
+            <input id="nueva" type="password" autocomplete="new-password" maxlength="1024">
+            <label for="confirmacion">Confirmar nueva contraseña *</label>
+            <input id="confirmacion" type="password" autocomplete="new-password" maxlength="1024">
+        </div>
+        <p id="dialogError" role="alert"></p>
+        <div class="acciones">
+            <button id="cancelarDialogo" type="button" class="secundario">Cancelar</button>
+            <button id="confirmarDialogo" type="submit">Confirmar</button>
+        </div>
+    </form>
+</dialog>
+<footer>EduCore · La aventura matemática de Acandí</footer>
+<script src="../js/config.js"></script>
+<script src="../js/avatares.js"></script>
+<script src="../js/miCuenta.js"></script>
+</body>
+</html>

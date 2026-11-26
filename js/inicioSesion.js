@@ -79,6 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         nombre: nombreCompleto,
+                        nombres: nombreVal,
+                        apellidos: apellidoVal,
                         usuario: usuarioVal,
                         correo: correoVal,
                         contrasena: contrasenaVal,

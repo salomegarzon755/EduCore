@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cuenta eliminada · EduCore</title><link rel="stylesheet" href="../css/MiCuenta.css"></head>
+<body>
+<header><a class="marca" href="../index.html">EduCore</a></header>
+<main><h1>Sesión cerrada</h1><section class="perfil" id="resultado" hidden>
+    <img src="../img/files/EduCore_Identidad/03_personajes/png/kokoi_saludo.png" alt="Kokoi">
+    <h2>Cuenta eliminada</h2><p>La eliminación de tu cuenta se completó.</p><p>Gracias por compartir esta aventura.</p>
+    <a class="volver-btn" href="Login.html">Volver a iniciar sesión</a>
+</section></main>
+<footer>EduCore · La aventura matemática de Acandí</footer>
+<script>
+    if (sessionStorage.getItem('cuentaEliminada') === 'true') {
+        sessionStorage.removeItem('cuentaEliminada');
+        document.getElementById('resultado').hidden = false;
+    } else location.replace('Login.html');
+</script>
+</body></html>
