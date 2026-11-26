@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduCore - Registro de usuario</title>
     <link rel="stylesheet" href="../css/InicioSesion.css">
+    <link rel="stylesheet" href="../css/Avatares.css">
 </head>
 <body class="page-body">
 
@@ -20,6 +21,12 @@
         <section id="registro-screen" class="hero-screen">
         
             <aside class="mascot-panel">
+                <div id="avatarRegistro" class="avatar-registro" hidden>
+                    <h2>¡Elige tu compañero de aventura!</h2>
+                    <p>Selecciona tu personaje favorito para comenzar.</p>
+                    <div id="avatarGaleria" class="avatar-galeria" role="group" aria-label="Elige tu avatar"></div>
+                    <p id="avatarError" class="avatar-error" role="alert"></p>
+                </div>
                 <div class="mascot-avatar">
                     <img src="../img/files/EduCore_Identidad/03_personajes/png/kokoi_saludo.png" alt="Mascota Lúa" class="mascot-img">
                 </div>
@@ -90,6 +97,7 @@
         </section>
     </main>
     <script src="../js/config.js"></script>
+    <script src="../js/avatares.js"></script>
     <script src="../js/inicioSesion.js"></script>
 </body>
 </html>

@@ -1,10 +1,11 @@
 class Usuario:
-    def __init__(self, id_usuario=None, nombre=None, usuario=None, contrasena=None, rol=None):
+    def __init__(self, id_usuario=None, nombre=None, usuario=None, contrasena=None, rol=None, avatar="kokoi"):
         self._id_usuario = id_usuario
         self._nombre = nombre
         self._usuario = usuario
         self._contrasena = contrasena
         self._rol = rol
+        self.avatar = avatar
 
     # Getters / Properties
     @property
@@ -32,5 +33,6 @@ class Usuario:
             "id_usuario": self._id_usuario,
             "nombre": self._nombre,
             "usuario": self._usuario,
-            "rol": self._rol
+            "rol": self._rol,
+            "avatar": self.avatar
         }
