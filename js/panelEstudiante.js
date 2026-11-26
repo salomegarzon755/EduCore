@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     const BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+    const escGrupo = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
     // Cargar información del estudiante desde localStorage
     const storedUserRaw = localStorage.getItem('currentUser');
@@ -70,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="group-card-top">
                     <div class="group-avatar-icon">🌱</div>
                     <div class="group-title-info">
-                        <h3>${g.nombre_grupo}</h3>
-                        <p>Grado ${g.grado}.° · ${g.total_estudiantes} estudiantes</p>
+                        <h3>${escGrupo(g.nombre_grupo)}</h3>
+                        <p>Grado ${escGrupo(g.grado)}.° · ${g.total_estudiantes} estudiantes</p>
                     </div>
                 </div>
                 <div class="group-course-badge">${g.total_cursos} curso${g.total_cursos === 1 ? '' : 's'} asociado${g.total_cursos === 1 ? '' : 's'}</div>
@@ -110,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (dataGrupo.success && dataGrupo.grupo) {
                 const g = dataGrupo.grupo;
                 if (groupDetailName) groupDetailName.textContent = g.nombre_grupo;
-                if (groupDetailGrade) groupDetailGrade.textContent = `Grado ${g.grado}.°`;
+                if (groupDetailGrade) groupDetailGrade.textContent = `Grado ${escGrupo(g.grado)}.°`;
                 if (groupDetailStudentCount) groupDetailStudentCount.textContent = `${g.total_estudiantes} estudiantes`;
                 if (groupDetailClassCode) groupDetailClassCode.textContent = g.codigo_clase || `AC-${100 + Number(idGrupo)}`;
             }

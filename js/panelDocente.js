@@ -1,6 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
     
     const BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+    const escGrupo = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const avisoGrupo = document.getElementById('groupDeletedFeedback');
+    if (avisoGrupo) {
+        const mensaje = sessionStorage.getItem('avisoGrupoEliminado');
+        if (mensaje) {
+            avisoGrupo.textContent = '✓ ' + mensaje;
+            avisoGrupo.hidden = false;
+            sessionStorage.removeItem('avisoGrupoEliminado');
+        }
+    }
 
     // 1. Cargar usuario docente autenticado desde localStorage
     const storedUserRaw = localStorage.getItem('currentUser');
@@ -193,15 +203,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="group-card-top">
                                         <div class="group-avatar-icon">🌱</div>
                                         <div class="group-title-info">
-                                            <h3>${grupo.nombre_grupo}</h3>
-                                            <p>Grado ${grupo.grado}.° · ${grupo.total_estudiantes} estudiantes</p>
+                                            <h3>${escGrupo(grupo.nombre_grupo)}</h3>
+                                            <p>Grado ${escGrupo(grupo.grado)}.° · ${grupo.total_estudiantes} estudiantes</p>
                                         </div>
                                     </div>
                                     <div class="group-course-badge">
                                         ${grupo.total_cursos} ${grupo.total_cursos === 1 ? 'curso asociado' : 'cursos asociados'}
                                     </div>
                                     <div class="group-courses-name">
-                                        ${grupo.nombres_cursos}
+                                        ${escGrupo(grupo.nombres_cursos)}
                                     </div>
                                 </div>
                                 <a href="DetalleGrupo.html?id=${grupo.id_grupo}" class="btn-ver-grupo-link">→ Ver grupo</a>

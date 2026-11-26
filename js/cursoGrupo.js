@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     const BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+    const escGrupo = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
     const storedUserRaw = localStorage.getItem('currentUser');
     const teacherUser = storedUserRaw ? JSON.parse(storedUserRaw) : null;
@@ -89,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Opciones del selector de grupos
             let optionsGruposHTML = '<option value="">-- Seleccionar grupo --</option>';
             misGruposDocente.forEach(g => {
-                optionsGruposHTML += `<option value="${g.id_grupo}">${g.nombre_grupo} (Grado ${g.grado}.°)</option>`;
+                optionsGruposHTML += `<option value="${g.id_grupo}">${escGrupo(g.nombre_grupo)} (Grado ${escGrupo(g.grado)}.°)</option>`;
             });
 
             // Generar HTML de las Unidades y Actividades
