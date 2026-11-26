@@ -328,3 +328,28 @@ def actualizar_actividad_admin(id_actividad):
     if r == 'PREGUNTA_NO_EXISTE':
         return jsonify(success=False, message='Esa pregunta no pertenece a la actividad.'), 404
     return jsonify(success=True, message='Cambios guardados.', actividad=r), 200
+
+
+# ======================================================================
+# HU.30 · Eliminar una actividad (rol Administrador)
+#   DELETE /api/admin/actividades/<id> -> la quita del curso (CA-01) solo si ningún
+#   estudiante la ha respondido; así nunca se borra el progreso de un estudiante.
+# ======================================================================
+@admin_cursos_bp.route('/actividades/<int:id_actividad>', methods=['DELETE'])
+@require_auth('Administrador')
+def eliminar_actividad_admin(id_actividad):
+    try:
+        r = ContenidoAdminDAO.eliminar_actividad_si_sin_resultados(id_actividad)
+    except Exception as e:
+        print(f"Error en eliminar_actividad_admin: {e}")
+        return jsonify(success=False, message='No se pudo eliminar la actividad. Intenta de nuevo.'), 500
+    if r["ok"]:
+        return jsonify(success=True, message='Actividad eliminada del curso.',
+                       actividad={"id_actividad": id_actividad, "titulo_actividad": r["titulo_actividad"],
+                                  "id_unidad": r["id_unidad"]}), 200
+    if r["codigo"] == "NO_ENCONTRADA":
+        return jsonify(success=False, message='Esa actividad ya no existe.'), 404
+    n = r["total_estudiantes"]
+    return jsonify(success=False, codigo='CON_RESULTADOS',
+                   message=f"No se puede eliminar «{r['titulo_actividad']}»: ya tiene resultados de "
+                           f"{n} estudiante{'s' if n != 1 else ''}."), 409

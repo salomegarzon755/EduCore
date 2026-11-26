@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/paneles.css?v=29">
-    <link rel="stylesheet" href="../../css/PanelAdministrador.css?v=29">
+    <link rel="stylesheet" href="../../css/paneles.css?v=30">
+    <link rel="stylesheet" href="../../css/PanelAdministrador.css?v=30">
 </head>
 <body class="admin-body">
 
@@ -148,12 +148,27 @@
                     <p class="unit-note" id="unitNote" hidden>En «Mi camino» el estudiante ve hasta 4 actividades por unidad.</p>
                     <ul class="activity-list" id="activityList"></ul>
                     <div class="list-empty" id="activityEmpty" hidden>
-                        <strong>Esta unidad aún no tiene actividades</strong>
-                        <span>Crea la primera con «Crear actividad».</span>
+                        <strong>Esta unidad todavía no tiene actividades.</strong>
+                        <span>Puedes crear una nueva cuando la necesites.</span>
                     </div>
                 </div>
                 <button type="button" class="btn-text detail-back" id="btnBackToCourse">Volver al curso</button>
             </section>
+
+            <!-- ===== HU.30 · Confirmar eliminación de una actividad (B) ===== -->
+            <div class="confirm-overlay" id="deleteActivityOverlay" hidden>
+                <div class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="deleteActivityTitle" aria-describedby="deleteActivityText">
+                    <span class="confirm-icon" aria-hidden="true">!</span>
+                    <h2 class="confirm-title" id="deleteActivityTitle">¿Eliminar actividad?</h2>
+                    <p class="confirm-activity" id="deleteActivityName"></p>
+                    <p class="confirm-activity-unit" id="deleteActivityUnit"></p>
+                    <p class="confirm-text" id="deleteActivityText">Se quitará esta actividad del curso. Puedes cancelar para conservarla.</p>
+                    <div class="confirm-actions">
+                        <button type="button" class="btn-text" id="btnCancelDeleteActivity">Cancelar</button>
+                        <button type="button" class="btn-danger" id="btnConfirmDeleteActivity">Eliminar actividad</button>
+                    </div>
+                </div>
+            </div>
 
             <!-- ===== HU.28 · Crear actividad interactiva (A / B) ===== -->
             <section id="activityFormView" class="admin-vista-extra" hidden>
@@ -314,8 +329,8 @@
     </div>
 
     <script src="../../js/config.js"></script>
-    <script src="../../js/adminCursos.js?v=29"></script>
-    <script src="../../js/adminActividades.js?v=29"></script>
-    <script src="../../js/logout.js?v=29"></script>
+    <script src="../../js/adminCursos.js?v=30"></script>
+    <script src="../../js/adminActividades.js?v=30"></script>
+    <script src="../../js/logout.js?v=30"></script>
 </body>
 </html>
