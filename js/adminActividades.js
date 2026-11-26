@@ -1,4 +1,4 @@
-// HU.28 · Crear actividades interactivas en una unidad · HU.29 · Editar el contenido de una actividad (Administrador)
+// HU.28 · Crear actividades · HU.29 · Editar el contenido · HU.30 · Eliminar una actividad (Administrador)
 // - En "Ver detalle" de un curso: lista de unidades + "Agregar unidad".
 // - "Ver actividades" (?unidad=<id>): actividades de la unidad (estado C del mockup).
 // - "Crear actividad" (?unidad=<id>&nueva=1): formulario con texto, imagen de la galería y sonido (voz del navegador).
@@ -123,10 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
             A.mostrarVista(unitView, { titulo, subtitulo: subtitulo(u), miga: titulo === 'Actividades de la unidad' ? 'Actividades' : titulo });
             document.title = `EduCore - ${u.titulo_unidad}`;
             pintarUnidad(u);
-            // Aviso arriba de la unidad, como en el mockup (C)
-            const aviso = $('unitBanner');
-            aviso.hidden = !banner;
-            aviso.innerHTML = banner ? `<span aria-hidden="true">✓</span><span>${esc(banner)}</span>` : '';
+            // Aviso arriba de la unidad, como en los mockups (HU.28 C, HU.29 C, HU.30 C y D)
+            avisoUnidad(banner);
             window.scrollTo(0, 0);
             $('btnNewActivity').focus({ preventScroll: true });
         } catch (err) {
@@ -135,6 +133,18 @@ document.addEventListener('DOMContentLoaded', () => {
             else { history.replaceState({}, '', window.location.pathname); window.dispatchEvent(new PopStateEvent('popstate')); }
             A.mostrarBanner('error', err.noExiste ? err.message : errorRed(err));
         }
+    }
+
+    // banner: texto (aviso verde) u objeto { tipo: 'success' | 'info' | 'error', texto }
+    function avisoUnidad(banner) {
+        const aviso = $('unitBanner');
+        const b = typeof banner === 'string' ? { tipo: 'success', texto: banner } : banner;
+        aviso.hidden = !b;
+        if (!b) { aviso.innerHTML = ''; return; }
+        aviso.className = `admin-banner ${b.tipo} unit-banner`;
+        aviso.setAttribute('role', b.tipo === 'error' ? 'alert' : 'status');
+        const icono = { success: '✓', info: 'i', error: '!' }[b.tipo];
+        aviso.innerHTML = `<span aria-hidden="true">${icono}</span><span>${esc(b.texto)}</span>`;
     }
 
     function imagenCirculo(img, clase = 'activity-img') {
@@ -161,7 +171,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${a.pregunta ? `<p class="activity-question">${esc(a.pregunta)}</p>` : ''}
                     <p class="activity-meta">${esc(medios)}</p>
                     <p class="activity-meta">${detalle}</p>
-                    <button type="button" class="btn-white btn-editar-actividad" data-editar="${a.id_actividad}" aria-label="Editar ${esc(a.titulo_actividad)}">Editar actividad</button>
+                    <div class="activity-actions">
+                        <button type="button" class="btn-white btn-editar-actividad" data-editar="${a.id_actividad}" aria-label="Editar ${esc(a.titulo_actividad)}">Editar actividad</button>
+                        ${Number(a.total_estudiantes) > 0
+                            ? `<button type="button" class="btn-danger btn-eliminar-actividad" disabled aria-describedby="lock-${a.id_actividad}">Eliminar actividad</button>
+                               <span class="activity-lock" id="lock-${a.id_actividad}">No se puede eliminar: ya tiene resultados de ${a.total_estudiantes} estudiante${a.total_estudiantes === 1 ? '' : 's'}.</span>`
+                            : `<button type="button" class="btn-danger btn-eliminar-actividad" data-eliminar="${a.id_actividad}" aria-label="Eliminar ${esc(a.titulo_actividad)}">Eliminar actividad</button>`}
+                    </div>
                 </div>
             </li>`;
         }).join('');
@@ -171,7 +187,76 @@ document.addEventListener('DOMContentLoaded', () => {
     $('btnNewActivity').addEventListener('click', () => abrirFormulario({ historial: 'push' }));
     $('activityList').addEventListener('click', (e) => {
         const b = e.target.closest('.btn-editar-actividad');
-        if (b) abrirEdicion(b.dataset.editar, { historial: 'push' });
+        if (b) { abrirEdicion(b.dataset.editar, { historial: 'push' }); return; }
+        const del = e.target.closest('.btn-eliminar-actividad[data-eliminar]');
+        if (del) abrirConfirmacionActividad(del.dataset.eliminar, del);
+    });
+
+    // ======================= Eliminar actividad (HU.30 B / C / D) =======================
+    const overlayAct = $('deleteActivityOverlay');
+    const btnConfirmarAct = $('btnConfirmDeleteActivity');
+    const btnCancelarAct = $('btnCancelDeleteActivity');
+    let actAEliminar = null;
+    let botonOrigenAct = null;
+
+    function abrirConfirmacionActividad(idActividad, boton) {
+        const a = unidadActual && unidadActual.actividades.find((x) => String(x.id_actividad) === String(idActividad));
+        if (!a) return;
+        actAEliminar = a; botonOrigenAct = boton;
+        avisoUnidad(null);
+        $('deleteActivityName').textContent = a.titulo_actividad;
+        $('deleteActivityUnit').textContent = `Unidad ${unidadActual.numero} · ${unidadActual.titulo_unidad}`;
+        btnConfirmarAct.disabled = false; btnConfirmarAct.textContent = 'Eliminar actividad';
+        overlayAct.hidden = false;
+        document.body.classList.add('modal-abierto');
+        btnCancelarAct.focus();   // la opción segura queda enfocada
+    }
+    function cerrarConfirmacionActividad() {
+        overlayAct.hidden = true;
+        document.body.classList.remove('modal-abierto');
+        actAEliminar = null;
+    }
+    // CA-02: Cancelar (botón, Esc o clic fuera) deja la actividad en el curso
+    function cancelarEliminacion() {
+        if (overlayAct.hidden) return;
+        cerrarConfirmacionActividad();
+        avisoUnidad({ tipo: 'info', texto: 'Eliminación cancelada. La actividad continúa disponible.' });
+        // El aviso queda visible arriba (mockup D); el foco vuelve al botón sin mover la página
+        if (botonOrigenAct && document.body.contains(botonOrigenAct)) botonOrigenAct.focus({ preventScroll: true });
+        window.scrollTo(0, 0);
+        botonOrigenAct = null;
+    }
+    // CA-01: al confirmar, se quita del curso y se confirma
+    async function confirmarEliminacionActividad() {
+        if (!actAEliminar) return;
+        const a = actAEliminar;
+        btnConfirmarAct.disabled = true; btnConfirmarAct.textContent = 'Eliminando…';
+        try {
+            const { res, data } = await api(`/admin/actividades/${encodeURIComponent(a.id_actividad)}`, { method: 'DELETE' });
+            cerrarConfirmacionActividad();
+            if (res.ok && data.success) {
+                await abrirUnidad(unidadActual.id_unidad, { historial: 'none', banner: data.message || 'Actividad eliminada del curso.' });
+                return;
+            }
+            // 409 (ya tiene resultados) o 404 (ya no existe): se avisa y se recarga la unidad real
+            await abrirUnidad(unidadActual.id_unidad, { historial: 'none', banner: { tipo: 'error', texto: data.message || 'No se pudo eliminar la actividad.' } });
+        } catch (err) {
+            cerrarConfirmacionActividad();
+            if (err.message !== 'Sesión vencida') avisoUnidad({ tipo: 'error', texto: errorRed(err) });
+        }
+    }
+    btnCancelarAct.addEventListener('click', cancelarEliminacion);
+    btnConfirmarAct.addEventListener('click', confirmarEliminacionActividad);
+    overlayAct.addEventListener('click', (e) => { if (e.target === overlayAct) cancelarEliminacion(); });
+    document.addEventListener('keydown', (e) => {
+        if (overlayAct.hidden) return;
+        if (e.key === 'Escape') { e.preventDefault(); cancelarEliminacion(); return; }
+        if (e.key === 'Tab') {   // el foco se queda dentro de la confirmación
+            const items = [btnCancelarAct, btnConfirmarAct].filter((x) => !x.disabled);
+            const i = items.indexOf(document.activeElement);
+            e.preventDefault();
+            items[(i + (e.shiftKey ? -1 : 1) + items.length) % items.length].focus();
+        }
     });
     $('btnBackToCourse').addEventListener('click', () => {
         if (!unidadActual) return;

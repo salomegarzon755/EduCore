@@ -76,7 +76,14 @@ class ContenidoAdminDAO:
                 SELECT a.id_actividad, a.titulo_actividad, a.tipo_contenido,
                        p.enunciado, p.respuesta_correcta, p.opcion_a, p.opcion_b, p.opcion_c, p.opcion_d,
                        p.visual,
-                       (SELECT COUNT(*) FROM preg_punto x WHERE x.id_actividad = a.id_actividad) AS total_preguntas
+                       (SELECT COUNT(*) FROM preg_punto x WHERE x.id_actividad = a.id_actividad) AS total_preguntas,
+                       -- HU.30: misma comprobación que al eliminar (resultados, intentos y respuestas)
+                       (SELECT COUNT(DISTINCT t.id_estudiante) FROM (
+                            SELECT r.id_estudiante FROM resultado_actividad r WHERE r.id_actividad = a.id_actividad
+                            UNION SELECT i.id_estudiante FROM intento_actividad i WHERE i.id_actividad = a.id_actividad
+                            UNION SELECT re.id_estudiante FROM respuesta_estudiante re
+                                  JOIN preg_punto pr ON pr.id_punto = re.id_punto WHERE pr.id_actividad = a.id_actividad
+                        ) t) AS total_estudiantes
                 FROM actividad a
                 LEFT JOIN LATERAL (
                     SELECT * FROM preg_punto pp WHERE pp.id_actividad = a.id_actividad ORDER BY pp.id_punto LIMIT 1
@@ -106,7 +113,8 @@ class ContenidoAdminDAO:
                 actividades.append({
                     "id_actividad": r[0], "titulo_actividad": r[1], "tipo_contenido": r[2],
                     "pregunta": r[3], "respuesta_correcta": opciones.get(letra),
-                    "pista": pistas.get(r[0]), "imagen": imagen, "total_preguntas": r[10]
+                    "pista": pistas.get(r[0]), "imagen": imagen, "total_preguntas": r[10],
+                    "total_estudiantes": r[11]   # HU.30: solo se elimina si es 0
                 })
             return {"id_unidad": u[0], "titulo_unidad": u[1], "id_curso": u[2], "titulo_curso": u[3],
                     "numero": u[4], "actividades": actividades}
@@ -246,6 +254,43 @@ class ContenidoAdminDAO:
             conn.commit()
             cur.close()
             return {"id_actividad": id_actividad, "titulo_actividad": titulo, "id_punto": id_punto, "tipo": tipo}
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            DatabaseConnection.return_connection(conn)
+
+    # ======================================================================
+    # HU.30 · Eliminar una actividad (solo si ningún estudiante la ha respondido)
+    # ======================================================================
+    @staticmethod
+    def eliminar_actividad_si_sin_resultados(id_actividad):
+        """Elimina la actividad y sus preguntas en una sola transacción, solo si no tiene resultados
+        de estudiantes. Devuelve {"ok": True, ...} o {"ok": False, "codigo": "NO_ENCONTRADA"|"CON_RESULTADOS", ...}."""
+        conn = DatabaseConnection.get_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute("""SELECT a.titulo_actividad, a.id_unidad FROM actividad a
+                           WHERE a.id_actividad = %s FOR UPDATE;""", (id_actividad,))
+            fila = cur.fetchone()
+            if not fila:
+                conn.rollback()
+                return {"ok": False, "codigo": "NO_ENCONTRADA"}
+            cur.execute("""SELECT COUNT(DISTINCT id_estudiante) FROM (
+                               SELECT id_estudiante FROM resultado_actividad WHERE id_actividad = %s
+                               UNION SELECT id_estudiante FROM intento_actividad WHERE id_actividad = %s
+                               UNION SELECT re.id_estudiante FROM respuesta_estudiante re
+                                     JOIN preg_punto p ON p.id_punto = re.id_punto WHERE p.id_actividad = %s
+                           ) t;""", (id_actividad, id_actividad, id_actividad))
+            estudiantes = cur.fetchone()[0]
+            if estudiantes:
+                conn.rollback()
+                return {"ok": False, "codigo": "CON_RESULTADOS", "titulo_actividad": fila[0], "total_estudiantes": estudiantes}
+            cur.execute("DELETE FROM preg_punto WHERE id_actividad = %s;", (id_actividad,))
+            cur.execute("DELETE FROM actividad WHERE id_actividad = %s;", (id_actividad,))
+            conn.commit()
+            cur.close()
+            return {"ok": True, "titulo_actividad": fila[0], "id_unidad": fila[1]}
         except Exception:
             conn.rollback()
             raise
