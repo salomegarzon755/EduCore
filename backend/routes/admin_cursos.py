@@ -234,3 +234,97 @@ def crear_actividad(id_unidad):
     if act is None:
         return jsonify(success=False, message='No encontramos esa unidad.'), 404
     return jsonify(success=True, message='Actividad creada en la unidad.', actividad=act), 201
+
+
+# ======================================================================
+# HU.29 · Editar el contenido de una actividad (rol Administrador)
+#   GET /api/admin/actividades/<id>  -> título y todas sus preguntas
+#   PUT /api/admin/actividades/<id>  -> guarda el título y UNA pregunta (CA-01);
+#                                       si algo es inválido, no cambia nada (CA-02)
+# ======================================================================
+@admin_cursos_bp.route('/actividades/<int:id_actividad>', methods=['GET'])
+@require_auth('Administrador')
+def obtener_actividad_admin(id_actividad):
+    try:
+        act = ContenidoAdminDAO.obtener_actividad(id_actividad)
+    except Exception as e:
+        print(f"Error en obtener_actividad_admin: {e}")
+        return jsonify(success=False, message='No se pudo cargar la actividad.'), 500
+    if act is None:
+        return jsonify(success=False, message='No encontramos esa actividad.'), 404
+    return jsonify(success=True, actividad=act), 200
+
+
+VACIOS = {'titulo': 'Título vacío', 'enunciado': 'Texto vacío', 'correcta': 'Respuesta vacía',
+          'otras': 'Faltan opciones'}
+
+
+@admin_cursos_bp.route('/actividades/<int:id_actividad>', methods=['PUT'])
+@require_auth('Administrador')
+def actualizar_actividad_admin(id_actividad):
+    d = request.get_json(silent=True) or {}
+    t = lambda k: (d.get(k) or '').strip() if isinstance(d.get(k), str) else ''
+    titulo, enunciado, correcta, pista = t('titulo'), t('enunciado'), t('correcta'), t('pista')
+    otras = [o.strip() for o in (d.get('otras') or []) if isinstance(o, str) and o.strip()]
+    imagen = d.get('imagen') if isinstance(d.get('imagen'), str) and d.get('imagen') else None
+    try:
+        id_punto = int(d.get('id_punto'))
+        cantidad = int(d.get('cantidad') or 1)
+    except (TypeError, ValueError):
+        return jsonify(success=False, message='Datos inválidos. No se guardaron cambios.'), 400
+
+    try:
+        act = ContenidoAdminDAO.obtener_actividad(id_actividad)
+    except Exception as e:
+        print(f"Error en actualizar_actividad_admin: {e}")
+        return jsonify(success=False, message='No se pudo cargar la actividad.'), 500
+    if act is None:
+        return jsonify(success=False, message='No encontramos esa actividad.'), 404
+    pregunta = next((p for p in act['preguntas'] if p['id_punto'] == id_punto), None)
+    if pregunta is None:
+        return jsonify(success=False, message='Esa pregunta no pertenece a la actividad.'), 404
+    tipo = pregunta['tipo']
+
+    # CA-02: validación según el tipo de pregunta (teoría / opinión / pregunta)
+    e, vacios = {}, []
+    if not titulo: e['titulo'] = 'Escribe el título de la actividad.'; vacios.append('titulo')
+    elif len(titulo) > MAX_TITULO: e['titulo'] = f'El título no puede superar {MAX_TITULO} caracteres.'
+    if not enunciado: e['enunciado'] = 'Escribe el texto.'; vacios.append('enunciado')
+    elif len(enunciado) > MAX_TEXTO: e['enunciado'] = f'El texto no puede superar {MAX_TEXTO} caracteres.'
+    if tipo == 'pregunta':
+        if not correcta: e['correcta'] = 'Escribe la respuesta correcta.'; vacios.append('correcta')
+        elif len(correcta) > MAX_OPCION: e['correcta'] = f'La respuesta no puede superar {MAX_OPCION} caracteres.'
+        if len(otras) < 2: e['otras'] = 'Escribe al menos 2 opciones más para que el estudiante elija.'; vacios.append('otras')
+        elif len(otras) > 3 or any(len(o) > MAX_OPCION for o in otras): e['otras'] = f'Máximo 3 opciones de hasta {MAX_OPCION} caracteres.'
+        else:
+            todas = [x.lower() for x in [correcta] + otras]
+            if len(set(todas)) != len(todas): e['otras'] = 'Las opciones no pueden repetirse ni ser iguales a la respuesta correcta.'
+        if len(pista) > MAX_TEXTO: e['pista'] = f'La pista no puede superar {MAX_TEXTO} caracteres.'
+    elif tipo == 'opinion':
+        if len(otras) < 2: e['otras'] = 'Escribe al menos 2 opciones.'; vacios.append('otras')
+        elif len(otras) > 4 or any(len(o) > MAX_OPCION for o in otras): e['otras'] = f'Máximo 4 opciones de hasta {MAX_OPCION} caracteres.'
+        elif len({o.lower() for o in otras}) != len(otras): e['otras'] = 'Las opciones no pueden repetirse.'
+    if imagen is not None:
+        if imagen not in GALERIA: e['imagen'] = 'Elige una imagen de la galería.'
+        if not 1 <= cantidad <= 12: e['cantidad'] = 'La cantidad de imágenes debe estar entre 1 y 12.'
+    if e:
+        if len(vacios) == 1:
+            msg = f"{VACIOS[vacios[0]]}. No se guardaron cambios."
+        elif vacios:
+            msg = 'Hay campos vacíos. No se guardaron cambios.'
+        else:
+            msg = 'Contenido inválido. No se guardaron cambios.'
+        return jsonify(success=False, message=msg, errores=e), 400
+
+    try:
+        r = ContenidoAdminDAO.actualizar_actividad(id_actividad, titulo, id_punto, {
+            'enunciado': enunciado, 'correcta': correcta, 'otras': otras, 'pista': pista,
+            'imagen': imagen, 'cantidad': cantidad})
+    except Exception as ex:
+        print(f"Error en actualizar_actividad_admin: {ex}")
+        return jsonify(success=False, message='No se pudieron guardar los cambios. Se conserva la versión anterior.'), 500
+    if r is None:
+        return jsonify(success=False, message='No encontramos esa actividad.'), 404
+    if r == 'PREGUNTA_NO_EXISTE':
+        return jsonify(success=False, message='Esa pregunta no pertenece a la actividad.'), 404
+    return jsonify(success=True, message='Cambios guardados.', actividad=r), 200
