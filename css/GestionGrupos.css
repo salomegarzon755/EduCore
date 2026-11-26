@@ -1,0 +1,51 @@
+/* HU20-HU22 · Gestión de grupos */
+.group-management-actions, .group-dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 18px;
+}
+.group-description { color: #496458; margin: 12px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.group-meta { color: #496458; margin: 4px 0; }
+.group-danger-button, .group-secondary-button {
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+.group-danger-button { background: #f8c5ba; color: #842d29; border-color: #e7a59a; }
+.group-secondary-button { background: #eef6ef; color: #365d49; border-color: #c9e0d0; }
+.group-danger-button:hover { background: #f5b3a5; }
+.group-dialog {
+    width: min(480px, calc(100% - 32px));
+    max-height: 90vh;
+    margin: auto;
+    padding: 26px;
+    border: 1px solid #bad9c7;
+    border-radius: 20px;
+    background: #fff;
+    color: #244c40;
+    box-shadow: 0 16px 48px #244c4030;
+    overflow-y: auto;
+}
+.group-dialog::backdrop { background: #20382f70; }
+.group-dialog h2 { font-size: 22px; margin: 0 0 10px; }
+.group-dialog p { line-height: 1.5; margin: 0 0 14px; overflow-wrap: anywhere; }
+.group-dialog label { display: block; font-weight: 700; margin: 12px 0 5px; }
+.group-dialog input, .group-dialog select, .group-dialog textarea {
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px solid #afd0bb;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font: inherit;
+    color: #244c40;
+    background: #f1fbf5;
+}
+.group-dialog textarea { resize: vertical; }
+.group-dialog-error { margin-top: 14px !important; background: #fce1db; color: #842d29; border-radius: 10px; padding: 10px; }
+.group-dialog button:disabled, .group-management-actions button:disabled { opacity: .55; cursor: not-allowed; }
+.group-dialog :focus-visible, .group-management-actions :focus-visible { outline: 3px solid #80bba0; outline-offset: 3px; }

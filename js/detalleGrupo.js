@@ -13,6 +13,101 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentGroupInfo = null;
     let selectedCourseToRemove = null;
     let selectedStudentToAdd = null;
+    const editDialog = document.getElementById('editGroupDialog');
+    const confirmDialog = document.getElementById('confirmGroupDialog');
+    const editButton = document.getElementById('btnEditGroup');
+    const deleteButton = document.getElementById('btnDeleteGroup');
+    const editForm = document.getElementById('editGroupForm');
+    const editError = document.getElementById('editGroupError');
+    const confirmError = document.getElementById('confirmGroupError');
+    const saveButton = document.getElementById('saveEditGroup');
+    const confirmButton = document.getElementById('confirmGroupAction');
+    const cancelEdit = document.getElementById('cancelEditGroup');
+    const cancelConfirm = document.getElementById('cancelGroupAction');
+    let accionPendiente = null;
+
+    function errorModal(element, mensaje = '') {
+        element.textContent = mensaje;
+        element.hidden = !mensaje;
+    }
+
+    async function solicitarGestion(url, opciones) {
+        const res = await fetch(url, opciones);
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'No se pudo completar la operación.');
+        return data;
+    }
+
+    editButton.addEventListener('click', () => {
+        if (!currentGroupInfo) return;
+        document.getElementById('editGroupName').value = currentGroupInfo.nombre_grupo || '';
+        document.getElementById('editGroupGrade').value = currentGroupInfo.grado || '';
+        document.getElementById('editGroupDescription').value = currentGroupInfo.descripcion || '';
+        errorModal(editError);
+        editDialog.showModal();
+    });
+    cancelEdit.addEventListener('click', () => editDialog.close());
+    editDialog.addEventListener('cancel', e => { if (saveButton.disabled) e.preventDefault(); });
+    editForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        if (saveButton.disabled) return;
+        const nombre = document.getElementById('editGroupName').value.trim();
+        if (!nombre) { errorModal(editError, 'El nombre del grupo es obligatorio.'); return; }
+        const datos = {
+            nombre_grupo: nombre,
+            grado: document.getElementById('editGroupGrade').value,
+            descripcion: document.getElementById('editGroupDescription').value.trim()
+        };
+        saveButton.disabled = cancelEdit.disabled = true;
+        errorModal(editError);
+        try {
+            const data = await solicitarGestion(`${BASE_URL}/grupos/${idGrupo}`, {
+                method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(datos)
+            });
+            editDialog.close();
+            await cargarDetalleGrupo();
+            mostrarFeedback('✓ ' + data.message, '#DCFCE7', '#166534');
+        } catch (err) {
+            errorModal(editError, err.message || 'No se pudo guardar.');
+        } finally {
+            saveButton.disabled = cancelEdit.disabled = false;
+        }
+    });
+
+    function abrirConfirmacion(titulo, mensaje, etiqueta, accion) {
+        document.getElementById('confirmGroupTitle').textContent = titulo;
+        document.getElementById('confirmGroupText').textContent = mensaje;
+        confirmButton.textContent = etiqueta;
+        errorModal(confirmError);
+        accionPendiente = accion;
+        confirmDialog.showModal();
+    }
+    cancelConfirm.addEventListener('click', () => confirmDialog.close());
+    confirmDialog.addEventListener('cancel', e => { if (confirmButton.disabled) e.preventDefault(); });
+    confirmDialog.addEventListener('close', () => { accionPendiente = null; });
+    confirmButton.addEventListener('click', async () => {
+        if (!accionPendiente || confirmButton.disabled) return;
+        confirmButton.disabled = cancelConfirm.disabled = true;
+        errorModal(confirmError);
+        try {
+            await accionPendiente();
+            confirmDialog.close();
+        } catch (err) {
+            errorModal(confirmError, err.message || 'No se pudo completar la operación.');
+        } finally {
+            confirmButton.disabled = cancelConfirm.disabled = false;
+        }
+    });
+    deleteButton.addEventListener('click', () => {
+        if (!currentGroupInfo) return;
+        abrirConfirmacion(`¿Eliminar ${currentGroupInfo.nombre_grupo}?`,
+            'Se eliminarán el grupo y sus asociaciones con estudiantes y cursos. Las cuentas, cursos e historial se conservan. Si existen dependencias históricas, la eliminación se bloqueará.',
+            'Eliminar grupo', async () => {
+                const data = await solicitarGestion(`${BASE_URL}/grupos/${idGrupo}`, {method: 'DELETE'});
+                sessionStorage.setItem('avisoGrupoEliminado', data.message);
+                location.replace('MisGrupos.html');
+            });
+    });
 
     const esc = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     // El backend devuelve id_estudiante / apodo (no id_usuario / usuario)
@@ -84,6 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success && data.grupo) {
                 currentGroupInfo = data.grupo;
+                document.getElementById('groupDetailDescription').textContent = currentGroupInfo.descripcion || 'Sin descripción.';
+                editButton.disabled = deleteButton.disabled = false;
                 if (groupDetailName) groupDetailName.textContent = currentGroupInfo.nombre_grupo;
                 if (groupDetailGrade) groupDetailGrade.textContent = `Grado ${currentGroupInfo.grado}.°`;
                 if (groupDetailStudentCount) groupDetailStudentCount.textContent = `${currentGroupInfo.total_estudiantes} estudiantes`;
@@ -136,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="group-course-badge">Estudiante activo</div>
                 ${progresoHTML}
                 <button type="button" class="btn-remove-student" style="margin-top:12px; background:#FFF; color:#C53030; border:1px solid #FEB2B2; border-radius:12px; padding:6px 14px; font-size:12px; font-weight:800; cursor:pointer;">
-                    Quitar del grupo
+                    Retirar del grupo
                 </button>
             `;
             card.querySelector('.btn-remove-student').addEventListener('click', () => quitarEstudiante(est));
@@ -144,23 +241,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    async function quitarEstudiante(est) {
+    function quitarEstudiante(est) {
         const nombre = est.nombre || aliasDeEstudiante(est);
-        const ok = confirm(`¿Quitar a ${nombre} de este grupo?\n\nSu progreso en los cursos se conserva por si entra a otro grupo con el mismo curso.`);
-        if (!ok) return;
-        try {
-            const res = await fetch(`${BASE_URL}/grupos/${idGrupo}/estudiantes/${idDeEstudiante(est)}`, { method: 'DELETE' });
-            const data = await res.json();
-            if (res.ok && data.success) {
-                mostrarFeedback('✓ Estudiante retirado del grupo. Su progreso se conserva.', '#DCFCE7', '#166534');
-                cargarDetalleGrupo();
-            } else {
-                alert(data.message || 'No se pudo quitar al estudiante.');
-            }
-        } catch (err) {
-            console.error('Error quitando estudiante:', err);
-            alert('No se pudo conectar con el servidor.');
-        }
+        abrirConfirmacion(`¿Retirar a ${nombre}?`,
+            'Se retirará únicamente de este grupo. Su cuenta, demás grupos y progreso se conservarán.',
+            'Retirar del grupo', async () => {
+                const data = await solicitarGestion(`${BASE_URL}/grupos/${idGrupo}/estudiantes/${idDeEstudiante(est)}`, {method: 'DELETE'});
+                await cargarDetalleGrupo();
+                mostrarFeedback('✓ ' + data.message, '#DCFCE7', '#166534');
+            });
     }
 
     // 3. Cargar y Renderizar Cursos del Grupo (Datos Reales + Enlace Directo)

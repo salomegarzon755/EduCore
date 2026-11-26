@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../../css/PanelDocente.css">
     <title>EduCore - Detalle del Grupo</title>
     <link rel="stylesheet" href="../../css/Avatares.css">
+    <link rel="stylesheet" href="../../css/GestionGrupos.css">
 </head>
 <body class="teacher-body">
 
@@ -61,11 +62,17 @@
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                     <div>
                         <h1 id="groupDetailName" style="font-size:26px; font-weight:800; margin:0;">Cargando grupo...</h1>
-                        <p id="groupDetailGrade" style="color:#718096; margin-top:4px;">Grado -- · <span id="groupDetailStudentCount">0 estudiantes</span></p>
+                        <p id="groupDetailGrade" style="color:#718096; margin-top:4px;">Grado --</p>
+                        <p id="groupDetailStudentCount" class="group-meta">0 estudiantes</p>
                     </div>
                     <div style="background:#EDF2F7; padding:8px 16px; border-radius:12px; font-size:14px; font-weight:700; color:#4A5568;">
                         Código de clase: <span id="groupDetailClassCode" style="color:#2B6CB0;">--</span>
                     </div>
+                </div>
+                <p id="groupDetailDescription" class="group-description"></p>
+                <div class="group-management-actions">
+                    <button type="button" id="btnEditGroup" class="btn-create-group" disabled>Editar información</button>
+                    <button type="button" id="btnDeleteGroup" class="group-danger-button" disabled>Eliminar grupo</button>
                 </div>
             </div>
 
@@ -164,6 +171,36 @@
         </div>
     </div>
 
+    <!-- HU20: edición; HU21/HU22: confirmación de operaciones -->
+    <dialog id="editGroupDialog" class="group-dialog" aria-labelledby="editGroupTitle">
+        <form id="editGroupForm">
+            <h2 id="editGroupTitle">Editar información del grupo</h2>
+            <p>Actualiza los datos de tu grupo. Sus estudiantes y cursos no cambiarán.</p>
+            <label for="editGroupName">Nombre del grupo *</label>
+            <input id="editGroupName" required maxlength="100" type="text">
+            <label for="editGroupGrade">Grado *</label>
+            <select id="editGroupGrade" required>
+                <option value="Primero">Primero</option>
+                <option value="Segundo">Segundo</option>
+            </select>
+            <label for="editGroupDescription">Descripción (opcional)</label>
+            <textarea id="editGroupDescription" rows="4" maxlength="1000"></textarea>
+            <p class="group-dialog-error" id="editGroupError" role="alert" hidden></p>
+            <div class="group-dialog-actions">
+                <button type="button" id="cancelEditGroup" class="group-secondary-button">Cancelar</button>
+                <button type="submit" class="btn-create-group" id="saveEditGroup">Guardar cambios</button>
+            </div>
+        </form>
+    </dialog>
+    <dialog id="confirmGroupDialog" class="group-dialog" aria-labelledby="confirmGroupTitle">
+        <h2 id="confirmGroupTitle"></h2>
+        <p id="confirmGroupText"></p>
+        <p class="group-dialog-error" id="confirmGroupError" role="alert" hidden></p>
+        <div class="group-dialog-actions">
+            <button type="button" id="cancelGroupAction" class="group-secondary-button">Cancelar</button>
+            <button type="button" id="confirmGroupAction" class="group-danger-button">Confirmar</button>
+        </div>
+    </dialog>
     <script src="../../js/config.js"></script>
     <script src="../../js/logout.js"></script>
     <script src="../../js/detalleGrupo.js"></script>

@@ -11,6 +11,7 @@ from routes.seguimiento import seguimiento_bp
 from routes.admin_cursos import admin_cursos_bp
 from routes.cuenta import cuenta_bp
 from routes.resumen_modulo import resumen_bp
+from routes.gestion_grupos import gestion_grupos_bp, autorizar_gestion_grupo, autorizar_consulta_grupo, retirar_integrante
 from config.database import DatabaseConnection
 from auth import issue_token, require_auth, validar_sesion
 from models.credenciales import correo_valido
@@ -25,6 +26,7 @@ app.register_blueprint(actividades_bp)   # actividades y resultados
 app.register_blueprint(seguimiento_bp)   # HU.15 · seguimiento docente, estudiante y familia
 app.register_blueprint(admin_cursos_bp)  # HU.23 · cursos predefinidos (Administrador)
 app.register_blueprint(cuenta_bp)
+app.register_blueprint(gestion_grupos_bp)
 app.register_blueprint(resumen_bp)     # HU.31 · resumen al finalizar cada módulo (Estudiante)
 
 # Las rutas académicas privadas requieren sesión; se conservan las consultas
@@ -217,26 +219,40 @@ def grupos_familia():
     return jsonify(success=True, grupos=[{'id_grupo': x['id_grupo'], 'nombre_grupo': x['nombre_grupo'], 'grado': x.get('grado'), 'codigo_clase': x.get('codigo_clase')} for x in grupos])
 
 @app.route('/api/estudiantes/<int:id_estudiante>/grupos', methods=['GET'])
+@require_auth('Estudiante')
 def obtener_grupos_estudiante(id_estudiante):
+    if g.identity['id'] != id_estudiante:
+        return jsonify(success=False, message='Acceso no autorizado.'), 403
     grupos = GrupoDAO.obtener_grupos_por_estudiante(id_estudiante)
     return jsonify({"success": True, "grupos": grupos}), 200
 
 @app.route('/api/estudiantes/<int:id_estudiante>/cursos', methods=['GET'])
+@require_auth('Estudiante')
 def obtener_cursos_estudiante(id_estudiante):
+    if g.identity['id'] != id_estudiante:
+        return jsonify(success=False, message='Acceso no autorizado.'), 403
     cursos = GrupoDAO.obtener_cursos_por_estudiante(id_estudiante)
     return jsonify({"success": True, "cursos": cursos}), 200
 
 @app.route('/api/grupos', methods=['POST'])
+@require_auth('Docente')
 def crear_grupo():
+    if g.identity.get('portal') != 'Docente':
+        return jsonify(success=False, message='Acceso reservado a docentes.'), 403
     data = request.get_json() or {}
     nombre_grupo = data.get('nombre_grupo')
     grado = data.get('grado')
     descripcion = data.get('descripcion', '')
-    id_docente = data.get('id_docente')
+    id_docente = g.identity['id']
     ids_cursos = data.get('ids_cursos', [])
 
-    if not nombre_grupo or not id_docente:
-        return jsonify({"success": False, "message": "Faltan datos obligatorios"}), 400
+    if not isinstance(nombre_grupo, str) or not nombre_grupo.strip() or not id_docente:
+        return jsonify(success=False, message='El nombre del grupo es obligatorio.'), 400
+    if not isinstance(descripcion, str) or grado not in ('Primero', 'Segundo'):
+        return jsonify(success=False, message='Revisa el grado y la descripción.'), 400
+    nombre_grupo, descripcion = nombre_grupo.strip(), descripcion.strip()
+    if len(nombre_grupo) > 100 or len(descripcion) > 1000 or any(c in nombre_grupo or c in descripcion for c in ('<', '>')):
+        return jsonify(success=False, message='Revisa la longitud y los caracteres de los datos del grupo.'), 400
 
     nuevo_grupo = GrupoDAO.crear_grupo(nombre_grupo, grado, descripcion, id_docente, ids_cursos)
 
@@ -246,23 +262,33 @@ def crear_grupo():
         return jsonify({"success": False, "message": "Error al guardar en BD"}), 500
 
 @app.route('/api/grupos/docente/<int:id_docente>', methods=['GET'])
+@require_auth('Docente')
 def obtener_grupos_docente(id_docente):
+    if g.identity.get('portal') != 'Docente' or g.identity['id'] != id_docente:
+        return jsonify(success=False, message='Acceso no autorizado.'), 403
     grupos = GrupoDAO.obtener_grupos_por_docente(id_docente)
     return jsonify({"success": True, "grupos": grupos}), 200
 
 @app.route('/api/grupos/<int:id_grupo>', methods=['GET'])
 def obtener_detalle_grupo(id_grupo):
+    error = autorizar_consulta_grupo(id_grupo)
+    if error is not None:
+        return error
     grupo = GrupoDAO.obtener_detalle_grupo(id_grupo)
     if not grupo:
         return jsonify({"success": False, "message": "Grupo no encontrado"}), 404
     
     estudiantes = GrupoDAO.obtener_estudiantes_del_grupo(id_grupo)
-    grupo["estudiantes"] = estudiantes
+    if g.identity.get('rol') == 'Docente':
+        grupo["estudiantes"] = estudiantes
     grupo["total_estudiantes"] = len(estudiantes)
     return jsonify({"success": True, "grupo": grupo}), 200
 
 @app.route('/api/grupos/<int:id_grupo>/estudiantes/buscar', methods=['GET'])
 def buscar_estudiantes_para_grupo(id_grupo):
+    error = autorizar_gestion_grupo(id_grupo)
+    if error is not None:
+        return error
     query_texto = request.args.get('q', '').strip()
     estudiantes = GrupoDAO.buscar_estudiantes_para_grupo(query_texto, id_grupo)
     return jsonify({"success": True, "estudiantes": estudiantes}), 200
@@ -278,6 +304,9 @@ def _status_por_codigo(resultado):
 
 @app.route('/api/grupos/<int:id_grupo>/estudiantes', methods=['POST'])
 def agregar_estudiante_a_grupo(id_grupo):
+    error = autorizar_gestion_grupo(id_grupo)
+    if error is not None:
+        return error
     data = request.get_json() or {}
     # Acepta id_estudiante (lo que envía el panel docente) o id_usuario como alias.
     id_estudiante = data.get('id_estudiante') or data.get('id_usuario')
@@ -294,23 +323,29 @@ def agregar_estudiante_a_grupo(id_grupo):
 
 @app.route('/api/grupos/<int:id_grupo>/estudiantes/<int:id_estudiante>', methods=['DELETE'])
 def quitar_estudiante_de_grupo(id_grupo, id_estudiante):
-    resultado = GrupoDAO.quitar_estudiante_de_grupo(id_grupo, id_estudiante)
-    if resultado["success"]:
-        return jsonify(resultado), 200
-    return jsonify(resultado), _status_por_codigo(resultado)
+    return retirar_integrante(id_grupo, id_estudiante)
 
 @app.route('/api/grupos/<int:id_grupo>/cursos', methods=['GET'])
 def obtener_cursos_del_grupo(id_grupo):
+    error = autorizar_consulta_grupo(id_grupo)
+    if error is not None:
+        return error
     cursos = GrupoDAO.obtener_cursos_por_grupo(id_grupo)
     return jsonify({"success": True, "cursos": cursos}), 200
 
 @app.route('/api/grupos/<int:id_grupo>/cursos/disponibles', methods=['GET'])
 def obtener_cursos_disponibles_para_grupo(id_grupo):
+    error = autorizar_gestion_grupo(id_grupo)
+    if error is not None:
+        return error
     cursos = GrupoDAO.obtener_cursos_disponibles_para_grupo(id_grupo)
     return jsonify({"success": True, "cursos": cursos}), 200
 
 @app.route('/api/grupos/<int:id_grupo>/cursos', methods=['POST'])
 def agregar_curso_a_grupo(id_grupo):
+    error = autorizar_gestion_grupo(id_grupo)
+    if error is not None:
+        return error
     data = request.get_json() or {}
     id_curso = data.get('id_curso')
 
@@ -324,6 +359,9 @@ def agregar_curso_a_grupo(id_grupo):
 
 @app.route('/api/grupos/<int:id_grupo>/cursos/<int:id_curso>', methods=['DELETE'])
 def quitar_curso_de_grupo(id_grupo, id_curso):
+    error = autorizar_gestion_grupo(id_grupo)
+    if error is not None:
+        return error
     resultado = GrupoDAO.quitar_curso_de_grupo(id_grupo, id_curso)
     if resultado["success"]:
         return jsonify(resultado), 200
