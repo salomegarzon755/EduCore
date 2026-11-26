@@ -39,8 +39,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. Enviar datos del registro a la BD PostgreSQL vía API Python
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
+        const requiereAvatar = ['Estudiante','Docente'].includes(savedRole);
+        let selector;
+        if (requiereAvatar) {
+            document.getElementById('avatarRegistro').hidden=false;
+            document.querySelectorAll('.mascot-avatar,.mascot-bubble').forEach(el=>el.hidden=true);
+            selector=EduAvatares.galeria(document.getElementById('avatarGaleria'),null,()=>{document.getElementById('avatarError').textContent='';});
+        }
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (requiereAvatar && !selector.value) {
+                document.getElementById('avatarError').textContent='Selecciona un personaje para continuar.';
+                document.querySelector('#avatarGaleria button').focus();
+                return;
+            }
+            if (document.getElementById('contrasena').value !== document.getElementById('confirmar-contrasena').value) {
+                alert('Las contraseñas no coinciden.'); return;
+            }
 
             // Capturar elementos de la interfaz por su ID o atributo name
             const nameInput = document.getElementById('nombre') || document.querySelector('input[name="nombre"]');
@@ -67,7 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         usuario: usuarioVal,
                         correo: correoVal,
                         contrasena: contrasenaVal,
-                        rol: savedRole
+                        rol: savedRole,
+                        avatar: selector?.value || "kokoi"
                     })
                 });
 

@@ -12,7 +12,7 @@ class UsuarioDAO:
         try:
             # Se usa 'apodo' en lugar de 'usuario' según la estructura de PostgreSQL
             query = """
-                SELECT id_usuario, nombre, apodo, contrasena, rol 
+                SELECT id_usuario, nombre, apodo, contrasena, rol, avatar 
                 FROM usuario 
                 WHERE apodo = %s AND contrasena = %s
             """
@@ -25,7 +25,7 @@ class UsuarioDAO:
                     nombre=row[1],
                     usuario=row[2],
                     contrasena=row[3],
-                    rol=row[4]
+                    rol=row[4], avatar=row[5]
                 )
         except Exception as e:
             print(f"Error en UsuarioDAO.autenticar: {e}")
@@ -45,8 +45,8 @@ class UsuarioDAO:
         try:
             # Mapeo exacto a las columnas: nombre, apodo, correo, contrasena, rol
             query = """
-                INSERT INTO usuario (nombre, apodo, correo, contrasena, rol)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO usuario (nombre, apodo, correo, contrasena, rol, avatar)
+                VALUES (%s, %s, %s, %s, %s, %s)
                 RETURNING id_usuario
             """
             cursor.execute(query, (
@@ -54,7 +54,7 @@ class UsuarioDAO:
                 usuario_obj.usuario,  # Se mapea la propiedad usuario al campo 'apodo'
                 correo,
                 usuario_obj.contrasena, 
-                usuario_obj.rol
+                usuario_obj.rol, usuario_obj.avatar
             ))
             
             id_generado = cursor.fetchone()[0]

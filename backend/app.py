@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dao.usuario_dao import UsuarioDAO
 from models.usuario import Usuario
+from models.avatar import avatar_valido
 from dao.curso_dao import CursoDAO
 from dao.grupo_dao import GrupoDAO
 from routes.actividades import actividades_bp
@@ -84,11 +85,17 @@ def registro():
     password = data.get('contrasena')
     rol = data.get('rol', 'Estudiante')
 
+    avatar = data.get('avatar')
+    if rol in ('Estudiante', 'Docente') and not avatar_valido(avatar):
+        return jsonify(success=False, message='Elige un avatar válido.'), 400
+    if rol not in ('Estudiante', 'Docente'):
+        avatar = 'kokoi'
+
     nuevo_usuario = Usuario(
         nombre=nombre,
         usuario=username,
         contrasena=password,
-        rol=rol
+        rol=rol, avatar=avatar
     )
 
     creado = UsuarioDAO.crear(nuevo_usuario, correo=correo)

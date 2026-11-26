@@ -408,3 +408,4 @@ body {
     padding: 16px 24px;
   }
 }
+.mascot-panel [hidden] { display:none !important; }

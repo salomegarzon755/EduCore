@@ -1,0 +1,3 @@
+BEGIN;
+ALTER TABLE usuario ADD COLUMN IF NOT EXISTS avatar varchar(20) NOT NULL DEFAULT 'kokoi';
+COMMIT;
