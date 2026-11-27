@@ -7,7 +7,7 @@
     var host = window.location.hostname;
     var esLocal = host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:';
 
-    // >>> CAMBIA esta URL por la de tu Web Service en Render (debe terminar en /api) <<<
+    // CAMBIA esta URL por la de tu Web Service en Render (debe terminar en /api) 
     var URL_PRODUCCION = 'https://educore-api-6zrr.onrender.com/api';
 
     window.API_BASE_URL = esLocal ? 'http://localhost:5000/api' : URL_PRODUCCION;
