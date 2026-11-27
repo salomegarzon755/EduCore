@@ -16,6 +16,7 @@ BEGIN;
 --   sin_errores        -> el estudiante respondió todo bien
 --   puntaje_alto       -> 80 % o más (la misma regla del semáforo verde)
 --   seguir_practicando -> por debajo del 80 %: se muestra la puntuación y se anima a practicar
+--
 CREATE TABLE IF NOT EXISTS mensaje_felicitacion (
   id_mensaje SERIAL PRIMARY KEY,
   tipo       VARCHAR(20)  NOT NULL CHECK (tipo IN ('sin_errores', 'puntaje_alto', 'seguir_practicando')),
