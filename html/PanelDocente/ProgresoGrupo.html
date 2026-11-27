@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../css/paneles.css">
+    <link rel="stylesheet" href="../../css/PanelDocente.css">
+    <link rel="stylesheet" href="../../css/ProgresoEstudiante.css">
+    <title>EduCore - Progreso del grupo</title>
+    <link rel="stylesheet" href="../../css/Avatares.css">
+</head>
+<body class="teacher-body">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img src="../../img/files/EduCore_Identidad/01_logos/png/logo_compacto_color.png" alt="EduCore Logo" class="brand-logo">
+            <span class="brand-title">EduCore</span>
+        </div>
+        <div class="sidebar-tag">Espacio docente</div>
+        <nav class="sidebar-nav">
+            <a href="PanelPrincipal.html" class="nav-item">
+                <span class="nav-icon">🏠</span> Panel principal
+            </a>
+            <a href="MisGrupos.html" class="nav-item">
+                <span class="nav-icon">👥</span> Mis grupos
+            </a>
+            <a href="misCursos.html" class="nav-item">
+                <span class="nav-icon">📚</span> Mis cursos
+            </a>
+            <a href="Seguimiento.html" class="nav-item">
+                <span class="nav-icon">📊</span> Seguimiento
+            </a>
+            <a href="ProgresoGrupo.html" class="nav-item active">
+                <span class="nav-icon">📈</span> Progreso
+            </a>
+            <a href="../Login.html" class="nav-item logout-btn logout-nav-item">
+                <span class="nav-icon">🚪</span> Cerrar sesión
+            </a>
+        </nav>
+        <div class="sidebar-banner">
+            <span class="banner-icon">🌱</span>
+            <div class="banner-text">
+                <strong>Aprendemos desde Acandí</strong>
+                <p>Cada paso cuenta.</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-header">
+            <span class="header-motto">Enseñar también es acompañar</span>
+            <div class="user-profile account-profile">
+                <div class="user-avatar" aria-hidden="true">😊</div>
+                <div class="user-text">
+                    <span class="user-name" id="displayTeacherName">Profe</span>
+                    <span class="user-grade">Docente</span>
+                </div>
+                <a href="../MiCuenta.html" class="account-link">Mi cuenta</a>
+                <a href="../Login.html" class="logout-btn" title="Cerrar sesión">
+                    <img src="../../img/files/EduCore_Identidad/05_iconos/png/icono_inicio.png" alt="Salir" class="logout-icon">
+                </a>
+            </div>
+        </header>
+
+        <section class="content-section">
+            <!-- HU.34 · Lo pinta js/progresoDocente.js con datos de /api/docentes/:id/.../progreso -->
+            <div id="hu34App" class="pe" aria-live="polite" aria-busy="true">
+                <p class="pe-cargando">Cargando el progreso de tus grupos…</p>
+            </div>
+        </section>
+    </main>
+    <script src="../../js/config.js"></script>
+    <script src="../../js/panelDocente.js"></script>
+    <script src="../../js/progresoComun.js"></script>
+    <script src="../../js/progresoDocente.js"></script>
+    <script src="../../js/logout.js"></script>
+    <script src="../../js/avatares.js"></script>
+</body>
+</html>

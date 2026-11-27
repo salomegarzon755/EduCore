@@ -31,6 +31,9 @@
             <a href="Seguimiento.html" class="nav-item">
                 <span class="nav-icon">📊</span> Seguimiento
             </a>
+            <a href="ProgresoGrupo.html" class="nav-item">
+                <span class="nav-icon">📈</span> Progreso
+            </a>
             <a href="../Login.html" class="nav-item logout-btn logout-nav-item">
                 <span class="nav-icon">🚪</span> Cerrar sesión
             </a>
@@ -72,6 +75,7 @@
                 <p id="groupDetailDescription" class="group-description"></p>
                 <div class="group-management-actions">
                     <button type="button" id="btnEditGroup" class="btn-create-group" disabled>Editar información</button>
+                    <a id="btnVerProgresoGrupo" class="btn-create-group" href="ProgresoGrupo.html" style="text-decoration:none;">📈 Ver progreso</a>
                     <button type="button" id="btnDeleteGroup" class="group-danger-button" disabled>Eliminar grupo</button>
                 </div>
             </div>
@@ -205,5 +209,12 @@
     <script src="../../js/logout.js"></script>
     <script src="../../js/detalleGrupo.js"></script>
     <script src="../../js/avatares.js"></script>
+    <script>
+        // HU.34 · acceso directo al progreso de este grupo
+        (function () {
+            var id = Number(new URLSearchParams(location.search).get('id'));
+            if (id) document.getElementById('btnVerProgresoGrupo').href = 'ProgresoGrupo.html?grupo=' + id;
+        })();
+    </script>
 </body>
 </html>

@@ -3,6 +3,7 @@
    base de datos y llegan por la API (config.js -> API_BASE_URL).
    Endpoints: GET /actividades/:id · GET /actividades/:id/puntos · POST /resultados
    HU.31: al terminar la última actividad pendiente del módulo aparece "Ver resumen del módulo"
+   HU.32: pantalla final con felicitación (sin errores / puntaje alto) o con la puntuación del intento.
           (GET /estudiantes/:id/unidades/:id/resumen, con la sesión del estudiante).          */
 (() => {
 'use strict';
@@ -128,11 +129,47 @@ function Pregunta() {
     }
     return `${HeaderActivity(`Pregunta ${S.q + 1} de ${n}`, (S.q + (terminada ? 1 : 0)) / n)}<main>${QuestionCard(q)}<div class="opts">${q.o.map((o, i) => OptionButton(o, i, st(i))).join('')}</div>${abajo}</main>`;
 }
+/* HU.32 · Mensajes de felicitación y pantalla de resultados.
+   Reto sin errores o con puntaje alto (>= 80 %) -> felicitación (tarjeta amarilla con la mascota del estudiante).
+   En otro caso -> solo la puntuación (tarjeta azul) para seguir practicando sin presión.
+   La puntuación es la de ESTE intento y el mensaje viene de la tabla mensaje_felicitacion (POST /resultados). */
+function avatarEstudiante() {
+    let id = 'kokoi';
+    try { id = (JSON.parse(localStorage.getItem('currentUser')) || {}).avatar || 'kokoi'; } catch (e) { /* sin datos */ }
+    return /^(oso|serpiente|guacamaya|ballena|perro|gato|leopardo|tortuga)$/.test(id)
+        ? `../../img/perfiles/${id}.png` : asset('03_personajes/png/kokoi_celebracion.png');
+}
 function Fin() {
-    const r = S.res;
-    if (!r) return `${HeaderActivity('Resultado', 1)}<main class="card center"><p>No pudimos guardar tu resultado. Revisa tu conexión e inténtalo otra vez.</p><button class="btn" data-a="guardar">Guardar de nuevo</button></main>`;
-    const msg = ['', '¡Buen intento! Practicando vas a mejorar. 🌱', '¡Muy buen trabajo! Casi lo logras todo. 💪', '¡Eres un explorador increíble! 🌟'][r.estrellas];
-    return `${HeaderActivity('Completada', 1)}<main class="card center">${Mascota(r.estrellas === 3 ? 'celebracion' : 'saludo', msg)}<div class="stars" aria-label="${r.estrellas} de 3 estrellas">${ScoreStars(r.estrellas)}</div><h2>${r.aciertos} de ${r.total} correctas</h2><p><span class="light ${r.semaforo}">Tu docente verá: ${{ verde: '🟢', amarillo: '🟡', rojo: '🔴' }[r.semaforo]}</span></p><div class="actions" style="justify-content:center"><button class="btn ghost" data-a="retry">↺ Intentar de nuevo</button><button class="btn" data-a="back">Volver a mi camino</button></div>${S.moduloCompleto ? `<div class="actions hu31-fin" style="justify-content:center"><a class="btn hu31-btn" href="ResumenModulo.html?unidad=${encodeURIComponent(S.meta.id_unidad)}">📋 Ver resumen del módulo</a></div>` : ''}</main>`;
+    const r = S.res, it = S.intento;
+    if (!r || !it) return `${HeaderActivity('Resultado', 1)}<main class="card center"><p>No pudimos guardar tu resultado. Revisa tu conexión e inténtalo otra vez.</p><button class="btn" data-a="guardar">Guardar de nuevo</button></main>`;
+    const f = S.felicitacion || {};
+    const celebrar = f.tipo === 'sin_errores' || f.tipo === 'puntaje_alto';
+    const reto = esc(S.meta.titulo_actividad);
+    const ruta = `<nav class="hu32-ruta" aria-label="Ubicación">Mi aventura / ${esc(S.meta.titulo_curso)} / ${esc(S.meta.titulo_unidad)}</nav>`;
+    const linea = `<p class="sub">${esc(S.meta.titulo_curso)} · Resultado: ${it.aciertos} de ${it.total} · ${it.porcentaje} %</p>`;
+    const resumen = S.moduloCompleto ? `<a class="btn ghost hu31-btn" href="ResumenModulo.html?unidad=${encodeURIComponent(S.meta.id_unidad)}">📋 Ver resumen del módulo</a>` : '';
+    if (celebrar) {
+        const logro = f.tipo === 'sin_errores'
+            ? `Completaste el reto «${reto}» sin errores.`
+            : `Completaste el reto «${reto}» con ${it.aciertos} de ${it.total} respuestas correctas.`;
+        return `${HeaderActivity('Completada', 1)}<main class="hu32">${ruta}<h2 tabindex="-1" data-foco>¡Lo lograste!</h2>${linea}
+        <section class="hu32-card hu32-celebra" aria-labelledby="hu32Titulo">
+            <div class="hu32-mascota"><img src="${avatarEstudiante()}" alt=""></div>
+            <div class="stars" aria-label="${it.estrellas} de 3 estrellas">${ScoreStars(it.estrellas)}</div>
+            <h3 id="hu32Titulo" class="hu32-titulo">${esc(f.titulo)}</h3>
+            <p class="hu32-logro">${logro}</p>
+            <p class="hu32-animo">${esc(f.mensaje)}</p>
+            <div class="hu32-acciones"><button class="btn" data-a="back">Continuar →</button><button class="btn ghost" data-a="retry">↺ Volver a intentarlo</button>${resumen}</div>
+        </section></main>`;
+    }
+    return `${HeaderActivity('Completada', 1)}<main class="hu32">${ruta}<h2 tabindex="-1" data-foco>${esc(f.titulo || 'Resultado del reto')}</h2>${linea}
+    <section class="hu32-card hu32-puntaje" aria-labelledby="hu32Titulo">
+        <p id="hu32Titulo" class="hu32-etiqueta">Tu puntuación</p>
+        <p class="hu32-nota">${it.aciertos} de ${it.total} · ${it.porcentaje} %</p>
+        <p class="hu32-detalle">${it.aciertos} ${it.aciertos === 1 ? 'respuesta correcta' : 'respuestas correctas'} · ${it.incorrectas} ${it.incorrectas === 1 ? 'incorrecta' : 'incorrectas'}</p>
+        <p class="hu32-animo">${esc(f.mensaje || 'Practicar te ayuda a aprender.')}</p>
+        <div class="hu32-acciones"><button class="btn" data-a="retry">↺ Volver a intentarlo</button><button class="btn ghost" data-a="back">Volver al curso</button>${resumen}</div>
+    </section></main>`;
 }
 const Vistas = { cargando: () => '<p class="card center">Cargando…</p>', teoria: Teoria, intro: Intro, pregunta: Pregunta, fin: Fin, error: () => `<div class="card err"><p>${esc(S.error)}</p><button class="btn" data-a="back">Volver a mi camino</button></div>` };
 function render(mantenerScroll) { S.root.innerHTML = Vistas[S.view](); if (!mantenerScroll) window.scrollTo(0, 0); }   // HU.27: elegir/comprobar no saltan arriba
@@ -145,17 +182,18 @@ function armarPreguntas() {
         o: shuffle(['A', 'B', 'C', 'D'].map((L) => ({ L, t: p['opcion_' + L.toLowerCase()], ok: p.respuesta_correcta === L }))
             .filter((o) => o.t && o.t !== 'NULL'))
     }));
-    S.q = 0; S.log = []; S.res = null; S.moduloCompleto = false; S.view = 'pregunta'; reiniciarPregunta(); render();
+    S.q = 0; S.log = []; S.res = null; S.intento = null; S.felicitacion = null; S.moduloCompleto = false; S.view = 'pregunta'; reiniciarPregunta(); render();
 }
 async function guardar() {
     const aciertos = S.log.filter((r) => r.correcta).length;
     try {
         const d = await http('/resultados', { method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id_estudiante: idEstudiante(), id_actividad: S.meta.id_actividad, aciertos, total: S.log.length, respuestas: S.log }) });
-        S.res = d.resultado;
-    } catch (e) { S.res = null; }
+        S.res = d.resultado; S.intento = d.intento; S.felicitacion = d.felicitacion;
+    } catch (e) { S.res = null; S.intento = null; S.felicitacion = null; }
     S.moduloCompleto = S.res ? await moduloCompleto() : false;
     S.view = 'fin'; render();
+    S.root.querySelector('[data-foco]')?.focus();   // lectores de pantalla anuncian el resultado
 }
 // HU.31 · ¿Con esta actividad el estudiante terminó todas las del módulo (unidad)?
 async function moduloCompleto() {

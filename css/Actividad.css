@@ -491,3 +491,36 @@ h2 {
     transition: none !important;
   }
 }
+/* HU.32 · Felicitación y resultado del reto */
+.hu32 { margin-top: 18px; }
+.hu32 h2:focus, .hu32 h2:focus-visible { outline: none; }
+.hu32-ruta { color: var(--text-muted); font-size: 14px; margin-bottom: 6px; overflow-wrap: anywhere; }
+.hu32-card {
+  max-width: 620px;
+  margin: 22px auto 0;
+  border-radius: 28px;
+  padding: 28px 28px 30px;
+  box-shadow: 0 6px 0 rgba(45, 55, 72, .08);
+}
+.hu32-celebra { background: #FFE8A3; color: #5F4511; text-align: center; }
+.hu32-puntaje { background: #DCEFFF; color: #1E3A5F; }
+.hu32-mascota {
+  width: 132px; height: 132px; margin: 0 auto 6px; border-radius: 32px;
+  background: var(--verde-menta); display: grid; place-items: center; overflow: hidden;
+  animation: pop .6s both;
+}
+.hu32-mascota img { width: 120px; height: 120px; object-fit: contain; }
+.hu32-celebra .stars { font-size: 44px; line-height: 1; }
+.hu32-titulo { font-size: clamp(24px, 3.2vw, 30px); font-weight: 900; margin: 10px 0 6px; }
+.hu32-logro { margin: 0 0 6px; }
+.hu32-animo { margin: 0; font-weight: 800; opacity: .9; }
+.hu32-etiqueta { margin: 0; font-weight: 900; font-size: 18px; }
+.hu32-nota { margin: 6px 0 4px; font-size: clamp(32px, 6vw, 44px); font-weight: 900; line-height: 1.1; }
+.hu32-detalle { margin: 0 0 10px; }
+.hu32-acciones { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.hu32-celebra .hu32-acciones { justify-content: center; }
+.hu32-acciones .btn { text-decoration: none; display: inline-flex; align-items: center; }
+@media (max-width: 520px) {
+  .hu32-card { padding: 22px 18px; }
+  .hu32-acciones .btn { flex: 1 1 100%; justify-content: center; }
+}

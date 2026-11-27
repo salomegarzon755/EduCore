@@ -55,14 +55,78 @@ class ActividadDAO:
             DatabaseConnection.return_connection(conn)
 
     @staticmethod
-    def guardar_resultado(id_estudiante, id_actividad, aciertos, total, respuestas):
-        """Upsert del resultado + detalle de respuestas. La nota la calcula el servidor."""
+    def _calificar(cur, id_actividad, respuestas):
+        """HU.32 · La nota la calcula el servidor con las respuestas correctas guardadas en preg_punto.
+        Solo cuenta la primera respuesta de cada pregunta de ESTA actividad (los reintentos de HU.27
+        son para aprender). Las encuestas de opinión cuentan como acierto, igual que en el juego.
+        Devuelve (aciertos, total, respuestas_validas, preguntas_calificables) o None si no existe."""
+        cur.execute("SELECT 1 FROM actividad WHERE id_actividad = %s", (id_actividad,))
+        if not cur.fetchone():
+            return None
+        cur.execute("""SELECT id_punto, respuesta_correcta, COALESCE(es_opinion, FALSE) FROM preg_punto
+                       WHERE id_actividad = %s AND opcion_a IS NOT NULL AND opcion_a <> 'NULL'""", (id_actividad,))
+        preguntas = {r[0]: (str(r[1] or '').strip().upper(), r[2]) for r in cur.fetchall()}
+        validas, vistas = [], set()
+        for r in respuestas if isinstance(respuestas, list) else []:
+            try:
+                id_punto = int(r.get("id_punto"))
+            except (AttributeError, TypeError, ValueError):
+                continue
+            if id_punto not in preguntas or id_punto in vistas:
+                continue
+            vistas.add(id_punto)
+            elegida = str(r.get("elegida") or '').strip().upper()[:1]
+            elegida = elegida if elegida in ('A', 'B', 'C', 'D') else None
+            correcta, opinion = preguntas[id_punto]
+            validas.append({"id_punto": id_punto, "elegida": elegida,
+                            "correcta": bool(opinion or (elegida and elegida == correcta))})
+        return sum(1 for v in validas if v["correcta"]), len(validas), validas, len(preguntas)
+
+    @staticmethod
+    def mensaje_felicitacion(aciertos, total):
+        """HU.32 · Mensaje según el desempeño, tomado al azar de la tabla mensaje_felicitacion.
+        Teoría (total 0) no lleva mensaje de puntuación."""
+        if total <= 0:
+            return None
+        tipo = ('sin_errores' if aciertos == total
+                else 'puntaje_alto' if aciertos / total >= 0.8 else 'seguir_practicando')
+        conn = DatabaseConnection.get_connection()
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""SELECT titulo, mensaje FROM mensaje_felicitacion
+                               WHERE tipo = %s AND activo ORDER BY random() LIMIT 1""", (tipo,))
+                fila = cur.fetchone()
+        except Exception as e:
+            # Sin la migración HU.32 el juego sigue funcionando con un mensaje base.
+            print(f"Aviso: sin mensajes de felicitación en BD ({e.__class__.__name__}). ¿Ejecutaste migracion_hu32_hu34_progreso.sql?")
+            fila = None
+        finally:
+            conn.rollback()
+            DatabaseConnection.return_connection(conn)
+        base = {'sin_errores': ('¡Excelente trabajo!', '¡Sigue explorando y aprendiendo!'),
+                'puntaje_alto': ('¡Muy buen trabajo!', '¡Sigue así!'),
+                'seguir_practicando': ('Resultado del reto', 'Practicar te ayuda a aprender.')}[tipo]
+        titulo, mensaje = fila or base
+        return {"tipo": tipo, "titulo": titulo, "mensaje": mensaje}
+
+    @staticmethod
+    def guardar_resultado(id_estudiante, id_actividad, respuestas):
+        """Upsert del resultado + detalle de respuestas. La nota la calcula el servidor (HU.32)."""
         conn = DatabaseConnection.get_connection()
         if not conn:
             return {"success": False, "message": "Sin conexión a la base de datos"}
         try:
-            estrellas, semaforo = Resultado.calcular(aciertos, total)
             cur = conn.cursor()
+            calificacion = ActividadDAO._calificar(cur, id_actividad, respuestas)
+            if calificacion is None:
+                conn.rollback()
+                return {"success": False, "codigo": "NO_ENCONTRADA", "message": "Actividad no encontrada"}
+            aciertos, total, respuestas, calificables = calificacion
+            if calificables and not total:
+                # Una actividad con preguntas no se puede marcar como hecha sin responderlas.
+                conn.rollback()
+                return {"success": False, "codigo": "SIN_RESPUESTAS", "message": "Responde las preguntas de la actividad."}
+            estrellas, semaforo = Resultado.calcular(aciertos, total)
             # Serializar intentos por estudiante/actividad, incluso si dos peticiones llegan a la vez.
             cur.execute("SELECT pg_advisory_xact_lock(%s, %s)", (id_estudiante, id_actividad))
             cur.execute("SELECT COALESCE(MAX(numero_intento), 0) FROM intento_actividad WHERE id_estudiante=%s AND id_actividad=%s", (id_estudiante,id_actividad))
@@ -92,8 +156,13 @@ class ActividadDAO:
                     (id_estudiante, r["id_punto"], intentos, r.get("elegida"), bool(r.get("correcta"))))
             conn.commit()
             cur.close()
-            return {"success": True, "resultado": Resultado(
-                id_actividad, mejor[0], mejor[1], mejor[2], mejor[3], True, intentos).to_dict()}
+            return {"success": True,
+                    "resultado": Resultado(id_actividad, mejor[0], mejor[1], mejor[2], mejor[3], True, intentos).to_dict(),
+                    # HU.32 · puntuación de ESTE intento (la pantalla final muestra lo que acaba de hacer)
+                    "intento": {"numero": intentos, "aciertos": aciertos, "total": total,
+                                "incorrectas": total - aciertos,
+                                "porcentaje": int(aciertos * 100 / total + 0.5) if total else None,
+                                "estrellas": estrellas, "semaforo": semaforo}}
         except Exception as e:
             conn.rollback()
             print(f"Error en ActividadDAO.guardar_resultado: {e}")

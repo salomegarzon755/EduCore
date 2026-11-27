@@ -6,6 +6,7 @@
     <title>EduCore - Panel Familia</title>
     <link rel="stylesheet" href="../css/InicioSesion.css">
     <link rel="stylesheet" href="../css/PanelFamilia.css">
+    <link rel="stylesheet" href="../css/ProgresoEstudiante.css">
 </head>
 <body class="family-body">
 
@@ -37,9 +38,9 @@
             <!-- Contenido Principal: Saludo y Mascota -->
             <section class="student-hero">
                 <div class="student-info">
-                    <h1 class="student-greeting">Así aprende <span id="familyStudentName">Sara</span></h1>
-                    <p class="student-details" id="familyStudentDetails">Sara Mosquera · Primero</p>
-                    <p class="student-course">Exploradores de primero · Matemáticas</p>
+                    <h1 class="student-greeting">Así aprende <span id="familyStudentName"></span></h1>
+                    <p class="student-details" id="familyStudentDetails"></p>
+                    <p class="student-course" id="familyStudentCourse"></p>
                     <p class="student-message">
                         Cada actividad es una oportunidad para aprender. Acompaña sus descubrimientos con calma.
                     </p>
@@ -48,6 +49,12 @@
                 <div class="family-illustration-container">
                     <img src="../img/files/EduCore_Identidad/03_personajes/png/tuki_orientacion.png" alt="Mascota Tuki" class="family-illustration">
                 </div>
+            </section>
+
+            <!-- HU.33 · Resumen del aprendizaje: cursos y avance reales del estudiante asociado -->
+            <section id="hu33Resumen" class="pe hu33-resumen" aria-labelledby="hu33Titulo" aria-busy="true">
+                <h2 class="discoveries-title" id="hu33Titulo">Sus cursos</h2>
+                <div id="hu33Contenido"><p class="pe-cargando">Cargando su aprendizaje…</p></div>
             </section>
 
             <!-- Seguimiento de solo lectura: datos reales del estudiante -->
@@ -72,6 +79,9 @@
     </main>
     <script src="../js/config.js"></script>
     <script src="../js/panelFamilia.js"></script>
+    <script src="../js/avatares.js"></script>
+    <script src="../js/progresoComun.js"></script>
+    <script src="../js/familiaResumen.js"></script>
     <script src="../js/hu15Common.js"></script>
     <script src="../js/seguimientoFamilia.js"></script>
     <script src="../js/logout.js"></script>

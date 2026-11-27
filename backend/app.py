@@ -11,6 +11,7 @@ from routes.seguimiento import seguimiento_bp
 from routes.admin_cursos import admin_cursos_bp
 from routes.cuenta import cuenta_bp
 from routes.resumen_modulo import resumen_bp
+from routes.progreso import progreso_bp
 from routes.gestion_grupos import gestion_grupos_bp, autorizar_gestion_grupo, autorizar_consulta_grupo, retirar_integrante
 from config.database import DatabaseConnection
 from auth import issue_token, require_auth, validar_sesion
@@ -28,6 +29,7 @@ app.register_blueprint(admin_cursos_bp)  # HU.23 · cursos predefinidos (Adminis
 app.register_blueprint(cuenta_bp)
 app.register_blueprint(gestion_grupos_bp)
 app.register_blueprint(resumen_bp)     # HU.31 · resumen al finalizar cada módulo (Estudiante)
+app.register_blueprint(progreso_bp)    # HU.33 familia y HU.34 docente · progreso del curso por estudiante
 
 # Las rutas académicas privadas requieren sesión; se conservan las consultas
 # públicas de catálogo y salud. Las rutas de cuenta verifican además el portal.
@@ -180,6 +182,9 @@ def obtener_cursos_completo():
 @app.route('/api/cursos/<int:id_curso>/detalle_completo', methods=['GET'])
 def get_curso_detalle_completo(id_curso):
     id_estudiante = request.args.get('id_estudiante', type=int)
+    # El avance de un estudiante solo lo consulta el propio estudiante (las demás vistas usan /progreso con permisos).
+    if id_estudiante is not None and (g.identity.get('rol') != 'Estudiante' or g.identity['id'] != id_estudiante):
+        return jsonify(success=False, message='No autorizado para consultar este progreso.'), 403
     detalle = CursoDAO.obtener_detalle_completo(id_curso, id_estudiante)
     if not detalle:
         return jsonify({"success": False, "message": "Curso no encontrado"}), 404

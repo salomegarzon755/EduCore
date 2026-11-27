@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 1. Detectar si la página actual está dentro de una subcarpeta (PanelDocente o PanelEstudiante)
     const currentPath = window.location.pathname;
-    const isSubfolder = currentPath.includes('/PanelDocente/') || currentPath.includes('/PanelEstudiante/') || currentPath.includes('/PanelAdministrador/');
+    const isSubfolder = currentPath.includes('/PanelDocente/') || currentPath.includes('/PanelEstudiante/') || currentPath.includes('/PanelAdministrador/') || currentPath.includes('/PanelFamilia/');
     
     // Ajustar rutas relativas dinámicamente según el nivel de carpetas
     const imgPath = isSubfolder 

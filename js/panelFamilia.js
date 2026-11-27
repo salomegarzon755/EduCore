@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Intentar obtener el usuario guardado tras el login en la BD
     const storedUserRaw = localStorage.getItem('currentUser');
-    let studentFullName = localStorage.getItem('studentName') || 'Juan Esteban';
+    let studentFullName = localStorage.getItem('studentName') || '';
 
     if (storedUserRaw) {
         try {
@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     if (familyStudentDetails) {
-        familyStudentDetails.textContent = `${studentFullName} · Primero`;
+        // HU.33: el grado y el grupo reales los completa js/familiaResumen.js con datos de la API
+        familyStudentDetails.textContent = studentFullName;
     }
 });

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCore - Aprendizaje de tu hijo o hija</title>
+    <link rel="stylesheet" href="../../css/InicioSesion.css">
+    <link rel="stylesheet" href="../../css/PanelFamilia.css">
+    <link rel="stylesheet" href="../../css/ProgresoEstudiante.css">
+</head>
+<body class="family-body">
+    <main class="family-container">
+        <div class="family-card">
+            <header class="family-header">
+                <a class="brand-group" href="../PanelFamilia.html" style="text-decoration:none">
+                    <img src="../../img/files/EduCore_Identidad/01_logos/png/logo_compacto_color.png" alt="Logo EduCore" class="brand-leaf">
+                    <span class="brand-title">EduCore</span>
+                </a>
+                <div class="header-right">
+                    <span class="badge-role">ESPACIO FAMILIA</span>
+                    <a href="../Login.html" class="btn-exit">
+                        <img src="../../img/files/EduCore_Identidad/05_iconos/png/icono_inicio.png" alt="" class="btn-exit-icon">
+                        Salir
+                    </a>
+                </div>
+            </header>
+
+            <!-- HU.33 B (detalle del curso), C (resultados) y D (información protegida): lo pinta js/familiaAprendizaje.js -->
+            <div id="hu33App" class="pe" aria-live="polite" aria-busy="true">
+                <p class="pe-cargando">Cargando su aprendizaje…</p>
+            </div>
+
+            <footer class="family-footer">
+                <span>🔒 Solo ves la información del estudiante con el que ingresaste.</span>
+            </footer>
+        </div>
+    </main>
+    <script src="../../js/config.js"></script>
+    <script src="../../js/avatares.js"></script>
+    <script src="../../js/progresoComun.js"></script>
+    <script src="../../js/familiaAprendizaje.js"></script>
+    <script src="../../js/logout.js"></script>
+</body>
+</html>
