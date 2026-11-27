@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="../../css/PanelDocente.css">
     <link rel="stylesheet" href="../../css/CursosGrupo.css">
     <link rel="stylesheet" href="../../css/Avatares.css">
+    <link rel="icon" type="image/png" href="../../img/LogoSinFondo.png">
+    <link rel="stylesheet" href="../../css/Navegacion.css">
 </head>
 <body class="panel-body">
 
@@ -15,10 +17,16 @@
     <div class="panel-container">
         
         <!-- Barra Lateral Navegación -->
-        <aside class="sidebar">
-            <div class="sidebar-logo">
-                <span class="logo-icon">🟢</span>
-                <span class="logo-text">EduCore</span>
+        <header class="ec-mobile-bar">
+        <button type="button" class="ec-menu-button" id="ecMenuButton" aria-label="Abrir menú" aria-controls="ecDrawer" aria-expanded="false"><span aria-hidden="true">☰</span></button>
+        <div class="ec-mobile-brand"><img src="../../img/LogoSinFondo.png" alt="" class="ec-top-logo"><span>EduCore</span></div>
+    </header>
+    <div class="ec-drawer-backdrop" id="ecDrawerBackdrop" hidden></div>
+    <aside class="sidebar ec-drawer" id="ecDrawer">
+        <button type="button" id="ecDrawerClose" class="ec-drawer-close" aria-label="Cerrar menú">✕</button>
+            <div class="sidebar-brand">
+                <img src="../../img/LogoSinFondo.png" alt="Logo EduCore" class="brand-logo">
+                <span class="brand-title">EduCore</span>
             </div>
             <nav class="sidebar-nav">
                 <a href="PanelPrincipal.html" class="nav-item">🏠 Inicio</a>
@@ -121,5 +129,6 @@
     <script src="../../js/logout.js"></script>
     <script src="../../js/cursosGrupo.js"></script>
     <script src="../../js/avatares.js"></script>
+    <script src="../../js/navegacion.js" defer></script>
 </body>
 </html>
